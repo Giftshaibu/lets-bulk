@@ -1,4 +1,4 @@
-# Gift Bulk — core daily loop
+- Gift Bulk — core daily loop
 
 A private, mobile-first bulking and strength app with four tabs: Today, Food, Train, Progress. Built with realistic sample data so every screen feels alive; nothing is saved between visits yet.
 
@@ -7,6 +7,7 @@ A private, mobile-first bulking and strength app with four tabs: Today, Food, Tr
 Follows the uploaded design language: chunky rounded cards, thick 2px borders with a 4px bottom edge, bold Nunito type, big dominant numbers, large tap targets, warm off-white canvas.
 
 Colour meanings:
+
 - Orange #FF7A00 — brand, primary action, active
 - Green #58CC02 — completed, target hit
 - Gold #FFC800 — streak, milestone
@@ -21,6 +22,7 @@ No glassmorphism, no gradients, no thin grey hairlines.
 **App shell** — sticky bottom bar with the four tabs on phone; on desktop the same content centred at ~720px with the nav on the side.
 
 **Today**
+
 - Header with date and streak flame
 - Daily progress ring/bar (calories, protein, workout, weight logged)
 - "Next action" card that changes: meal due / workout due / weight missing / all done
@@ -31,17 +33,20 @@ No glassmorphism, no gradients, no thin grey hairlines.
 - Weekly recommendation card
 
 **Food**
+
 - Meal timeline for the day with logged items
 - Remaining targets card
 - Quick add chips for frequent foods
 - Food search and detail sheet for logging portions
 
 **Train**
+
 - Today's workout with exercise list
 - Recent progress highlights and week schedule
 - Active workout flow: exercise-by-exercise set entry (weight, reps, RIR), rest timer, exercise completion, workout completion summary
 
 **Progress**
+
 - Summary stats (weight gained, streak, PRs)
 - Weight chart with trend line
 - Strength progress per main lift
