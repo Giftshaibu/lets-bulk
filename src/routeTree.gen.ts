@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FoodRouteImport } from './routes/food'
+import { Route as TrainIndexRouteImport } from './routes/train.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const FoodRoute = FoodRouteImport.update({
   path: '/food',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrainIndexRoute = TrainIndexRouteImport.update({
+  id: '/train/',
+  path: '/train/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/train/': typeof TrainIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/train': typeof TrainIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/train/': typeof TrainIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/food'
+  fullPaths: '/' | '/food' | '/train/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/food'
-  id: '__root__' | '/' | '/food'
+  to: '/' | '/food' | '/train'
+  id: '__root__' | '/' | '/food' | '/train/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FoodRoute: typeof FoodRoute
+  TrainIndexRoute: typeof TrainIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoodRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/train/': {
+      id: '/train/'
+      path: '/train'
+      fullPath: '/train/'
+      preLoaderRoute: typeof TrainIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FoodRoute: FoodRoute,
+  TrainIndexRoute: TrainIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
