@@ -213,9 +213,9 @@ function TodayPage() {
             Weight trend
           </SectionTitle>
           <div className="flex items-end justify-between">
-            <BigStat value={series[series.length - 1].kg} suffix="kg" label="Latest" />
+            <BigStat value={series[series.length - 1]!.kg} suffix="kg" label="Latest" />
             <Pill tone="success">
-              +{(series[series.length - 1].kg - series[0].kg).toFixed(1)} kg
+              +{(series[series.length - 1]!.kg - series[0]!.kg).toFixed(1)} kg
             </Pill>
           </div>
           <Sparkline points={series.map((p) => p.kg)} />
