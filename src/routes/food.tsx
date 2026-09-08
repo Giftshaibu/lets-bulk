@@ -73,7 +73,7 @@ function FoodPage() {
     );
   }
 
-  const nextOpenMeal = meals.find((m) => !m.logged) ?? meals[meals.length - 1];
+  const nextOpenMeal = meals.find((m) => !m.logged) ?? meals[meals.length - 1]!;
 
   return (
     <AppShell title="Food" subtitle={`${eaten.kcal.toLocaleString()} of ${targets.kcal} kcal`}>
