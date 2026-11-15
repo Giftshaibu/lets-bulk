@@ -116,13 +116,53 @@ export const meal = z.object({
     .min(1)
     .max(30),
 });
+export const completionPolicySchema = z
+  .object({
+    weight: z.boolean(),
+    nutrition: z.boolean(),
+    workout: z.boolean(),
+    recovery: z.boolean(),
+    water: z.boolean(),
+  })
+  .refine(
+    (v) => v.weight || v.nutrition || v.recovery || v.water,
+    "Keep at least one daily logging requirement",
+  );
+const calendarDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine(
+    (d) => !isNaN(Date.parse(d)) && new Date(`${d}T12:00:00Z`).toISOString().slice(0, 10) === d,
+    "Choose a valid date",
+  );
+export const changeRequest = z.object({
+  id,
+  type: z.enum(["volume", "deload", "substitution", "restore"]),
+  planId: id.optional(),
+  replacementId: id.optional(),
+  direction: z.union([z.literal(-1), z.literal(1)]).optional(),
+});
 export const settings = z.object({
+  height_cm: positive.min(50).max(260).optional(),
+  goal_weight_kg: positive.min(20).max(500).optional(),
+  target_date: calendarDate.nullable().optional(),
+  training_experience: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+  equipment: z
+    .array(z.enum(["bodyweight", "barbell", "dumbbell", "cable", "machine", "pullup_bar"]))
+    .min(1)
+    .refine(
+      (v) => new Set(v).size === v.length && v.includes("bodyweight"),
+      "Include bodyweight and do not duplicate equipment",
+    )
+    .optional(),
+  completion_policy: completionPolicySchema.optional(),
   first_name: z.string().trim().min(1).max(80),
   water_target_ml: z.number().int().min(500).max(10000),
   diet_type: z.enum(["omnivore", "vegetarian", "vegan"]),
   budget_mode: z.enum(["balanced", "budget"]),
   days: z
     .array(z.number().int().min(0).max(6))
-    .length(4)
-    .refine((v) => new Set(v).size === 4, "Choose four different days"),
+    .min(1)
+    .max(7)
+    .refine((v) => new Set(v).size === v.length, "Choose different training days"),
 });

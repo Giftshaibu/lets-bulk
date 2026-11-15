@@ -57,6 +57,17 @@ export function analyseWeek(input: WeekInput) {
   const confidence = clamp(
     completeness * Math.min(weights.length / 10, 1) * Math.min(nutrition.length / 12, 1),
   );
+  const workoutAdherence = input.expectedWorkouts
+    ? clamp(input.workouts / input.expectedWorkouts)
+    : 1;
+  const blocks: string[] = [];
+  if (confidence < RULES.minCompleteness)
+    blocks.push("Collect at least two consistent weeks of weight, food and recovery logs.");
+  if (trend.change === null) blocks.push("Log at least three weigh-ins in each comparison week.");
+  if (calorieAdherence < RULES.minAdherence || proteinAdherence < RULES.minAdherence)
+    blocks.push("Improve calorie and protein adherence before increasing targets.");
+  if (workoutAdherence < RULES.minWorkoutAdherence)
+    blocks.push("Complete and log more of your scheduled workouts.");
   let type = "keep_current_plan",
     reason = "Keep collecting consistent logs before changing your plan.",
     delta = 0;
@@ -67,7 +78,9 @@ export function analyseWeek(input: WeekInput) {
       type = "recovery_action";
       reason =
         "Recovery needs attention. Keep nutrition stable and evaluate sleep and training stress.";
-    } else if (trend.status === "below_target" || trend.status === "above_target") {
+    } else if (workoutAdherence < RULES.minWorkoutAdherence)
+      reason = "Improve workout adherence before changing the plan.";
+    else if (trend.status === "below_target" || trend.status === "above_target") {
       type = "nutrition_adjustment";
       delta = trend.status === "below_target" ? RULES.calorieStep : -RULES.calorieStep;
       reason = "Consistent intake and weekly averages support a small calorie adjustment.";
@@ -78,6 +91,8 @@ export function analyseWeek(input: WeekInput) {
     confidence,
     calorieAdherence,
     proteinAdherence,
+    workoutAdherence,
+    blocks,
     recoveryScore,
     trend,
     type,

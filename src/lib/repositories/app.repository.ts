@@ -76,7 +76,15 @@ export class AppRepository {
           .lte("date", end)
           .order("id"),
       ),
-      all(db.from("nutrition_log_items").select("*").eq("user_id", u).order("id")),
+      all(
+        db
+          .from("nutrition_log_items")
+          .select("*, nutrition_logs!inner(date)")
+          .eq("user_id", u)
+          .gte("nutrition_logs.date", start)
+          .lte("nutrition_logs.date", end)
+          .order("id"),
+      ),
       all(db.from("training_programs").select("*").eq("user_id", u).order("version")),
       all(db.from("program_weeks").select("*").eq("user_id", u).order("id")),
       all(

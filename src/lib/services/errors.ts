@@ -14,6 +14,9 @@ export async function result<T>(
   if (error) {
     const domain = [
       "WORKOUT_ALREADY_COMPLETED",
+      "WORKOUT_IN_PROGRESS",
+      "EQUIPMENT_UNAVAILABLE",
+      "DELOAD_ACTIVE",
       "RECOMMENDATION_ALREADY_RESOLVED",
       "INVALID_INPUT",
       "CONFLICT",
@@ -22,9 +25,15 @@ export async function result<T>(
     if (code)
       throw new AppError(
         code,
-        code === "INVALID_INPUT"
-          ? "Complete the required entries before continuing."
-          : "This action conflicts with the current saved state.",
+        code === "EQUIPMENT_UNAVAILABLE"
+          ? "Update equipment or apply compatible exercise substitutions before starting."
+          : code === "WORKOUT_IN_PROGRESS"
+            ? "Finish or end the active workout before changing your program."
+            : code === "DELOAD_ACTIVE"
+              ? "Restore the deload before changing training frequency."
+              : code === "INVALID_INPUT"
+                ? "Complete the required entries before continuing."
+                : "This action conflicts with the current saved state.",
         409,
       );
     if (error.code === "23505") throw new AppError("CONFLICT", "This entry already exists.", 409);

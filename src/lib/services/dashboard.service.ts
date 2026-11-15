@@ -1,7 +1,12 @@
+import { completionPolicy } from "../domain/completion-policy";
+import { exerciseHistory, trainingAnalytics, exerciseLoadConfig } from "./training.service";
+import { progressAnalysis } from "./progress.service";
+import { substituteCandidates } from "./recommendation.service";
 import type { Snapshot } from "../repositories/app.repository";
 import { addDays, daysBetween, getCurrentWeekRange } from "../domain/dates";
 import {
   average,
+  exerciseVolume,
   nextSessionTarget,
   calculateCalorieAdherence,
   calculateDailyCompletion,
@@ -113,25 +118,9 @@ export function aggregate(s: Snapshot, today: string) {
         targetReps: `${p.rep_min}-${p.rep_max}`,
         lastTime: last ? `${last.weight_kg}kg × ${last.reps}` : "No previous session",
         nextTarget: nextSessionTarget(
-          s.sessions
-            .filter(
-              (ss) =>
-                ss.status === "completed" &&
-                ss.id !== session?.id &&
-                ss.workout_template_id === template?.id,
-            )
-            .slice(-4)
-            .map((ss) =>
-              s.sets.filter(
-                (es) => es.workout_session_id === ss.id && es.exercise_id === p.exercise_id,
-              ),
-            ),
-          p,
-          s.loads.filter(
-            (l) =>
-              l.exercise_id === p.exercise_id ||
-              (!l.exercise_id && l.equipment_type === ex.equipment),
-          ),
+          exerciseHistory(s, p, today, session?.id),
+          { ...p, progression_increment_kg: exerciseLoadConfig(s, ex).increment },
+          exerciseLoadConfig(s, ex).options,
         ),
         restSeconds: p.rest_seconds ?? 120,
         sets: Array.from({ length: p.sets }, (_, i) => {
@@ -186,6 +175,7 @@ export function aggregate(s: Snapshot, today: string) {
   };
   const weightLog = s.weights.find((w) => w.date === today);
   const waterTotal = s.water.reduce((a, w) => a + w.amount_ml, 0);
+  const selectedPolicy = completionPolicy(s.preferences?.completion_policy);
   const tasks = [
     { label: "Weight", done: !!weightLog },
     {
@@ -200,7 +190,12 @@ export function aggregate(s: Snapshot, today: string) {
     },
     { label: "Recovery", done: !!recoveryLog },
     { label: "Water", done: waterTotal >= (s.profile?.water_target_ml ?? 2500) },
-  ];
+  ].map((task, index) => ({
+    ...task,
+    required:
+      selectedPolicy[(["weight", "nutrition", "workout", "recovery", "water"] as const)[index]!] &&
+      (index !== 2 || templates.some((t) => t.day_of_week === day)),
+  }));
   const completion = calculateDailyCompletion(
     {
       weight: tasks[0]!.done,
@@ -210,44 +205,28 @@ export function aggregate(s: Snapshot, today: string) {
       water: tasks[4]!.done,
     },
     {
-      weight: true,
-      nutrition: true,
-      workout: templates.some((t) => t.day_of_week === day),
-      recovery: true,
-      water: true,
+      ...completionPolicy(s.preferences?.completion_policy),
+      workout:
+        completionPolicy(s.preferences?.completion_policy).workout &&
+        templates.some((t) => t.day_of_week === day),
     },
   );
   const checkins = s.checkins.filter((c) => c.date !== today && c.day_completed).map((c) => c.date);
   if (completion.dayCompleted) checkins.push(today);
   const streak = calculateStreak(checkins, today);
   const weight = weightSummary(s.weights, today);
-  const lifts: LiftProgress[] = s.exercises.flatMap((e) => {
-    const history = s.sessions
-      .filter((ss) => ss.status === "completed")
-      .flatMap((ss) => {
-        const sets = s.sets.filter(
-          (es) =>
-            es.workout_session_id === ss.id &&
-            es.exercise_id === e.id &&
-            es.is_completed &&
-            !es.is_warmup,
-        );
-        return sets.length
-          ? [{ week: ss.session_date, kg: Math.max(...sets.map((es) => es.weight_kg)) }]
-          : [];
-      });
-    if (!history.length) return [];
-    const current = history.at(-1)!.kg;
-    return [
-      {
-        id: e.id,
-        name: e.name,
-        startKg: history[0]!.kg,
-        currentKg: current,
-        pr: history.length > 1 && current > Math.max(...history.slice(0, -1).map((h) => h.kg)),
-        history,
-      },
-    ];
+  const analytics = trainingAnalytics(s, today);
+  const lifts: LiftProgress[] = analytics.performance.map((e) => {
+    const history = e.history.map((h) => ({ week: h.date, kg: h.topWeight })),
+      current = history.at(-1)!.kg;
+    return {
+      id: e.exerciseId,
+      name: e.name,
+      startKg: history[0]!.kg,
+      currentKg: current,
+      pr: history.length > 1 && current > Math.max(...history.slice(0, -1).map((h) => h.kg)),
+      history,
+    };
   });
   const firstMeasurement = s.measurements[0],
     lastMeasurement = s.measurements.at(-1);
@@ -281,8 +260,38 @@ export function aggregate(s: Snapshot, today: string) {
       carbs: f.carbs_per_100g!,
       fat: f.fat_per_100g!,
       frequent: f.common_in_malawi ?? false,
+      source: f.source,
+      reference: f.source_reference,
+      preparation: f.preparation_state,
     }));
-  const pending = s.recommendations.filter((r) => r.status === "pending");
+  const recommendations = s.recommendations.map((r) => {
+    const payload =
+      r.payload && typeof r.payload === "object" && !Array.isArray(r.payload) ? r.payload : {};
+    const status =
+      r.status === "pending" && r.source_period_end < addDays(today, -14) ? "expired" : r.status;
+    const trainingChange = [
+      "exercise_load_progression",
+      "training_volume_adjustment",
+      "deload",
+      "exercise_substitution",
+    ].includes(r.type);
+    const blockedReason =
+      status === "expired"
+        ? "This proposal expired. Run a new review or request a fresh change."
+        : status === "pending" && trainingChange && running
+          ? "Finish or end the active workout before applying this change."
+          : status === "pending" &&
+              typeof payload["programId"] === "string" &&
+              payload["programId"] !== activeProgram?.id
+            ? "The training plan changed after this proposal. Request a fresh change."
+            : status === "pending" &&
+                typeof payload["targetId"] === "string" &&
+                payload["targetId"] !== activeTarget?.id
+              ? "Nutrition targets changed after this proposal. Run a new review."
+              : null;
+    return { ...r, status, blockedReason };
+  });
+  const pending = recommendations.filter((r) => r.status === "pending");
   return {
     date: today,
     needsOnboarding: !s.profile,
@@ -314,6 +323,15 @@ export function aggregate(s: Snapshot, today: string) {
     })),
     workout,
     session,
+    sessionSummary: session
+      ? {
+          sets: s.sets.filter(
+            (es) => es.workout_session_id === session.id && es.is_completed && !es.is_warmup,
+          ).length,
+          volume: exerciseVolume(s.sets.filter((es) => es.workout_session_id === session.id)),
+          minutes: Math.round((session.duration_seconds ?? 0) / 60),
+        }
+      : null,
     activeProgram,
     schedule,
     recovery,
@@ -327,7 +345,30 @@ export function aggregate(s: Snapshot, today: string) {
     measurements,
     photos: s.photos,
     reviews: s.reviews,
-    recommendations: s.recommendations,
+    recommendations,
+    progressAnalysis: progressAnalysis(s, today),
+    trainingAnalytics: analytics,
+    completionPolicy: completionPolicy(s.preferences?.completion_policy),
+    exerciseLibrary: s.exercises,
+    programExercises: s.planned
+      .filter((p) => templates.some((t) => t.id === p.workout_template_id))
+      .map((p) => ({
+        ...p,
+        workoutName: templates.find((t) => t.id === p.workout_template_id)!.name,
+      })),
+    exerciseOptions: s.planned
+      .filter((p) => templates.some((t) => t.id === p.workout_template_id))
+      .map((p) => ({
+        planId: p.id,
+        exerciseId: p.exercise_id,
+        name: s.exercises.find((e) => e.id === p.exercise_id)?.name ?? "Exercise",
+        equipmentAvailable: s.equipment.some(
+          (a) =>
+            a.is_available &&
+            a.equipment_type === s.exercises.find((e) => e.id === p.exercise_id)?.equipment,
+        ),
+        substitutes: substituteCandidates(s, p),
+      })),
     recommendation: {
       title: pending[0]?.title ?? "Keep logging",
       body: pending[0]?.reason ?? "Run a weekly check-in to review your progress.",

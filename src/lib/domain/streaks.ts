@@ -16,8 +16,8 @@ export function calculateDailyCompletion(
   return {
     completed,
     required: values.length,
-    percentage: Math.round((completed / values.length) * 100),
-    dayCompleted: completed === values.length,
+    percentage: values.length ? Math.round((completed / values.length) * 100) : 0,
+    dayCompleted: values.length > 0 && completed === values.length,
   };
 }
 export function calculateStreak(dates: string[], today: string) {

@@ -3,6 +3,9 @@ import type { Json } from "../db/database.types";
 import { addDays, getPreviousWeekRange } from "../domain/dates";
 import { analyseWeek, evaluateProgression, foodCost } from "../domain/engines";
 import { result } from "./errors";
+import { exerciseHistory, exerciseLoadConfig } from "./training.service";
+import { substituteCandidates } from "./recommendation.service";
+import { RULES } from "../domain/config";
 export function buildReview(s: Snapshot, today: string) {
   const period = getPreviousWeekRange(today),
     start = addDays(period.end, -13);
@@ -52,15 +55,17 @@ export function buildReview(s: Snapshot, today: string) {
     workouts: completed.length,
     expectedWorkouts: expected,
   });
-  const recommendations: {
+  type Draft = {
     type: string;
     title: string;
     reason: string;
+    description?: string;
     currentValue?: number;
     recommendedValue?: number;
     unit?: string;
     payload?: Record<string, string>;
-  }[] = [
+  };
+  const recommendations: Draft[] = [
     {
       type: analysis.type,
       title: analysis.delta
@@ -72,72 +77,116 @@ export function buildReview(s: Snapshot, today: string) {
       ...(analysis.delta && active
         ? {
             currentValue: active.calories_target,
-            recommendedValue: Math.max(500, active.calories_target + analysis.delta),
+            recommendedValue: Math.max(
+              500,
+              Math.min(10000, active.calories_target + analysis.delta),
+            ),
             unit: "kcal",
             payload: { targetId: active.id },
           }
         : {}),
     },
   ];
-  if (
-    analysis.confidence >= 0.7 &&
-    analysis.calorieAdherence >= 0.9 &&
-    analysis.proteinAdherence >= 0.9 &&
-    (analysis.recoveryScore ?? 0) >= 75 &&
-    analysis.trend.status === "on_target"
-  ) {
-    const weeks = s.weeks
-        .filter((w) => w.training_program_id === currentProgram?.id)
-        .map((w) => w.id),
-      templates = s.templates.filter((t) => weeks.includes(t.program_week_id)).map((t) => t.id);
-    for (const plan of s.planned.filter((p) => templates.includes(p.workout_template_id))) {
-      const exercise = s.exercises.find((e) => e.id === plan.exercise_id)!;
-      const history = s.sessions
-        .filter(
-          (ss) =>
-            ss.status === "completed" &&
-            ss.workout_template_id === plan.workout_template_id &&
-            ss.session_date <= period.end,
-        )
-        .slice(-4)
-        .map((ss) =>
-          s.sets.filter(
-            (es) => es.workout_session_id === ss.id && es.exercise_id === plan.exercise_id,
-          ),
+  if (currentProgram?.phase === "deload") {
+    recommendations.splice(0, 1, {
+      type: "keep_current_plan",
+      title: "Keep nutrition stable during the deload",
+      reason:
+        "Review recovery and restore training volume before making another meaningful change.",
+    });
+    if (
+      currentProgram.planned_until &&
+      currentProgram.planned_until <= today &&
+      currentProgram.resume_program_id
+    )
+      recommendations.push({
+        type: "training_volume_adjustment",
+        title: "Restore your previous training volume",
+        reason:
+          "The seven-day deload period has ended. Restore previous sets only when you feel ready.",
+        payload: {
+          programId: currentProgram.id,
+          action: "restore",
+          restoreFromProgramId: currentProgram.resume_program_id,
+        },
+      });
+  } else if (currentProgram) {
+    const enough =
+      analysis.confidence >= RULES.minCompleteness &&
+      analysis.calorieAdherence >= RULES.minAdherence &&
+      analysis.proteinAdherence >= RULES.minAdherence;
+    const poor = s.recovery.filter(
+      (r) => r.date >= addDays(period.end, -6) && r.date <= period.end && r.recovery_score < 50,
+    ).length;
+    if (enough && poor >= 3 && completed.length >= 2)
+      recommendations.push({
+        type: "deload",
+        title: "Consider a seven-day deload",
+        reason:
+          "Repeated poor recovery and recent training support temporarily reducing working sets by about half. Loads remain unchanged.",
+        payload: { programId: currentProgram.id },
+      });
+    else if (
+      enough &&
+      (analysis.recoveryScore ?? 0) >= 75 &&
+      analysis.workoutAdherence >= RULES.minWorkoutAdherence &&
+      analysis.trend.status === "on_target"
+    ) {
+      const weeks = s.weeks
+          .filter((w) => w.training_program_id === currentProgram.id)
+          .map((w) => w.id),
+        templates = s.templates.filter((t) => weeks.includes(t.program_week_id)).map((t) => t.id);
+      for (const plan of s.planned.filter((p) => templates.includes(p.workout_template_id))) {
+        const exercise = s.exercises.find((e) => e.id === plan.exercise_id)!;
+        const history = exerciseHistory(s, plan, period.end);
+        const { options, increment } = exerciseLoadConfig(s, exercise);
+        const progression = evaluateProgression(
+          history,
+          { ...plan, progression_increment_kg: increment },
+          options,
         );
-      const options = s.loads.filter(
-        (l) =>
-          l.exercise_id === exercise.id ||
-          (!l.exercise_id && l.equipment_type === exercise.equipment),
-      );
-      const progression = evaluateProgression(history, plan, options);
-      if (progression.type === "load" && progression.nextLoad !== null) {
-        recommendations.push({
-          type: "exercise_load_progression",
-          title: `${exercise.name}: try ${progression.nextLoad} kg`,
-          reason:
-            "All working sets reached the top of the rep range with the target RIR. This load matches your saved equipment options.",
-          currentValue: plan.planned_weight_kg,
-          recommendedValue: progression.nextLoad,
-          unit: "kg",
-          payload: { programId: currentProgram!.id, templateExerciseId: plan.id },
-        });
-        break;
-      }
-      if (progression.plateau) {
-        recommendations.push({
-          type: "recovery_action",
-          title: `Review ${exercise.name} plateau`,
-          reason:
-            "Three comparable sessions show no rep improvement. Review recovery, technique and adherence before changing training stress.",
-        });
-        break;
+        if (progression.type === "load" && progression.nextLoad !== null) {
+          recommendations.push({
+            type: "exercise_load_progression",
+            title: `${exercise.name}: try ${progression.nextLoad} kg`,
+            reason:
+              "All working sets reached the top of the rep range at the target RIR. Comparable history is retained across plan versions and the load matches your equipment.",
+            currentValue: plan.planned_weight_kg,
+            recommendedValue: progression.nextLoad,
+            unit: "kg",
+            payload: { programId: currentProgram.id, templateExerciseId: plan.id },
+          });
+          break;
+        }
+        if (progression.declining) {
+          recommendations.push({
+            type: "recovery_action",
+            title: `Review ${exercise.name} performance`,
+            reason:
+              "Working reps declined in comparable sessions. Review fatigue and technique before adding sets or load.",
+          });
+          break;
+        }
+        if (progression.plateau && plan.sets < 10) {
+          recommendations.push({
+            type: "training_volume_adjustment",
+            title: `${exercise.name}: consider one extra set`,
+            reason:
+              "At least three comparable sessions have stalled while nutrition, recovery and workout adherence are good. Review this small change before applying.",
+            currentValue: plan.sets,
+            recommendedValue: plan.sets + 1,
+            unit: "sets",
+            payload: { programId: currentProgram.id, templateExerciseId: plan.id },
+          });
+          break;
+        }
       }
     }
   }
   return { period, analysis, recommendations };
 }
 export async function saveReview(db: Db, s: Snapshot, today: string) {
+  await result(db.rpc("expire_recommendations"));
   const { period, analysis, recommendations } = buildReview(s, today);
   return result(
     db.rpc("save_review", {
@@ -172,6 +221,8 @@ export function budgetSummary(s: Snapshot, today: string) {
         items.reduce((n, i) => n + (priceMap.get(i.food_id) ?? 0) * i.grams, 0),
       ),
       missingPrices: items.filter((i) => !priceMap.has(i.food_id)).length,
+      pricedItems: items.filter((i) => priceMap.has(i.food_id)).length,
+      totalItems: items.length,
     };
   };
   const daily = totals(today, today),
@@ -186,15 +237,33 @@ export function budgetSummary(s: Snapshot, today: string) {
       )
       .map((l) => l.date),
   ).size;
+  const substantialDays = Array.from({ length: 7 }, (_, i) => addDays(today, -i)).flatMap(
+    (date) => {
+      const ids = new Set(s.logs.filter((l) => l.date === date).map((l) => l.id)),
+        items = s.items.filter((i) => ids.has(i.nutrition_log_id));
+      const target = [...s.targets]
+        .reverse()
+        .find((t) => t.effective_from <= date && (!t.effective_to || t.effective_to >= date));
+      return target &&
+        items.length &&
+        items.every((i) => priceMap.has(i.food_id)) &&
+        items.reduce((n, i) => n + i.calories, 0) >= target.calories_target * 0.8
+        ? [totals(date, date).knownCost]
+        : [];
+    },
+  );
   return {
     currency: "MWK",
     daily,
     weekly,
     estimatedMonthlyCost:
-      loggedDays && weekly.missingPrices === 0
-        ? Math.round((weekly.knownCost / loggedDays) * 30)
+      substantialDays.length >= 5
+        ? Math.round((substantialDays.reduce((n, c) => n + c, 0) / substantialDays.length) * 30)
         : null,
     loggedDays,
+    substantiallyLoggedDays: substantialDays.length,
+    monthlyReason:
+      "Needs at least five days with 80% of the calorie target logged and complete price coverage. Uses your latest prices, not purchase receipts.",
   };
 }
 export function substitutions(s: Snapshot, foodId: string, grams: number) {

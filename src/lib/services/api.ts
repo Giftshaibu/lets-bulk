@@ -3,6 +3,7 @@ import { requestDb } from "../db/client";
 import { AppRepository } from "../repositories/app.repository";
 import { getLocalDate, addDays } from "../domain/dates";
 import { calculateRecoveryScore } from "../domain/engines";
+import { createRequestedChange } from "./recommendation.service";
 import { aggregate } from "./dashboard.service";
 import { budgetSuggestions, budgetSummary, saveReview, substitutions } from "./review.service";
 import { AppError, result } from "./errors";
@@ -196,12 +197,27 @@ export async function handleApi(request: Request): Promise<Response> {
         );
       } else if (path === "/api/load-options" && method === "POST") {
         const v = schema.load.parse(await body());
+        if (v.exercise_id) {
+          const exercise = await result(
+            db.from("exercises").select("equipment").eq("id", v.exercise_id).single(),
+          );
+          if (exercise.equipment !== v.equipment_type)
+            throw new AppError("INVALID_INPUT", "Choose the equipment used by this exercise.");
+        }
         data = await result(
           db
             .from("gym_load_options")
             .insert({ ...v, user_id: userId })
             .select()
             .single(),
+        );
+      } else if (/^\/api\/load-options\/[^/]+$/.test(path) && method === "DELETE") {
+        data = await result(
+          db
+            .from("gym_load_options")
+            .delete()
+            .eq("id", schema.id.parse(path.split("/")[3]))
+            .select(),
         );
       } else if (path === "/api/workout-sessions" && method === "POST") {
         const v = z.object({ templateId: schema.id }).parse(await body());
@@ -270,9 +286,12 @@ export async function handleApi(request: Request): Promise<Response> {
             p_items: v.items,
           }),
         );
+      } else if (path === "/api/training/recommendations" && method === "POST") {
+        const v = schema.changeRequest.parse(await body());
+        data = await createRequestedChange(db, await read(), today, userId, v);
       } else if (path === "/api/settings" && method === "POST") {
         const v = schema.settings.parse(await body());
-        data = await result(db.rpc("save_settings", { p_settings: v }));
+        data = await result(db.rpc("save_settings", { p_settings: JSON.parse(JSON.stringify(v)) }));
       } else throw new AppError("NOT_FOUND", "Endpoint not found.", 404);
     } else throw new AppError("METHOD_NOT_ALLOWED", "Method not allowed.", 405);
     return new Response(JSON.stringify({ data }), { headers });

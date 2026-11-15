@@ -34,6 +34,7 @@ export function evaluateProgression(
     rep_max: number;
     target_rir: number | null;
     planned_weight_kg: number;
+    progression_increment_kg?: number | null;
   },
   options: LoadOption[],
 ) {
@@ -51,13 +52,21 @@ export function evaluateProgression(
     )
   )
     return { type: "collect_data", nextLoad: null, totalReps: totalReps(sets) };
-  const eligible = sets.every((s) => s.reps >= plan.rep_max && s.rir! >= (plan.target_rir ?? 2));
-  const nextLoad = eligible ? getNextUsableLoad(plan.planned_weight_kg, 2.5, options) : null;
+  const previous = comparable.at(-2);
+  const declining =
+    !!previous && totalReps(previous) > 0 && totalReps(sets) < totalReps(previous) * 0.9;
+  const eligible =
+    sets.every((s) => s.reps >= plan.rep_max && s.rir! >= (plan.target_rir ?? 2)) &&
+    (!previous || totalReps(sets) >= totalReps(previous));
+  const nextLoad = eligible
+    ? getNextUsableLoad(plan.planned_weight_kg, plan.progression_increment_kg ?? 2.5, options)
+    : null;
   return {
     type: nextLoad !== null ? "load" : "reps",
     nextLoad,
     totalReps: totalReps(sets),
     plateau: detectPlateau(comparable),
+    declining,
   };
 }
 export function detectPlateau(history: WorkingSet[][]) {
@@ -81,6 +90,7 @@ export function nextSessionTarget(
     rep_max: number;
     target_rir: number | null;
     planned_weight_kg: number;
+    progression_increment_kg?: number | null;
   },
   options: LoadOption[],
 ) {
@@ -88,6 +98,8 @@ export function nextSessionTarget(
   if (!previous.length)
     return `Confirm a starting load; aim for ${plan.sets} × ${plan.rep_min}–${plan.rep_max}.`;
   const decision = evaluateProgression(history, plan, options);
+  if (decision.declining)
+    return "Keep the current load; review performance, technique and recovery before adding work.";
   if (decision.nextLoad !== null)
     return `Ready for review: ${decision.nextLoad} kg. Keep the current plan until accepted.`;
   if (previous.every((s) => s.reps >= plan.rep_max))
