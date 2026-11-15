@@ -67,6 +67,7 @@ export type Database = {
           completed_actions: number | null;
           completed_at: string | null;
           completion_percentage: number | null;
+          completion_policy: Json | null;
           date: string;
           day_completed: boolean | null;
           id: string;
@@ -82,6 +83,7 @@ export type Database = {
           completed_actions?: number | null;
           completed_at?: string | null;
           completion_percentage?: number | null;
+          completion_policy?: Json | null;
           date: string;
           day_completed?: boolean | null;
           id?: string;
@@ -97,6 +99,7 @@ export type Database = {
           completed_actions?: number | null;
           completed_at?: string | null;
           completion_percentage?: number | null;
+          completion_policy?: Json | null;
           date?: string;
           day_completed?: boolean | null;
           id?: string;
@@ -718,6 +721,7 @@ export type Database = {
           reason: string;
           recommended_value: number | null;
           rejected_at: string | null;
+          request_id: string | null;
           source_period_end: string;
           source_period_start: string;
           status: string;
@@ -725,7 +729,7 @@ export type Database = {
           type: string;
           unit: string | null;
           user_id: string;
-          weekly_analysis_id: string;
+          weekly_analysis_id: string | null;
         };
         Insert: {
           accepted_at?: string | null;
@@ -738,6 +742,7 @@ export type Database = {
           reason: string;
           recommended_value?: number | null;
           rejected_at?: string | null;
+          request_id?: string | null;
           source_period_end: string;
           source_period_start: string;
           status?: string;
@@ -745,7 +750,7 @@ export type Database = {
           type: string;
           unit?: string | null;
           user_id: string;
-          weekly_analysis_id: string;
+          weekly_analysis_id?: string | null;
         };
         Update: {
           accepted_at?: string | null;
@@ -758,6 +763,7 @@ export type Database = {
           reason?: string;
           recommended_value?: number | null;
           rejected_at?: string | null;
+          request_id?: string | null;
           source_period_end?: string;
           source_period_start?: string;
           status?: string;
@@ -765,7 +771,7 @@ export type Database = {
           type?: string;
           unit?: string | null;
           user_id?: string;
-          weekly_analysis_id?: string;
+          weekly_analysis_id?: string | null;
         };
         Relationships: [
           {
@@ -821,6 +827,8 @@ export type Database = {
           id: string;
           name: string;
           phase: string;
+          planned_until: string | null;
+          resume_program_id: string | null;
           user_id: string;
           version: number;
         };
@@ -831,6 +839,8 @@ export type Database = {
           id?: string;
           name: string;
           phase?: string;
+          planned_until?: string | null;
+          resume_program_id?: string | null;
           user_id: string;
           version: number;
         };
@@ -841,14 +851,25 @@ export type Database = {
           id?: string;
           name?: string;
           phase?: string;
+          planned_until?: string | null;
+          resume_program_id?: string | null;
           user_id?: string;
           version?: number;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "training_programs_resume_program_id_user_id_fkey";
+            columns: ["resume_program_id", "user_id"];
+            isOneToOne: false;
+            referencedRelation: "training_programs";
+            referencedColumns: ["id", "user_id"];
+          },
+        ];
       };
       user_preferences: {
         Row: {
           budget_mode: string | null;
+          completion_policy: Json;
           diet_type: string | null;
           id: string;
           meals_per_day: number | null;
@@ -858,6 +879,7 @@ export type Database = {
         };
         Insert: {
           budget_mode?: string | null;
+          completion_policy?: Json;
           diet_type?: string | null;
           id?: string;
           meals_per_day?: number | null;
@@ -867,6 +889,7 @@ export type Database = {
         };
         Update: {
           budget_mode?: string | null;
+          completion_policy?: Json;
           diet_type?: string | null;
           id?: string;
           meals_per_day?: number | null;
@@ -1005,6 +1028,7 @@ export type Database = {
         Row: {
           exercise_id: string;
           id: string;
+          lineage_id: string;
           planned_weight_kg: number;
           rep_max: number;
           rep_min: number;
@@ -1018,6 +1042,7 @@ export type Database = {
         Insert: {
           exercise_id: string;
           id?: string;
+          lineage_id?: string;
           planned_weight_kg?: number;
           rep_max: number;
           rep_min: number;
@@ -1031,6 +1056,7 @@ export type Database = {
         Update: {
           exercise_id?: string;
           id?: string;
+          lineage_id?: string;
           planned_weight_kg?: number;
           rep_max?: number;
           rep_min?: number;
@@ -1063,6 +1089,7 @@ export type Database = {
           day_of_week: number;
           estimated_minutes: number | null;
           id: string;
+          lineage_id: string;
           name: string;
           program_week_id: string;
           sort_order: number;
@@ -1072,6 +1099,7 @@ export type Database = {
           day_of_week: number;
           estimated_minutes?: number | null;
           id?: string;
+          lineage_id?: string;
           name: string;
           program_week_id: string;
           sort_order?: number;
@@ -1081,6 +1109,7 @@ export type Database = {
           day_of_week?: number;
           estimated_minutes?: number | null;
           id?: string;
+          lineage_id?: string;
           name?: string;
           program_week_id?: string;
           sort_order?: number;
@@ -1103,6 +1132,7 @@ export type Database = {
     Functions: {
       complete_workout: { Args: { p_session: string }; Returns: undefined };
       delete_set: { Args: { p_id: string }; Returns: undefined };
+      expire_recommendations: { Args: never; Returns: number };
       initial_exercise_load: {
         Args: { p_id: string; p_weight: number };
         Returns: undefined;

@@ -241,6 +241,10 @@ describe("transaction boundaries", () => {
     const plan = await scalar(
       "select id from public.workout_template_exercises order by sort_order limit 1",
     );
+    await db.query(
+      "insert into public.gym_load_options(user_id,exercise_id,equipment_type,increment_kg,minimum_kg,maximum_kg) select user_id,exercise_id,e.equipment,2.5,0,200 from public.workout_template_exercises p join public.exercises e on e.id=p.exercise_id where p.id=$1",
+      [plan],
+    );
     const oldWeight = Number(
       await scalar("select planned_weight_kg from public.workout_template_exercises where id=$1", [
         plan,
@@ -323,5 +327,235 @@ describe("transaction boundaries", () => {
         "select water_logged from public.daily_checkins where date=current_date",
       ),
     ).toBe(false);
+  });
+});
+describe("expanded settings and recommendation lifecycle", () => {
+  let period = 1;
+  const makeRec = async (
+    type: string,
+    payload: Record<string, unknown>,
+    recommendedValue?: number,
+  ) => {
+    const rid = await scalar(
+      "select public.save_review(current_date-$1::integer,current_date,$2,$3)",
+      [
+        ++period,
+        JSON.stringify({ completeness: 1, confidence: 1 }),
+        JSON.stringify([
+          {
+            type,
+            title: "Extended fixture",
+            reason: "Fixture",
+            payload,
+            ...(recommendedValue === undefined ? {} : { recommendedValue }),
+          },
+        ]),
+      ],
+    );
+    return scalar("select id from public.recommendations where weekly_analysis_id=$1", [rid]);
+  };
+  const active = () => scalar("select id from public.training_programs where effective_to is null");
+  const plan = async () =>
+    (
+      await db.query<{ id: string; sets: number; exercise_id: string; lineage_id: string }>(
+        "select p.* from public.workout_template_exercises p join public.workout_templates t on t.id=p.workout_template_id join public.program_weeks w on w.id=t.program_week_id join public.training_programs pg on pg.id=w.training_program_id where pg.effective_to is null order by t.sort_order,p.sort_order limit 1",
+      )
+    ).rows[0]!;
+  beforeAll(async () => {
+    await asUser(other);
+    await db.query("select public.initialize_profile($1,$2,$3)", [
+      JSON.stringify({ name: "Settings fixture", height: 175, weight: 60, goal: 68 }),
+      JSON.stringify({ kcal: 2500, protein: 120, carbs: 330, fat: 65 }),
+      JSON.stringify(["bodyweight", "dumbbell"]),
+    ]);
+  });
+  it("changes frequency, equipment, profile and completion requirements atomically", async () => {
+    await db.query("select public.save_settings($1)", [
+      JSON.stringify({
+        first_name: "Updated",
+        water_target_ml: 3000,
+        diet_type: "vegetarian",
+        budget_mode: "budget",
+        days: [1, 3, 5],
+        height_cm: 180,
+        goal_weight_kg: 72,
+        target_date: "2027-12-01",
+        training_experience: "intermediate",
+        equipment: ["bodyweight"],
+        completion_policy: {
+          weight: false,
+          nutrition: true,
+          workout: true,
+          recovery: true,
+          water: false,
+        },
+      }),
+    ]);
+    expect(Number(await scalar("select training_days_per_week from public.profiles"))).toBe(3);
+    expect(Number(await scalar("select height_cm from public.profiles"))).toBe(180);
+    expect(
+      await scalar<boolean>(
+        "select is_available from public.available_equipment where equipment_type='dumbbell'",
+      ),
+    ).toBe(false);
+    expect(
+      Number(
+        await scalar(
+          "select count(*) from public.workout_templates t join public.program_weeks w on w.id=t.program_week_id join public.training_programs p on p.id=w.training_program_id where p.effective_to is null",
+        ),
+      ),
+    ).toBe(3);
+    expect(
+      await scalar<boolean>(
+        "select (completion_policy->>'water')::boolean from public.daily_checkins where date=current_date",
+      ),
+    ).toBe(false);
+    // Restore dumbbells for subsequent valid substitutions.
+    await db.query(
+      "update public.available_equipment set is_available=true where equipment_type='dumbbell'",
+    );
+  });
+  it("restores lower-body templates when growing from one training day", async () => {
+    const save = (days: number[]) =>
+      db.query("select public.save_settings($1)", [
+        JSON.stringify({
+          first_name: "Updated",
+          water_target_ml: 3000,
+          diet_type: "vegetarian",
+          budget_mode: "budget",
+          days,
+        }),
+      ]);
+    await save([1]);
+    await save([1, 2, 4, 5]);
+    const names = (
+      await db.query<{ name: string }>(
+        "select t.name from public.workout_templates t join public.program_weeks w on w.id=t.program_week_id join public.training_programs p on p.id=w.training_program_id where p.effective_to is null order by t.sort_order",
+      )
+    ).rows.map((t) => t.name);
+    expect(names).toEqual(["Upper A", "Lower A", "Upper B", "Lower B"]);
+    await save([1, 3, 5]);
+  });
+  it("versions volume changes and retains comparable history identifiers", async () => {
+    const pg = await active(),
+      p = await plan();
+    const rec = await makeRec(
+      "training_volume_adjustment",
+      { programId: pg, templateExerciseId: p.id },
+      p.sets + 1,
+    );
+    await db.query("select public.resolve_recommendation($1,true)", [rec]);
+    expect(
+      Number(
+        await scalar("select sets from public.workout_template_exercises where id=$1", [p.id]),
+      ),
+    ).toBe(p.sets);
+    expect(
+      Number(
+        await scalar(
+          "select sets from public.workout_template_exercises where lineage_id=$1 and id<>$2 order by id limit 1",
+          [p.lineage_id, p.id],
+        ),
+      ),
+    ).toBeGreaterThanOrEqual(p.sets);
+    expect((await plan()).lineage_id).toBe(p.lineage_id);
+    expect((await plan()).sets).toBe(p.sets + 1);
+  });
+  it("applies an equipment-compatible substitute without rewriting old sessions", async () => {
+    const pg = await active(),
+      p = await plan();
+    const replacement = await scalar(
+      "select id from public.exercises e where primary_muscle=(select primary_muscle from public.exercises where id=$1) and id<>$1 and equipment in ('bodyweight','dumbbell') order by slug limit 1",
+      [p.exercise_id],
+    );
+    const rec = await makeRec("exercise_substitution", {
+      programId: pg,
+      templateExerciseId: p.id,
+      replacementExerciseId: replacement,
+    });
+    await db.query("select public.resolve_recommendation($1,true)", [rec]);
+    expect((await plan()).exercise_id).toBe(replacement);
+    expect((await plan()).lineage_id).not.toBe(p.lineage_id);
+    expect(
+      await scalar("select exercise_id from public.workout_template_exercises where id=$1", [p.id]),
+    ).toBe(p.exercise_id);
+  });
+  it("deloads for seven days and restores the previous plan only after acceptance", async () => {
+    const base = await active(),
+      p = await plan();
+    const rec = await makeRec("deload", { programId: base });
+    await db.query("select public.resolve_recommendation($1,true)", [rec]);
+    const deload = await active();
+    expect(await scalar("select phase from public.training_programs where id=$1", [deload])).toBe(
+      "deload",
+    );
+    expect((await plan()).sets).toBe(Math.ceil(p.sets / 2));
+    expect(
+      await scalar<boolean>(
+        "select planned_until=current_date+7 from public.training_programs where id=$1",
+        [deload],
+      ),
+    ).toBe(true);
+    const restore = await makeRec("training_volume_adjustment", {
+      programId: deload,
+      action: "restore",
+      restoreFromProgramId: base,
+    });
+    await db.query("select public.resolve_recommendation($1,true)", [restore]);
+    await db.query("select public.resolve_recommendation($1,true)", [restore]);
+    expect((await plan()).sets).toBe(p.sets);
+    expect(
+      await scalar("select phase from public.training_programs where effective_to is null"),
+    ).toBe("base");
+  });
+  it("persists expiry and makes conflicting program recommendations expire", async () => {
+    const pg = await active(),
+      p = await plan(),
+      stale = await makeRec(
+        "training_volume_adjustment",
+        { programId: pg, templateExerciseId: p.id },
+        p.sets + 1,
+      ),
+      rec = await makeRec("deload", { programId: pg });
+    await db.query("select public.resolve_recommendation($1,true)", [rec]);
+    expect(await scalar("select status from public.recommendations where id=$1", [stale])).toBe(
+      "expired",
+    );
+    const rid = await scalar("select public.save_review(current_date-27,current_date-21,$1,$2)", [
+      JSON.stringify({ completeness: 1, confidence: 1 }),
+      JSON.stringify([{ type: "keep_current_plan", title: "Old fixture", reason: "Fixture" }]),
+    ]);
+    await db.query("select public.expire_recommendations()");
+    expect(
+      await scalar("select status from public.recommendations where weekly_analysis_id=$1", [rid]),
+    ).toBe("expired");
+  });
+  it("keeps historical completion policy when old logs are edited", async () => {
+    await db.query(
+      "insert into public.weight_logs(user_id,date,weight_kg) values($1,current_date-1,60)",
+      [other],
+    );
+    const before = await scalar<Record<string, boolean>>(
+      "select completion_policy from public.daily_checkins where date=current_date-1",
+    );
+    await db.query(
+      `update public.user_preferences set completion_policy='{"weight":true,"nutrition":true,"workout":true,"recovery":true,"water":true}'`,
+    );
+    await db.query("update public.weight_logs set weight_kg=61 where date=current_date-1");
+    expect(
+      await scalar("select completion_policy from public.daily_checkins where date=current_date-1"),
+    ).toEqual(before);
+  });
+  it("imports only source-backed foods and retains unknown local dishes", async () => {
+    expect(
+      Number(
+        await scalar(
+          "select calories_per_100g from public.foods where source_reference='https://fdc.nal.usda.gov/food-details/173944/nutrients'",
+        ),
+      ),
+    ).toBe(89);
+    expect(
+      await scalar("select calories_per_100g is null from public.foods where name=$1", ["Nsima"]),
+    ).toBe(true);
   });
 });
