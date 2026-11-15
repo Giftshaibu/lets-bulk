@@ -8,13 +8,13 @@ import { LoadOptions, InitialLoads } from "@/features/tracking-forms";
 export const Route = createFileRoute("/train/")({
   head: () => ({
     meta: [
-      { title: "Train — Gift Bulk Training Companion" },
+      { title: "Train — Let’s Bulk Training Companion" },
       {
         name: "description",
         content:
           "See today's workout, your week schedule and recent strength gains, then start training.",
       },
-      { property: "og:title", content: "Train — Gift Bulk Training Companion" },
+      { property: "og:title", content: "Train — Let’s Bulk Training Companion" },
       {
         property: "og:description",
         content: "Today's session, week plan and recent lift progress.",

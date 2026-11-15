@@ -159,7 +159,7 @@ function AuthForm() {
     [message, setMessage] = useState("");
   return (
     <Gate>
-      <h1 className="text-2xl font-extrabold">GIFT BULK</h1>
+      <h1 className="text-2xl font-extrabold">LET’S BULK</h1>
       <p className="my-3 font-bold">
         {signup ? "Create your private account" : "Sign in to your training companion"}
       </p>

@@ -8,13 +8,13 @@ import { BodyForms } from "@/features/tracking-forms";
 export const Route = createFileRoute("/progress")({
   head: () => ({
     meta: [
-      { title: "Progress — Gift Bulk Training Companion" },
+      { title: "Progress — Let’s Bulk Training Companion" },
       {
         name: "description",
         content:
           "Track body weight trend, strength gains on the main lifts and body measurements over your bulk.",
       },
-      { property: "og:title", content: "Progress — Gift Bulk Training Companion" },
+      { property: "og:title", content: "Progress — Let’s Bulk Training Companion" },
       {
         property: "og:description",
         content: "Weight trend, strength curves and measurements across the bulk.",

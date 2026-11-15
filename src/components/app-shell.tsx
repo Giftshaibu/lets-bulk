@@ -32,7 +32,7 @@ export function AppShell({
         {/* Desktop side nav */}
         <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 flex-col justify-center py-8 lg:flex">
           <div className="mb-6 px-3">
-            <div className="text-[20px] font-extrabold text-primary">GIFT BULK</div>
+            <div className="text-[20px] font-extrabold text-primary">LET’S BULK</div>
             <div className="text-[13px] font-bold text-muted-foreground">
               Week {profile.weekNumber}
               {profile.totalWeeks ? ` of ${profile.totalWeeks}` : ""}

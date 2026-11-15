@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gift Bulk — Daily Training Companion" },
+      { title: "Let’s Bulk — Daily Training Companion" },
       {
         name: "description",
         content: "A private bulking and strength app: eat, train, recover, and track progress.",
