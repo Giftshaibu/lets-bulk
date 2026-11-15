@@ -180,6 +180,8 @@ export type Database = {
           equipment: string;
           exercise_type: string | null;
           id: string;
+          illustration_author: string | null;
+          illustration_style: string | null;
           illustration_url: string | null;
           instructions: Json | null;
           is_active: boolean | null;
@@ -187,6 +189,7 @@ export type Database = {
           name: string;
           primary_muscle: string;
           progression_increment_kg: number | null;
+          required_equipment: Json;
           secondary_muscles: Json | null;
           slug: string;
           source: string | null;
@@ -201,6 +204,8 @@ export type Database = {
           equipment: string;
           exercise_type?: string | null;
           id?: string;
+          illustration_author?: string | null;
+          illustration_style?: string | null;
           illustration_url?: string | null;
           instructions?: Json | null;
           is_active?: boolean | null;
@@ -208,6 +213,7 @@ export type Database = {
           name: string;
           primary_muscle: string;
           progression_increment_kg?: number | null;
+          required_equipment?: Json;
           secondary_muscles?: Json | null;
           slug: string;
           source?: string | null;
@@ -222,6 +228,8 @@ export type Database = {
           equipment?: string;
           exercise_type?: string | null;
           id?: string;
+          illustration_author?: string | null;
+          illustration_style?: string | null;
           illustration_url?: string | null;
           instructions?: Json | null;
           is_active?: boolean | null;
@@ -229,6 +237,7 @@ export type Database = {
           name?: string;
           primary_muscle?: string;
           progression_increment_kg?: number | null;
+          required_equipment?: Json;
           secondary_muscles?: Json | null;
           slug?: string;
           source?: string | null;
@@ -874,6 +883,7 @@ export type Database = {
           id: string;
           meals_per_day: number | null;
           notifications_enabled: boolean | null;
+          onboarding_context: Json;
           units: string | null;
           user_id: string;
         };
@@ -884,6 +894,7 @@ export type Database = {
           id?: string;
           meals_per_day?: number | null;
           notifications_enabled?: boolean | null;
+          onboarding_context?: Json;
           units?: string | null;
           user_id: string;
         };
@@ -894,6 +905,7 @@ export type Database = {
           id?: string;
           meals_per_day?: number | null;
           notifications_enabled?: boolean | null;
+          onboarding_context?: Json;
           units?: string | null;
           user_id?: string;
         };
@@ -1127,12 +1139,23 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      logging_days: {
+        Row: {
+          date: string | null;
+          user_id: string | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
+      can_use_exercise: { Args: { p_exercise: string }; Returns: boolean };
       complete_workout: { Args: { p_session: string }; Returns: undefined };
       delete_set: { Args: { p_id: string }; Returns: undefined };
       expire_recommendations: { Args: never; Returns: number };
+      guided_initialize: {
+        Args: { p_input: Json; p_targets: Json };
+        Returns: undefined;
+      };
       initial_exercise_load: {
         Args: { p_id: string; p_weight: number };
         Returns: undefined;

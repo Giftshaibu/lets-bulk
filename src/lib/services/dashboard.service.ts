@@ -1,3 +1,4 @@
+import { hasEquipment } from "../domain/equipment";
 import { completionPolicy } from "../domain/completion-policy";
 import { exerciseHistory, trainingAnalytics, exerciseLoadConfig } from "./training.service";
 import { progressAnalysis } from "./progress.service";
@@ -213,7 +214,9 @@ export function aggregate(s: Snapshot, today: string) {
   );
   const checkins = s.checkins.filter((c) => c.date !== today && c.day_completed).map((c) => c.date);
   if (completion.dayCompleted) checkins.push(today);
-  const streak = calculateStreak(checkins, today);
+  const consistency = calculateStreak(checkins, today);
+  const loggingDates = (s.loggingDays ?? []).flatMap((d) => (d.date ? [d.date] : []));
+  const streak = calculateStreak(loggingDates, today);
   const weight = weightSummary(s.weights, today);
   const analytics = trainingAnalytics(s, today);
   const lifts: LiftProgress[] = analytics.performance.map((e) => {
@@ -341,6 +344,35 @@ export function aggregate(s: Snapshot, today: string) {
     tasks,
     completion,
     streak,
+    consistency,
+    loggingDates,
+    journeyWeeks: Array.from(
+      {
+        length: Math.min(
+          520,
+          Math.max(1, Math.floor(daysBetween(s.profile?.start_date ?? today, today) / 7) + 1),
+        ),
+      },
+      (_, i) => {
+        const start = addDays(s.profile?.start_date ?? today, i * 7),
+          end = addDays(start, 6),
+          weights = s.weights.filter((w) => w.date >= start && w.date <= end);
+        return {
+          start,
+          end,
+          workouts: s.sessions.filter(
+            (w) => w.status === "completed" && w.session_date >= start && w.session_date <= end,
+          ).length,
+          weightLogs: weights.length,
+          averageWeight: weights.length ? round(average(weights.map((w) => w.weight_kg))) : null,
+          photos: s.photos.filter((p) => p.date >= start && p.date <= end).length,
+          consistentDays: s.checkins.filter(
+            (c) => c.day_completed && c.date >= start && c.date <= end,
+          ).length,
+        };
+      },
+    ),
+    targetReason: activeTarget?.reason,
     lifts,
     measurements,
     photos: s.photos,
@@ -362,10 +394,9 @@ export function aggregate(s: Snapshot, today: string) {
         planId: p.id,
         exerciseId: p.exercise_id,
         name: s.exercises.find((e) => e.id === p.exercise_id)?.name ?? "Exercise",
-        equipmentAvailable: s.equipment.some(
-          (a) =>
-            a.is_available &&
-            a.equipment_type === s.exercises.find((e) => e.id === p.exercise_id)?.equipment,
+        equipmentAvailable: hasEquipment(
+          s.exercises.find((e) => e.id === p.exercise_id)!,
+          new Set(s.equipment.filter((a) => a.is_available).map((a) => a.equipment_type)),
         ),
         substitutes: substituteCandidates(s, p),
       })),

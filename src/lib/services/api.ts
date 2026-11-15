@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { guidedSetup, estimatePlan } from "../domain/onboarding";
 import { requestDb } from "../db/client";
 import { AppRepository } from "../repositories/app.repository";
 import { getLocalDate, addDays } from "../domain/dates";
@@ -71,7 +72,17 @@ export async function handleApi(request: Request): Promise<Response> {
         );
       } else throw new AppError("NOT_FOUND", "Endpoint not found.", 404);
     } else if (method === "POST" || method === "PATCH" || method === "DELETE") {
-      if (path === "/api/profile" && method === "POST") {
+      if (path === "/api/setup/preview" && method === "POST") {
+        data = estimatePlan(guidedSetup.parse(await body()));
+      } else if (path === "/api/setup" && method === "POST") {
+        const v = guidedSetup.parse(await body());
+        data = await result(
+          db.rpc("guided_initialize", {
+            p_input: JSON.parse(JSON.stringify(v)),
+            p_targets: estimatePlan(v).targets,
+          }),
+        );
+      } else if (path === "/api/profile" && method === "POST") {
         const v = schema.onboarding.parse(await body());
         data = await result(
           db.rpc("initialize_profile", {
@@ -156,6 +167,32 @@ export async function handleApi(request: Request): Promise<Response> {
             .select()
             .single(),
         );
+      } else if (
+        /^\/api\/foods\/[^/]+$/.test(path) &&
+        (method === "PATCH" || method === "DELETE")
+      ) {
+        const foodId = schema.id.parse(path.split("/")[3]);
+        const owned = await result(db.from("foods").select("user_id").eq("id", foodId).single());
+        if (owned.user_id !== userId)
+          throw new AppError("INVALID_INPUT", "Only your custom foods can be edited.", 403);
+        data =
+          method === "DELETE"
+            ? await result(
+                db
+                  .from("foods")
+                  .update({ is_active: false })
+                  .eq("id", foodId)
+                  .eq("user_id", userId)
+                  .select(),
+              )
+            : await result(
+                db
+                  .from("foods")
+                  .update(schema.food.parse(await body()))
+                  .eq("id", foodId)
+                  .eq("user_id", userId)
+                  .select(),
+              );
       } else if (path === "/api/prices" && method === "POST") {
         const v = schema.price.parse(await body());
         data = await result(

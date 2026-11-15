@@ -1,3 +1,4 @@
+import { hasEquipment } from "../domain/equipment";
 import type { Snapshot, Db } from "../repositories/app.repository";
 import type { Json } from "../db/database.types";
 import { AppError, result } from "./errors";
@@ -21,7 +22,7 @@ export function substituteCandidates(s: Snapshot, plan: Snapshot["planned"][numb
       e.id !== plan.exercise_id &&
       !used.has(e.id) &&
       e.primary_muscle === exercise?.primary_muscle &&
-      equipment.has(e.equipment),
+      hasEquipment(e, equipment),
   );
 }
 export function requestedChange(s: Snapshot, today: string, v: ChangeRequest) {

@@ -23,7 +23,7 @@ beforeAll(async () => {
   await db.query("select public.initialize_profile($1,$2,$3)", [
     JSON.stringify({ name: "Fixture", height: 175, weight: 60, goal: 68 }),
     JSON.stringify({ kcal: 2500, protein: 120, carbs: 330, fat: 65 }),
-    JSON.stringify(["bodyweight", "barbell"]),
+    JSON.stringify(["bodyweight", "barbell", "bench", "squat_rack"]),
   ]);
 });
 afterAll(async () => {
@@ -558,4 +558,96 @@ describe("expanded settings and recommendation lifecycle", () => {
       await scalar("select calories_per_100g is null from public.foods where name=$1", ["Nsima"]),
     ).toBe(true);
   });
+});
+
+it("separates intentional logging days from plan completion and isolates the view", async () => {
+  await asUser(owner);
+  await db.query(
+    "insert into public.weight_logs(user_id,date,weight_kg) values($1,'2025-01-05',62) on conflict(user_id,date) do nothing",
+    [owner],
+  );
+  expect(
+    Number(await scalar("select count(*) from public.logging_days where date='2025-01-05'")),
+  ).toBe(1);
+  expect(
+    await scalar("select day_completed from public.daily_checkins where date='2025-01-05'"),
+  ).toBe(false);
+  await asUser(other);
+  expect(
+    Number(await scalar("select count(*) from public.logging_days where user_id=$1", [owner])),
+  ).toBe(0);
+});
+it("requires every specific piece of equipment", async () => {
+  await asUser(owner);
+  const leg = await scalar("select id from public.exercises where slug='leg-press'");
+  await db.query(
+    "insert into public.available_equipment(user_id,equipment_type) values($1,'machine') on conflict do nothing",
+    [owner],
+  );
+  expect(await scalar("select public.can_use_exercise($1)", [leg])).toBe(false);
+  await db.query(
+    "insert into public.available_equipment(user_id,equipment_type) values($1,'leg_press') on conflict do nothing",
+    [owner],
+  );
+  expect(await scalar("select public.can_use_exercise($1)", [leg])).toBe(true);
+});
+it("creates a guided full-body schedule atomically without resetting an existing plan", async () => {
+  await db.exec(
+    "reset role;insert into auth.users(id) values('00000000-0000-4000-8000-000000000003')",
+  );
+  await asUser("00000000-0000-4000-8000-000000000003");
+  const input = {
+    name: "New",
+    weight: 60,
+    height: 170,
+    goal: 65,
+    months: 8,
+    age: null,
+    sex: "skip",
+    activity: "light",
+    days: [1, 3, 5],
+    equipment: ["bodyweight"],
+    foods: ["Beans"],
+    budget: "budget",
+    weeklyBudget: 20000,
+  };
+  await db.query("select public.guided_initialize($1,$2)", [
+    JSON.stringify(input),
+    JSON.stringify({ kcal: 2050, protein: 108, carbs: 280, fat: 57 }),
+  ]);
+  expect(Number(await scalar("select count(*) from public.workout_templates"))).toBe(3);
+  expect(
+    Number(
+      await scalar(
+        "select count(*) from public.workout_template_exercises p where not public.can_use_exercise(p.exercise_id)",
+      ),
+    ),
+  ).toBe(0);
+  expect(await scalar("select budget_mode from public.user_preferences")).toBe("budget");
+  await db.query("select public.guided_initialize($1,$2)", [
+    JSON.stringify({ ...input, name: "Overwrite" }),
+    "{}",
+  ]);
+  expect(await scalar("select first_name from public.profiles")).toBe("New");
+  expect(Number(await scalar("select count(*) from public.logging_days"))).toBe(0);
+});
+
+it("reschedules a new full-body plan without losing its exercises", async () => {
+  await asUser("00000000-0000-4000-8000-000000000003");
+  await db.query("select public.save_settings($1)", [
+    JSON.stringify({
+      first_name: "New",
+      water_target_ml: 2500,
+      diet_type: "omnivore",
+      budget_mode: "budget",
+      days: [2, 4, 6],
+    }),
+  ]);
+  expect(
+    Number(
+      await scalar(
+        "select count(*) from public.workout_template_exercises p join public.workout_templates t on t.id=p.workout_template_id join public.program_weeks w on w.id=t.program_week_id join public.training_programs g on g.id=w.training_program_id where g.effective_to is null",
+      ),
+    ),
+  ).toBe(18);
 });

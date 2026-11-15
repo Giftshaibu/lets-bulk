@@ -53,6 +53,7 @@ export class AppRepository {
       recommendations,
       loads,
       equipment,
+      loggingDays,
     ] = await Promise.all([
       result(db.from("profiles").select("*").eq("user_id", u).maybeSingle()),
       result(db.from("user_preferences").select("*").eq("user_id", u).maybeSingle()),
@@ -135,6 +136,7 @@ export class AppRepository {
       ),
       all(db.from("gym_load_options").select("*").eq("user_id", u).order("id")),
       all(db.from("available_equipment").select("*").eq("user_id", u).order("id")),
+      all(db.from("logging_days").select("*").eq("user_id", u).order("date")),
     ]);
     return {
       profile,
@@ -163,6 +165,7 @@ export class AppRepository {
       recommendations,
       loads,
       equipment,
+      loggingDays,
     };
   }
 }

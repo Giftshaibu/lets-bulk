@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { equipmentChoices } from "../domain/equipment";
 import { getLocalDate } from "../domain/dates";
 export const id = z.string().uuid();
 export const date = z
@@ -148,7 +149,7 @@ export const settings = z.object({
   target_date: calendarDate.nullable().optional(),
   training_experience: z.enum(["beginner", "intermediate", "advanced"]).optional(),
   equipment: z
-    .array(z.enum(["bodyweight", "barbell", "dumbbell", "cable", "machine", "pullup_bar"]))
+    .array(z.enum(equipmentChoices))
     .min(1)
     .refine(
       (v) => new Set(v).size === v.length && v.includes("bodyweight"),
