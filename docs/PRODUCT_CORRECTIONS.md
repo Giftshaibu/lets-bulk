@@ -75,3 +75,21 @@ guided initialization idempotency, and full-body rescheduling. Playwright covers
 onboarding, persistence, journey details, food logging/saved meals/contextual
 menus, exercise image loading, Settings and mobile overflow. Only a disposable
 account is used for hosted browser verification.
+
+### Published verification
+
+- Application commit: `e340e25` on `feat/persistent-bulking-app`.
+- Live: https://giftshaibu-lets-bulk.giftshaibu.workers.dev
+- Cloudflare version: `204fd4af-b237-4ed3-8760-cd9588a5255a`, deployed to 100%.
+- TypeScript and ESLint pass (eight pre-existing Fast Refresh warnings).
+- All 48 automated tests pass; Cloudflare production build/dry run passes.
+- All three Playwright suites pass locally and on the live Worker. Live execution
+  used a fresh disposable account and exercised the guided setup before testing
+  persisted settings, sourced-food logging, accepted training changes, reloads,
+  logging streaks, journey-week details, separate progress destinations, saved
+  meals, contextual nutrition menus, every displayed exercise image and mobile
+  overflow. The protected dashboard API returns HTTP 401 without authentication.
+- Hosted reference-data verification reports 48/48 active exercises with complete
+  image, license, author and instruction metadata. Test sessions were signed out
+  globally, then only the two disposable test accounts and their synthetic rows
+  were deleted. No disposable test accounts remain.
