@@ -98,3 +98,33 @@ local test environments only). Without credentials the browser test is skipped.
 The apostrophe in the project folder exposes upstream route-splitter and Nitro
 path-escaping bugs. `vite.config.ts` keeps routes in one bundle and escapes generated
 Nitro polyfill paths, preserving the requested folder name and deployment preset.
+
+## Cloudflare deployment
+
+Live application: https://giftshaibu-lets-bulk.giftshaibu.workers.dev
+
+The Worker is `giftshaibu-lets-bulk`, configured by `wrangler.jsonc`. Its static
+assets are served by Cloudflare, while Supabase remains the private data backend.
+Logs and sampled traces are enabled. Placement targets the existing Supabase
+region, `aws:eu-west-1`. No paid-plan upgrade was requested or enabled.
+
+To deploy an update from this checkout:
+
+```sh
+npx wrangler login
+npm run deploy:check
+npm run deploy
+```
+
+The deploy scripts build first and use the checked-in Wrangler configuration.
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` must be available at build
+time, through `.env.local` or your build environment. Only the publishable key belongs
+in a browser build. Automatic deployments from GitHub have not been configured;
+this release was uploaded through the connected Cloudflare account.
+
+Before using email confirmation links, open the project's
+[Supabase Auth URL Configuration](https://supabase.com/dashboard/project/dbiddamqpbeueykajapg/auth/url-configuration)
+and set **Site URL** to `https://giftshaibu-lets-bulk.giftshaibu.workers.dev`.
+Add the same origin to **Redirect URLs**, retaining any localhost URLs needed for
+local development. The connected Supabase tools do not expose Auth configuration
+updates, so this Dashboard setting needs to be completed by the account owner.

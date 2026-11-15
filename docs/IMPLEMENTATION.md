@@ -61,10 +61,11 @@ documents were not present in the repository.
 
 ## Current boundaries
 
-No site was published and no GitHub branch was pushed. The hosted database is
-configured; the application is ready to run locally or deploy through the existing
-TanStack/Lovable build pipeline. Configure Supabase's Auth site/redirect URL for the
-chosen deployment before inviting/confirming an account there.
+The implementation branch is pushed to GitHub, and the application is deployed to
+Cloudflare Workers at https://giftshaibu-lets-bulk.giftshaibu.workers.dev. The Worker
+serves the existing TanStack application and static assets; Supabase remains the
+backend. See README.md for repeat deployments and the remaining Auth URL Dashboard
+setting required before using email confirmation links.
 
 This V1 uses manual weekly reviews. Cron, AI explanations, wearables, extra backends,
 and automated training-volume/deload/substitution changes are not introduced.
