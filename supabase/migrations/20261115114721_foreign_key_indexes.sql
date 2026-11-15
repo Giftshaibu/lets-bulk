@@ -1,0 +1,15 @@
+create index sets_exercise_fk on public.exercise_sets(exercise_id);
+create index sets_owner_session_fk on public.exercise_sets(workout_session_id,user_id);
+create index prices_food_fk on public.food_prices(food_id);
+create index loads_exercise_fk on public.gym_load_options(exercise_id);
+create index meal_items_food_fk on public.meal_items(food_id);
+create index meal_items_owner_meal_fk on public.meal_items(meal_id,user_id);
+create index log_items_food_fk on public.nutrition_log_items(food_id);
+create index log_items_owner_log_fk on public.nutrition_log_items(nutrition_log_id,user_id);
+create index logs_owner_meal_fk on public.nutrition_logs(meal_id,user_id);
+create index weeks_owner_program_fk on public.program_weeks(training_program_id,user_id);
+create index recommendations_owner_review_fk on public.recommendations(weekly_analysis_id,user_id);
+create index sessions_owner_template_fk on public.workout_sessions(workout_template_id,user_id);
+create index planned_exercise_fk on public.workout_template_exercises(exercise_id);
+create index planned_owner_template_fk on public.workout_template_exercises(workout_template_id,user_id);
+create index templates_owner_week_fk on public.workout_templates(program_week_id,user_id);
