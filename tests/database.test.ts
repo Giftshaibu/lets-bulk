@@ -148,6 +148,11 @@ describe("database policies and complete workflows", () => {
     );
     await db.query("select public.delete_set($1)", [set]);
     await db.query("select public.save_set($1,$2,1,40,12,2,true)", [sid, plans[0]!.exercise_id]);
+    await db.query("update public.workout_sessions set status='abandoned' where id=$1", [sid]);
+    expect(await scalar("select public.start_workout($1)", [tid])).toBe(sid);
+    expect(await scalar("select status from public.workout_sessions where id=$1", [sid])).toBe(
+      "in_progress",
+    );
     await db.query("select public.complete_workout($1)", [sid]);
     await db.query("select public.complete_workout($1)", [sid]);
     expect(await scalar("select status from public.workout_sessions where id=$1", [sid])).toBe(
