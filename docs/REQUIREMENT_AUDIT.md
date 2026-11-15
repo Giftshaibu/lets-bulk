@@ -11,7 +11,7 @@ therefore superseded by the user's instruction.
 | ------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------- |
 | Profile persists                            | Implemented                    | `profiles`, setup and expanded Settings                                                                  |
 | Nutrition targets persist and are versioned | Implemented                    | Atomic recommendation acceptance, PostgreSQL tests                                                       |
-| Foods can be searched                       | Implemented                    | Food search; seven sourced reference entries plus personal foods                                         |
+| Foods can be searched                       | Implemented                    | Synonym-aware search; 200 sourced reference entries plus personal foods                                         |
 | Meals can be created and edited             | Implemented                    | Recipe editor and `save_meal` transaction                                                                |
 | Food can be logged                          | Implemented                    | `log_food`, `log_meal`, nutrient snapshots and retry checks                                              |
 | Daily nutrition totals are calculated       | Implemented                    | Dashboard service calculates totals from saved snapshots                                                 |
@@ -58,7 +58,7 @@ therefore superseded by the user's instruction.
 | Deload restoration                                | Implemented             | Explicit proposal after seven days; no silent restoration or calorie overhaul                          |
 | Observed maintenance calibration                  | Implemented             | At least 21 substantial food days, 10 sufficiently spread/recent weigh-ins, variability gate           |
 | Weight projections                                | Implemented             | Conditional 4/8/12-week projections; hidden when history is insufficient                               |
-| Source-backed common foods                        | Implemented             | Seven USDA SR Legacy fallback records with preparation, FDC IDs and source URLs                        |
+| Source-backed common foods                        | Implemented             | 200 USDA SR Legacy CC0 fallback records with preparation, FDC IDs, source URLs and measured portions                        |
 | Verified nsima/usipa/chambo composition           | Requires validated data | Still explicitly unverified and unavailable for nutrient logging; regional composition is not invented |
 | Exercise illustrations/animations                 | Optional assets absent  | The app does not fabricate licensed illustrations; storage is available for private progress images    |
 | Scheduled reviews, AI explanations, wearable sync | Deferred by scope       | Manual deterministic review remains the V1 workflow                                                    |

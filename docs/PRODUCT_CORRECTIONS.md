@@ -93,3 +93,22 @@ account is used for hosted browser verification.
   image, license, author and instruction metadata. Test sessions were signed out
   globally, then only the two disposable test accounts and their synthetic rows
   were deleted. No disposable test accounts remain.
+
+### Expanded food catalog verification
+
+The catalog now has 200 loggable CC0 USDA reference foods, including bread,
+wheat products, chapati/roti, common ingredients and generic regular/light beer.
+Source-measured portions and aliases are documented in `FOOD_SOURCES.md` and the
+200-record provenance manifest. Existing reference nutrient values, personal
+foods, account state and historical logs are preserved by the idempotent seed.
+MAFOODS-specific compilation reuse remains pending as described above.
+
+Application commit: `1f8993b`; Cloudflare version:
+`8d21169b-4d17-45b3-9385-9e58be94fef4` at 100% of traffic. TypeScript, ESLint
+(no errors; eight existing warnings), the production build/dry run and all **55**
+automated tests pass. All **four** browser suites pass on the live Worker. The new
+browser case verifies whole-wheat search, a measured 32 g slice, 500 ml regular
+beer (~216 kcal including alcohol), reload persistence, and saving a drink as a
+meal using its actual gram quantity. Unit/SQL tests also verify source IDs,
+idempotency, preservation of personal foods, aliases, source density, and keeping
+alcoholic drinks out of nutritional replacement suggestions.
