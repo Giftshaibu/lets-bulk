@@ -651,3 +651,56 @@ it("reschedules a new full-body plan without losing its exercises", async () => 
     ),
   ).toBe(18);
 });
+it("seeds bread, wheat and beer idempotently without overwriting personal foods", async () => {
+  await asUser("00000000-0000-4000-8000-000000000003");
+  expect(
+    Number(
+      await scalar(
+        "select count(*) from public.foods where user_id is null and source='USDA SR Legacy'",
+      ),
+    ),
+  ).toBe(200);
+  expect(
+    Number(
+      await scalar(
+        "select count(*) from public.foods where user_id is null and name ilike '%wheat%' and calories_per_100g is not null",
+      ),
+    ),
+  ).toBeGreaterThanOrEqual(20);
+  await db.query(
+    "insert into public.foods(user_id,name,category,preparation_state,calories_per_100g,protein_per_100g,carbs_per_100g,fat_per_100g,source,source_reference) values(auth.uid(),'Personal bread','staple','test',100,5,20,1,'user-provided','https://fdc.nal.usda.gov/food-details/174924/nutrients')",
+  );
+  const seed = readdirSync("supabase/migrations").find((name) =>
+    name.endsWith("_expand_sourced_food_catalog.sql"),
+  )!;
+  const sql = readFileSync(`supabase/migrations/${seed}`, "utf8");
+  await db.exec("reset role");
+  await db.exec(sql.slice(sql.indexOf("merge into")));
+  await asUser("00000000-0000-4000-8000-000000000003");
+  expect(
+    Number(
+      await scalar(
+        "select count(*) from public.foods where user_id is null and source='USDA SR Legacy'",
+      ),
+    ),
+  ).toBe(200);
+  expect(
+    Number(await scalar("select calories_per_100g from public.foods where name='Personal bread'")),
+  ).toBe(100);
+});
+it("stores the full source energy when logging a measured beer portion", async () => {
+  const beer = await scalar(
+    "select id from public.foods where user_id is null and source_reference='https://fdc.nal.usda.gov/food-details/168746/nutrients'",
+  );
+  const grams = (29.7 / 29.5735295625) * 500;
+  await db.query("select public.log_food(gen_random_uuid(),current_date,'snack',$1,$2)", [
+    beer,
+    grams,
+  ]);
+  const energy = Number(
+    await scalar("select calories from public.nutrition_log_items where food_id=$1 limit 1", [
+      beer,
+    ]),
+  );
+  expect(energy).toBeCloseTo((43 * grams) / 100, 1);
+});

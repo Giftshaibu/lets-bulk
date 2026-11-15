@@ -288,6 +288,7 @@ export type Database = {
       };
       foods: {
         Row: {
+          alcohol_g_per_100g: number | null;
           availability: string | null;
           calories_per_100g: number | null;
           carbs_per_100g: number | null;
@@ -304,12 +305,15 @@ export type Database = {
           protein_per_100g: number | null;
           serving_grams: number | null;
           serving_name: string | null;
+          serving_volume_ml: number | null;
           source: string;
+          source_license: string | null;
           source_reference: string | null;
           source_year: number | null;
           user_id: string | null;
         };
         Insert: {
+          alcohol_g_per_100g?: number | null;
           availability?: string | null;
           calories_per_100g?: number | null;
           carbs_per_100g?: number | null;
@@ -326,12 +330,15 @@ export type Database = {
           protein_per_100g?: number | null;
           serving_grams?: number | null;
           serving_name?: string | null;
+          serving_volume_ml?: number | null;
           source: string;
+          source_license?: string | null;
           source_reference?: string | null;
           source_year?: number | null;
           user_id?: string | null;
         };
         Update: {
+          alcohol_g_per_100g?: number | null;
           availability?: string | null;
           calories_per_100g?: number | null;
           carbs_per_100g?: number | null;
@@ -348,7 +355,9 @@ export type Database = {
           protein_per_100g?: number | null;
           serving_grams?: number | null;
           serving_name?: string | null;
+          serving_volume_ml?: number | null;
           source?: string;
+          source_license?: string | null;
           source_reference?: string | null;
           source_year?: number | null;
           user_id?: string | null;
