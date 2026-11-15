@@ -1,3 +1,4 @@
+import { ExerciseGuide } from "@/features/exercise-guide";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -58,6 +59,7 @@ function TrainPage() {
                   Last time: {e.lastTime} · rest {e.restSeconds}s
                 </div>
                 <p className="mt-2 text-sm font-bold">{e.nextTarget}</p>
+                <ExerciseGuide id={e.id} />
               </li>
             ))}
           </ul>

@@ -1,3 +1,4 @@
+import { ExerciseGuide } from "@/features/exercise-guide";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, ChevronLeft, Minus, Plus, Timer, Trophy, X } from "lucide-react";
@@ -191,6 +192,11 @@ function WorkoutLogger() {
                 Exercise {index + 1} of {exercises.length}
               </div>
               <h1 className="text-[24px] leading-tight font-extrabold">{exercise.name}</h1>
+              <ExerciseGuide id={exercise.id} />
+              <p className="mt-2 text-sm">
+                RIR means reps in reserve: how many more good repetitions you could have done. RIR 2
+                means about two left. Stop before your form breaks.
+              </p>
               <div className="text-[13px] font-bold text-muted-foreground">
                 {exercise.muscle} · target {exercise.targetSets} × {exercise.targetReps} · last{" "}
                 {exercise.lastTime}

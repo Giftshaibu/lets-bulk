@@ -1,0 +1,938 @@
+{
+  "barbell-bench-press": {
+    "name": "Barbell Bench Press",
+    "images": ["/exercises/barbell-bench-press-0.jpg", "/exercises/barbell-bench-press-1.jpg"],
+    "instructions": [
+      "Lie back on a flat bench. Using a medium width grip (a grip that creates a 90-degree angle in the middle of the movement between the forearms and the upper arms), lift the bar from the rack and hold it straight over you with your arms locked. This will be your starting position.",
+      "From the starting position, breathe in and begin coming down slowly until the bar touches your middle chest.",
+      "After a brief pause, push the bar back to the starting position as you breathe out. Focus on pushing the bar using your chest muscles. Lock your arms and squeeze your chest in the contracted position at the top of the motion, hold for a second and then start coming down slowly again. Tip: Ideally, lowering the weight should take about twice as long as raising it.",
+      "Repeat the movement for the prescribed amount of repetitions.",
+      "When you are done, place the bar back in the rack."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Barbell_Bench_Press_-_Medium_Grip",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "incline-dumbbell-press": {
+    "name": "Incline Dumbbell Press",
+    "images": [
+      "/exercises/incline-dumbbell-press-0.jpg",
+      "/exercises/incline-dumbbell-press-1.jpg"
+    ],
+    "instructions": [
+      "Lie back on an incline bench with a dumbbell in each hand atop your thighs. The palms of your hands will be facing each other.",
+      "Then, using your thighs to help push the dumbbells up, lift the dumbbells one at a time so that you can hold them at shoulder width.",
+      "Once you have the dumbbells raised to shoulder width, rotate your wrists forward so that the palms of your hands are facing away from you. This will be your starting position.",
+      "Be sure to keep full control of the dumbbells at all times. Then breathe out and push the dumbbells up with your chest.",
+      "Lock your arms at the top, hold for a second, and then start slowly lowering the weight. Tip Ideally, lowering the weights should take about twice as long as raising them.",
+      "Repeat the movement for the prescribed amount of repetitions.",
+      "When you are done, place the dumbbells back on your thighs and then on the floor. This is the safest manner to release the dumbbells."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Incline_Dumbbell_Press",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "machine-chest-press": {
+    "name": "Machine Chest Press",
+    "images": ["/exercises/machine-chest-press-0.jpg", "/exercises/machine-chest-press-1.jpg"],
+    "instructions": [
+      "Sit down on the Chest Press Machine and select the weight.",
+      "Step on the lever provided by the machine since it will help you to bring the handles forward so that you can grab the handles and fully extend the arms.",
+      "Grab the handles with a palms-down grip and lift your elbows so that your upper arms are parallel to the floor to the sides of your torso. Tip: Your forearms will be pointing forward since you are grabbing the handles. Once you bring the handles forward and extend the arms you will be at the starting position.",
+      "Now bring the handles back towards you as you breathe in.",
+      "Push the handles away from you as you flex your pecs and you breathe out. Hold the contraction for a second before going back to the starting position.",
+      "Repeat for the recommended amount of reps.",
+      "When finished step on the lever again and slowly get the handles back to their original place."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Machine_Bench_Press",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "cable-fly": {
+    "name": "Cable Fly",
+    "images": ["/exercises/cable-fly-0.jpg", "/exercises/cable-fly-1.jpg"],
+    "instructions": [
+      "To get yourself into the starting position, place the pulleys on a high position (above your head), select the resistance to be used and hold the pulleys in each hand.",
+      "Step forward in front of an imaginary straight line between both pulleys while pulling your arms together in front of you. Your torso should have a small forward bend from the waist. This will be your starting position.",
+      "With a slight bend on your elbows in order to prevent stress at the biceps tendon, extend your arms to the side (straight out at both sides) in a wide arc until you feel a stretch on your chest. Breathe in as you perform this portion of the movement. Tip: Keep in mind that throughout the movement, the arms and torso should remain stationary; the movement should only occur at the shoulder joint.",
+      "Return your arms back to the starting position as you breathe out. Make sure to use the same arc of motion used to lower the weights.",
+      "Hold for a second at the starting position and repeat the movement for the prescribed amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Cable_Crossover",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "push-up": {
+    "name": "Push-Up",
+    "images": ["/exercises/push-up-0.jpg", "/exercises/push-up-1.jpg"],
+    "instructions": [
+      "Lie on the floor face down and place your hands about 36 inches apart while holding your torso up at arms length.",
+      "Next, lower yourself downward until your chest almost touches the floor as you inhale.",
+      "Now breathe out and press your upper body back up to the starting position while squeezing your chest.",
+      "After a brief pause at the top contracted position, you can begin to lower yourself downward again for as many repetitions as needed."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Pushups",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "lat-pulldown": {
+    "name": "Lat Pulldown",
+    "images": ["/exercises/lat-pulldown-0.jpg", "/exercises/lat-pulldown-1.jpg"],
+    "instructions": [
+      "Sit down on a pull-down machine with a wide bar attached to the top pulley. Make sure that you adjust the knee pad of the machine to fit your height. These pads will prevent your body from being raised by the resistance attached to the bar.",
+      "Grab the bar with the palms facing forward using the prescribed grip. Note on grips: For a wide grip, your hands need to be spaced out at a distance wider than shoulder width. For a medium grip, your hands need to be spaced out at a distance equal to your shoulder width and for a close grip at a distance smaller than your shoulder width.",
+      "As you have both arms extended in front of you holding the bar at the chosen grip width, bring your torso back around 30 degrees or so while creating a curvature on your lower back and sticking your chest out. This is your starting position.",
+      "As you breathe out, bring the bar down until it touches your upper chest by drawing the shoulders and the upper arms down and back. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. The upper torso should remain stationary and only the arms should move. The forearms should do no other work except for holding the bar; therefore do not try to pull down the bar using the forearms.",
+      "After a second at the contracted position squeezing your shoulder blades together, slowly raise the bar back to the starting position when your arms are fully extended and the lats are fully stretched. Inhale during this portion of the movement.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Wide-Grip_Lat_Pulldown",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "pull-up": {
+    "name": "Pull-Up",
+    "images": ["/exercises/pull-up-0.jpg", "/exercises/pull-up-1.jpg"],
+    "instructions": [
+      "Grab the pull-up bar with the palms facing forward using the prescribed grip. Note on grips: For a wide grip, your hands need to be spaced out at a distance wider than your shoulder width. For a medium grip, your hands need to be spaced out at a distance equal to your shoulder width and for a close grip at a distance smaller than your shoulder width.",
+      "As you have both arms extended in front of you holding the bar at the chosen grip width, bring your torso back around 30 degrees or so while creating a curvature on your lower back and sticking your chest out. This is your starting position.",
+      "Pull your torso up until the bar touches your upper chest by drawing the shoulders and the upper arms down and back. Exhale as you perform this portion of the movement. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. The upper torso should remain stationary as it moves through space and only the arms should move. The forearms should do no other work other than hold the bar.",
+      "After a second on the contracted position, start to inhale and slowly lower your torso back to the starting position when your arms are fully extended and the lats are fully stretched.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Pullups",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "barbell-row": {
+    "name": "Barbell Row",
+    "images": ["/exercises/barbell-row-0.jpg", "/exercises/barbell-row-1.jpg"],
+    "instructions": [
+      "Holding a barbell with a pronated grip (palms facing down), bend your knees slightly and bring your torso forward, by bending at the waist, while keeping the back straight until it is almost parallel to the floor. Tip: Make sure that you keep the head up. The barbell should hang directly in front of you as your arms hang perpendicular to the floor and your torso. This is your starting position.",
+      "Now, while keeping the torso stationary, breathe out and lift the barbell to you. Keep the elbows close to the body and only use the forearms to hold the weight. At the top contracted position, squeeze the back muscles and hold for a brief pause.",
+      "Then inhale and slowly lower the barbell back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Bent_Over_Barbell_Row",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "cable-row": {
+    "name": "Cable Row",
+    "images": ["/exercises/cable-row-0.jpg", "/exercises/cable-row-1.jpg"],
+    "instructions": [
+      "For this exercise you will need access to a low pulley row machine with a V-bar. Note: The V-bar will enable you to have a neutral grip where the palms of your hands face each other. To get into the starting position, first sit down on the machine and place your feet on the front platform or crossbar provided making sure that your knees are slightly bent and not locked.",
+      "Lean over as you keep the natural alignment of your back and grab the V-bar handles.",
+      "With your arms extended pull back until your torso is at a 90-degree angle from your legs. Your back should be slightly arched and your chest should be sticking out. You should be feeling a nice stretch on your lats as you hold the bar in front of you. This is the starting position of the exercise.",
+      "Keeping the torso stationary, pull the handles back towards your torso while keeping the arms close to it until you touch the abdominals. Breathe out as you perform that movement. At that point you should be squeezing your back muscles hard. Hold that contraction for a second and slowly go back to the original position while breathing in.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Seated_Cable_Rows",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dumbbell-row": {
+    "name": "Dumbbell Row",
+    "images": ["/exercises/dumbbell-row-0.jpg", "/exercises/dumbbell-row-1.jpg"],
+    "instructions": [
+      "Choose a flat bench and place a dumbbell on each side of it.",
+      "Place the right leg on top of the end of the bench, bend your torso forward from the waist until your upper body is parallel to the floor, and place your right hand on the other end of the bench for support.",
+      "Use the left hand to pick up the dumbbell on the floor and hold the weight while keeping your lower back straight. The palm of the hand should be facing your torso. This will be your starting position.",
+      "Pull the resistance straight up to the side of your chest, keeping your upper arm close to your side and keeping the torso stationary. Breathe out as you perform this step. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. Also, make sure that the force is performed with the back muscles and not the arms. Finally, the upper torso should remain stationary and only the arms should move. The forearms should do no other work except for holding the dumbbell; therefore do not try to pull the dumbbell up using the forearms.",
+      "Lower the resistance straight down to the starting position. Breathe in as you perform this step.",
+      "Repeat the movement for the specified amount of repetitions.",
+      "Switch sides and repeat again with the other arm."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "One-Arm_Dumbbell_Row",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "chin-up": {
+    "name": "Chin-Up",
+    "images": ["/exercises/chin-up-0.jpg", "/exercises/chin-up-1.jpg"],
+    "instructions": [
+      "Grab the pull-up bar with the palms facing your torso and a grip closer than the shoulder width.",
+      "As you have both arms extended in front of you holding the bar at the chosen grip width, keep your torso as straight as possible while creating a curvature on your lower back and sticking your chest out. This is your starting position. Tip: Keeping the torso as straight as possible maximizes biceps stimulation while minimizing back involvement.",
+      "As you breathe out, pull your torso up until your head is around the level of the pull-up bar. Concentrate on using the biceps muscles in order to perform the movement. Keep the elbows close to your body. Tip: The upper torso should remain stationary as it moves through space and only the arms should move. The forearms should do no other work other than hold the bar.",
+      "After a second of squeezing the biceps in the contracted position, slowly lower your torso back to the starting position; when your arms are fully extended. Breathe in as you perform this portion of the movement.",
+      "Repeat this motion for the prescribed amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Chin-Up",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "overhead-press": {
+    "name": "Overhead Press",
+    "images": ["/exercises/overhead-press-0.jpg", "/exercises/overhead-press-1.jpg"],
+    "instructions": [
+      "Start by placing a barbell that is about chest high on a squat rack. Once you have selected the weights, grab the barbell using a pronated (palms facing forward) grip. Make sure to grip the bar wider than shoulder width apart from each other.",
+      "Slightly bend the knees and place the barbell on your collar bone. Lift the barbell up keeping it lying on your chest. Take a step back and position your feet shoulder width apart from each other.",
+      "Once you pick up the barbell with the correct grip length, lift the bar up over your head by locking your arms. Hold at about shoulder level and slightly in front of your head. This is your starting position.",
+      "Lower the bar down to the collarbone slowly as you inhale.",
+      "Lift the bar back up to the starting position as you exhale.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Standing_Military_Press",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dumbbell-shoulder-press": {
+    "name": "Dumbbell Shoulder Press",
+    "images": [
+      "/exercises/dumbbell-shoulder-press-0.jpg",
+      "/exercises/dumbbell-shoulder-press-1.jpg"
+    ],
+    "instructions": [
+      "While holding a dumbbell in each hand, sit on a military press bench or utility bench that has back support. Place the dumbbells upright on top of your thighs.",
+      "Now raise the dumbbells to shoulder height one at a time using your thighs to help propel them up into position.",
+      "Make sure to rotate your wrists so that the palms of your hands are facing forward. This is your starting position.",
+      "Now, exhale and push the dumbbells upward until they touch at the top.",
+      "Then, after a brief pause at the top contracted position, slowly lower the weights back down to the starting position while inhaling.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Dumbbell_Shoulder_Press",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "lateral-raise": {
+    "name": "Lateral Raise",
+    "images": ["/exercises/lateral-raise-0.jpg", "/exercises/lateral-raise-1.jpg"],
+    "instructions": [
+      "Pick a couple of dumbbells and stand with a straight torso and the dumbbells by your side at arms length with the palms of the hand facing you. This will be your starting position.",
+      "While maintaining the torso in a stationary position (no swinging), lift the dumbbells to your side with a slight bend on the elbow and the hands slightly tilted forward as if pouring water in a glass. Continue to go up until you arms are parallel to the floor. Exhale as you execute this movement and pause for a second at the top.",
+      "Lower the dumbbells back down slowly to the starting position as you inhale.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Side_Lateral_Raise",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "rear-delt-fly": {
+    "name": "Rear Delt Fly",
+    "images": ["/exercises/rear-delt-fly.svg"],
+    "instructions": [
+      "Hold light dumbbells, hinge at your hips, and keep your back neutral.",
+      "With elbows slightly bent, lift arms out to the sides.",
+      "Lower slowly without swinging your torso."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "rear-delt-fly",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "pike-push-up": {
+    "name": "Pike Push-Up",
+    "images": ["/exercises/pike-push-up.svg"],
+    "instructions": [
+      "Place hands shoulder-width apart and lift your hips into an inverted V.",
+      "Bend your elbows to lower your head toward the floor between your hands.",
+      "Press the floor away, keeping your hips high."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "pike-push-up",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "face-pull": {
+    "name": "Face Pull",
+    "images": ["/exercises/face-pull-0.jpg", "/exercises/face-pull-1.jpg"],
+    "instructions": [
+      "Facing a high pulley with a rope or dual handles attached, pull the weight directly towards your face, separating your hands as you do so. Keep your upper arms parallel to the ground."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Face_Pull",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "barbell-curl": {
+    "name": "Barbell Curl",
+    "images": ["/exercises/barbell-curl-0.jpg", "/exercises/barbell-curl-1.jpg"],
+    "instructions": [
+      "Stand up with your torso upright while holding a barbell at a shoulder-width grip. The palm of your hands should be facing forward and the elbows should be close to the torso. This will be your starting position.",
+      "While holding the upper arms stationary, curl the weights forward while contracting the biceps as you breathe out. Tip: Only the forearms should move.",
+      "Continue the movement until your biceps are fully contracted and the bar is at shoulder level. Hold the contracted position for a second and squeeze the biceps hard.",
+      "Slowly begin to bring the bar back to starting position as your breathe in.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Barbell_Curl",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dumbbell-curl": {
+    "name": "Dumbbell Curl",
+    "images": ["/exercises/dumbbell-curl-0.jpg", "/exercises/dumbbell-curl-1.jpg"],
+    "instructions": [
+      "Stand up straight with a dumbbell in each hand at arm's length. Keep your elbows close to your torso and rotate the palms of your hands until they are facing forward. This will be your starting position.",
+      "Now, keeping the upper arms stationary, exhale and curl the weights while contracting your biceps. Continue to raise the weights until your biceps are fully contracted and the dumbbells are at shoulder level. Hold the contracted position for a brief pause as you squeeze your biceps.",
+      "Then, inhale and slowly begin to lower the dumbbells back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Dumbbell_Bicep_Curl",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "hammer-curl": {
+    "name": "Hammer Curl",
+    "images": ["/exercises/hammer-curl-0.jpg", "/exercises/hammer-curl-1.jpg"],
+    "instructions": [
+      "Stand up with your torso upright and a dumbbell on each hand being held at arms length. The elbows should be close to the torso.",
+      "The palms of the hands should be facing your torso. This will be your starting position.",
+      "Now, while holding your upper arm stationary, exhale and curl the weight forward while contracting the biceps. Continue to raise the weight until the biceps are fully contracted and the dumbbell is at shoulder level. Hold the contracted position for a brief moment as you squeeze the biceps. Tip: Focus on keeping the elbow stationary and only moving your forearm.",
+      "After the brief pause, inhale and slowly begin the lower the dumbbells back down to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Hammer_Curls",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "cable-curl": {
+    "name": "Cable Curl",
+    "images": ["/exercises/cable-curl-0.jpg", "/exercises/cable-curl-1.jpg"],
+    "instructions": [
+      "Stand up with your torso upright while holding a cable curl bar that is attached to a low pulley. Grab the cable bar at shoulder width and keep the elbows close to the torso. The palm of your hands should be facing up (supinated grip). This will be your starting position.",
+      "While holding the upper arms stationary, curl the weights while contracting the biceps as you breathe out. Only the forearms should move. Continue the movement until your biceps are fully contracted and the bar is at shoulder level. Hold the contracted position for a second as you squeeze the muscle.",
+      "Slowly begin to bring the curl bar back to starting position as your breathe in.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Standing_Biceps_Cable_Curl",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "triceps-pushdown": {
+    "name": "Triceps Pushdown",
+    "images": ["/exercises/triceps-pushdown-0.jpg", "/exercises/triceps-pushdown-1.jpg"],
+    "instructions": [
+      "Attach a straight or angled bar to a high pulley and grab with an overhand grip (palms facing down) at shoulder width.",
+      "Standing upright with the torso straight and a very small inclination forward, bring the upper arms close to your body and perpendicular to the floor. The forearms should be pointing up towards the pulley as they hold the bar. This is your starting position.",
+      "Using the triceps, bring the bar down until it touches the front of your thighs and the arms are fully extended perpendicular to the floor. The upper arms should always remain stationary next to your torso and only the forearms should move. Exhale as you perform this movement.",
+      "After a second hold at the contracted position, bring the bar slowly up to the starting point. Breathe in as you perform this step.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Triceps_Pushdown",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "overhead-triceps-extension": {
+    "name": "Overhead Triceps Extension",
+    "images": [
+      "/exercises/overhead-triceps-extension-0.jpg",
+      "/exercises/overhead-triceps-extension-1.jpg"
+    ],
+    "instructions": [
+      "To begin, stand up with a dumbbell held by both hands. Your feet should be about shoulder width apart from each other. Slowly use both hands to grab the dumbbell and lift it over your head until both arms are fully extended.",
+      "The resistance should be resting in the palms of your hands with your thumbs around it. The palm of the hands should be facing up towards the ceiling. This will be your starting position.",
+      "Keeping your upper arms close to your head with elbows in and perpendicular to the floor, lower the resistance in a semicircular motion behind your head until your forearms touch your biceps. Tip: The upper arms should remain stationary and only the forearms should move. Breathe in as you perform this step.",
+      "Go back to the starting position by using the triceps to raise the dumbbell. Breathe out as you perform this step.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Standing_Dumbbell_Triceps_Extension",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "close-grip-push-up": {
+    "name": "Close-Grip Push-Up",
+    "images": ["/exercises/close-grip-push-up.svg"],
+    "instructions": [
+      "Set your hands just inside shoulder width, with legs extended and body straight.",
+      "Lower your chest while keeping elbows near your sides.",
+      "Push back up without letting your lower back sag."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "close-grip-push-up",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dumbbell-skullcrusher": {
+    "name": "Dumbbell Skullcrusher",
+    "images": ["/exercises/dumbbell-skullcrusher.svg"],
+    "instructions": [
+      "Lie on a flat bench holding dumbbells above your chest, palms facing each other.",
+      "Keep upper arms steady and bend elbows to lower the weights beside your head.",
+      "Straighten your elbows with control; use a light load."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "dumbbell-skullcrusher",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "back-squat": {
+    "name": "Back Squat",
+    "images": ["/exercises/back-squat-0.jpg", "/exercises/back-squat-1.jpg"],
+    "instructions": [
+      "This exercise is best performed inside a squat rack for safety purposes. To begin, first set the bar on a rack to just below shoulder level. Once the correct height is chosen and the bar is loaded, step under the bar and place the back of your shoulders (slightly below the neck) across it.",
+      "Hold on to the bar using both arms at each side and lift it off the rack by first pushing with your legs and at the same time straightening your torso.",
+      "Step away from the rack and position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times and also maintain a straight back. This will be your starting position. (Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances discussed in the foot stances section).",
+      "Begin to slowly lower the bar by bending the knees and hips as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees. Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to raise the bar as you exhale by pushing the floor with the heel of your foot as you straighten the legs again and go back to the starting position.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Barbell_Squat",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "leg-press": {
+    "name": "Leg Press",
+    "images": ["/exercises/leg-press-0.jpg", "/exercises/leg-press-1.jpg"],
+    "instructions": [
+      "Using a leg press machine, sit down on the machine and place your legs on the platform directly in front of you at a medium (shoulder width) foot stance. (Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances described in the foot positioning section).",
+      "Lower the safety bars holding the weighted platform in place and press the platform all the way up until your legs are fully extended in front of you. Tip: Make sure that you do not lock your knees. Your torso and the legs should make a perfect 90-degree angle. This will be your starting position.",
+      "As you inhale, slowly lower the platform until your upper and lower legs make a 90-degree angle.",
+      "Pushing mainly with the heels of your feet and using the quadriceps go back to the starting position as you exhale.",
+      "Repeat for the recommended amount of repetitions and ensure to lock the safety pins properly once you are done. You do not want that platform falling on you fully loaded."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Leg_Press",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "bulgarian-split-squat": {
+    "name": "Bulgarian Split Squat",
+    "images": ["/exercises/bulgarian-split-squat-0.jpg", "/exercises/bulgarian-split-squat-1.jpg"],
+    "instructions": [
+      "Position yourself into a staggered stance with the rear foot elevated and front foot forward.",
+      "Hold a dumbbell in each hand, letting them hang at the sides. This will be your starting position.",
+      "Begin by descending, flexing your knee and hip to lower your body down. Maintain good posture througout the movement. Keep the front knee in line with the foot as you perform the exercise.",
+      "At the bottom of the movement, drive through the heel to extend the knee and hip to return to the starting position."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Split_Squat_with_Dumbbells",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "leg-extension": {
+    "name": "Leg Extension",
+    "images": ["/exercises/leg-extension-0.jpg", "/exercises/leg-extension-1.jpg"],
+    "instructions": [
+      "For this exercise you will need to use a leg extension machine. First choose your weight and sit on the machine with your legs under the pad (feet pointed forward) and the hands holding the side bars. This will be your starting position. Tip: You will need to adjust the pad so that it falls on top of your lower leg (just above your feet). Also, make sure that your legs form a 90-degree angle between the lower and upper leg. If the angle is less than 90-degrees then that means the knee is over the toes which in turn creates undue stress at the knee joint. If the machine is designed that way, either look for another machine or just make sure that when you start executing the exercise you stop going down once you hit the 90-degree angle.",
+      "Using your quadriceps, extend your legs to the maximum as you exhale. Ensure that the rest of the body remains stationary on the seat. Pause a second on the contracted position.",
+      "Slowly lower the weight back to the original position as you inhale, ensuring that you do not go past the 90-degree angle limit.",
+      "Repeat for the recommended amount of times."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Leg_Extensions",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "bodyweight-squat": {
+    "name": "Bodyweight Squat",
+    "images": ["/exercises/bodyweight-squat-0.jpg", "/exercises/bodyweight-squat-1.jpg"],
+    "instructions": [
+      "Stand with your feet shoulder width apart. You can place your hands behind your head. This will be your starting position.",
+      "Begin the movement by flexing your knees and hips, sitting back with your hips.",
+      "Continue down to full depth if you are able,and quickly reverse the motion until you return to the starting position. As you squat, keep your head and chest up and push your knees out."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Bodyweight_Squat",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "goblet-squat": {
+    "name": "Goblet Squat",
+    "images": ["/exercises/goblet-squat-0.jpg", "/exercises/goblet-squat-1.jpg"],
+    "instructions": [
+      "Hold one dumbbell vertically by its upper end close to your chest. The reference image shows the equivalent kettlebell grip.",
+      "Squat down between your legs until your hamstrings are on your calves. Keep your chest and head up and your back straight.",
+      "At the bottom position, pause and use your elbows to push your knees out. Return to the starting position, and repeat for 10-20 repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Goblet_Squat",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration (kettlebell shown)",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "romanian-deadlift": {
+    "name": "Romanian Deadlift",
+    "images": ["/exercises/romanian-deadlift-0.jpg", "/exercises/romanian-deadlift-1.jpg"],
+    "instructions": [
+      "Put a barbell in front of you on the ground and grab it using a pronated (palms facing down) grip that a little wider than shoulder width. Tip: Depending on the weight used, you may need wrist wraps to perform the exercise and also a raised platform in order to allow for better range of motion.",
+      "Bend the knees slightly and keep the shins vertical, hips back and back straight. This will be your starting position.",
+      "Keeping your back and arms completely straight at all times, use your hips to lift the bar as you exhale. Tip: The movement should not be fast but steady and under control.",
+      "Once you are standing completely straight up, lower the bar by pushing the hips back, only slightly bending the knees, unlike when squatting. Tip: Take a deep breath at the start of the movement and keep your chest up. Hold your breath as you lower and exhale as you complete the movement.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Romanian_Deadlift",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "leg-curl": {
+    "name": "Leg Curl",
+    "images": ["/exercises/leg-curl-0.jpg", "/exercises/leg-curl-1.jpg"],
+    "instructions": [
+      "Adjust the machine lever to fit your height and lie face down on the leg curl machine with the pad of the lever on the back of your legs (just a few inches under the calves). Tip: Preferably use a leg curl machine that is angled as opposed to flat since an angled position is more favorable for hamstrings recruitment.",
+      "Keeping the torso flat on the bench, ensure your legs are fully stretched and grab the side handles of the machine. Position your toes straight (or you can also use any of the other two stances described on the foot positioning section). This will be your starting position.",
+      "As you exhale, curl your legs up as far as possible without lifting the upper legs from the pad. Once you hit the fully contracted position, hold it for a second.",
+      "As you inhale, bring the legs back to the initial position. Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Lying_Leg_Curls",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dumbbell-romanian-deadlift": {
+    "name": "Dumbbell Romanian Deadlift",
+    "images": ["/exercises/dumbbell-romanian-deadlift.svg"],
+    "instructions": [
+      "Stand tall with dumbbells in front of your thighs and knees softly bent.",
+      "Push hips back, keeping weights close and your back neutral. Stop when hamstrings feel tension.",
+      "Drive through your feet and bring hips forward to stand."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "dumbbell-romanian-deadlift",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "single-leg-glute-bridge": {
+    "name": "Single-Leg Glute Bridge",
+    "images": [
+      "/exercises/single-leg-glute-bridge-0.jpg",
+      "/exercises/single-leg-glute-bridge-1.jpg"
+    ],
+    "instructions": [
+      "Lay on the floor with your feet flat and knees bent.",
+      "Raise one leg off of the ground, pulling the knee to your chest. This will be your starting position.",
+      "Execute the movement by driving through the heel, extending your hip upward and raising your glutes off of the ground.",
+      "Extend as far as possible, pause and then return to the starting position."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Single_Leg_Glute_Bridge",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "hip-thrust": {
+    "name": "Hip Thrust",
+    "images": ["/exercises/hip-thrust-0.jpg", "/exercises/hip-thrust-1.jpg"],
+    "instructions": [
+      "Begin seated on the ground with a bench directly behind you. Have a loaded barbell over your legs. Using a fat bar or having a pad on the bar can greatly reduce the discomfort caused by this exercise.",
+      "Roll the bar so that it is directly above your hips, and lean back against the bench so that your shoulder blades are near the top of it.",
+      "Begin the movement by driving through your feet, extending your hips vertically through the bar. Your weight should be supported by your shoulder blades and your feet. Extend as far as possible, then reverse the motion to return to the starting position."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Barbell_Hip_Thrust",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "glute-bridge": {
+    "name": "Glute Bridge",
+    "images": ["/exercises/glute-bridge.svg"],
+    "instructions": [
+      "Lie on your back with knees bent and feet flat, about hip-width apart.",
+      "Press through your feet to lift your hips until shoulders, hips and knees line up.",
+      "Squeeze your glutes, then lower slowly without arching your back."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "glute-bridge",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "reverse-lunge": {
+    "name": "Reverse Lunge",
+    "images": ["/exercises/reverse-lunge.svg"],
+    "instructions": [
+      "Stand tall holding dumbbells by your sides.",
+      "Step one foot back and bend both knees, keeping your front foot flat.",
+      "Push through your front foot to return. Alternate sides."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "reverse-lunge",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "bodyweight-reverse-lunge": {
+    "name": "Bodyweight Reverse Lunge",
+    "images": ["/exercises/bodyweight-reverse-lunge.svg"],
+    "instructions": [
+      "Stand tall with feet hip-width apart.",
+      "Step one foot back and lower until both knees bend comfortably.",
+      "Push through the front foot to stand. Alternate sides."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "bodyweight-reverse-lunge",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "standing-calf-raise": {
+    "name": "Standing Calf Raise",
+    "images": ["/exercises/standing-calf-raise.svg"],
+    "instructions": [
+      "Stand tall with feet hip-width apart. Use a wall for light balance support if needed.",
+      "Keep your knees softly straight and lift your heels, rising onto the balls of your feet.",
+      "Pause briefly, then lower slowly. Keep your ankles upright rather than rolling them out."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "standing-calf-raise",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Bouncing instead of controlling the descent.",
+      "Rolling your ankles outward or bending your knees to lift."
+    ]
+  },
+  "seated-calf-raise": {
+    "name": "Seated Calf Raise",
+    "images": ["/exercises/seated-calf-raise.svg"],
+    "instructions": [
+      "Sit on a stable bench with knees near 90 degrees and feet flat. Place dumbbells securely on your thighs above the knees.",
+      "Lift your heels while keeping the balls of your feet on the floor.",
+      "Pause briefly and lower heels slowly."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "seated-calf-raise",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "plank": {
+    "name": "Plank",
+    "images": ["/exercises/plank-0.jpg", "/exercises/plank-1.jpg"],
+    "instructions": [
+      "Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.",
+      "Keep your body straight at all times, and hold this position as long as possible. To increase difficulty, an arm or leg can be raised."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Plank",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "hanging-leg-raise": {
+    "name": "Hanging Leg Raise",
+    "images": ["/exercises/hanging-leg-raise-0.jpg", "/exercises/hanging-leg-raise-1.jpg"],
+    "instructions": [
+      "Hang from a chin-up bar with both arms extended at arms length in top of you using either a wide grip or a medium grip. The legs should be straight down with the pelvis rolled slightly backwards. This will be your starting position.",
+      "Raise your legs until the torso makes a 90-degree angle with the legs. Exhale as you perform this movement and hold the contraction for a second or so.",
+      "Go back slowly to the starting position as you breathe in.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Hanging_Leg_Raise",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "cable-crunch": {
+    "name": "Cable Crunch",
+    "images": ["/exercises/cable-crunch-0.jpg", "/exercises/cable-crunch-1.jpg"],
+    "instructions": [
+      "Kneel below a high pulley that contains a rope attachment.",
+      "Grasp cable rope attachment and lower the rope until your hands are placed next to your face.",
+      "Flex your hips slightly and allow the weight to hyperextend the lower back. This will be your starting position.",
+      "With the hips stationary, flex the waist as you contract the abs so that the elbows travel towards the middle of the thighs. Exhale as you perform this portion of the movement and hold the contraction for a second.",
+      "Slowly return to the starting position as you inhale. Tip: Make sure that you keep constant tension on the abs throughout the movement. Also, do not choose a weight so heavy that the lower back handles the brunt of the work.",
+      "Repeat for the recommended amount of repetitions."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Cable_Crunch",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "dead-bug": {
+    "name": "Dead Bug",
+    "images": ["/exercises/dead-bug-0.jpg", "/exercises/dead-bug-1.jpg"],
+    "instructions": [
+      "Begin lying on your back with your hands extended above you toward the ceiling.",
+      "Bring your feet, knees, and hips up to 90 degrees.",
+      "Exhale hard to bring your ribcage down and flatten your back onto the floor, rotating your pelvis up and squeezing your glutes. Hold this position throughout the movement. This will be your starting position.",
+      "Initiate the exercise by extending one leg, straightening the knee and hip to bring the leg just above the ground.",
+      "Maintain the position of your lumbar and pelvis as you perform the movement, as your back is going to want to arch.",
+      "Stay tight and return the working leg to the starting position.",
+      "Repeat on the opposite side, alternating until the set is complete."
+    ],
+    "source": "https://github.com/yuhonas/free-exercise-db",
+    "reference": "Dead_Bug",
+    "license": "Unlicense",
+    "author": "Free Exercise DB contributors",
+    "style": "reference illustration",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "lying-leg-raise": {
+    "name": "Lying Leg Raise",
+    "images": ["/exercises/lying-leg-raise.svg"],
+    "instructions": [
+      "Lie on your back with arms by your sides and legs extended.",
+      "Keep your lower back gently pressed toward the floor and raise your legs.",
+      "Lower only as far as you can without arching your back; bend knees to make it easier."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "lying-leg-raise",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "prone-reverse-snow-angel": {
+    "name": "Prone Reverse Snow Angel",
+    "images": ["/exercises/prone-reverse-snow-angel.svg"],
+    "instructions": [
+      "Lie face down with arms by your hips, palms facing the floor.",
+      "Lift your arms slightly and sweep them out and overhead in a comfortable arc.",
+      "Return slowly without lifting your chest or shrugging."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "prone-reverse-snow-angel",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  },
+  "self-resisted-biceps-curl": {
+    "name": "Self-Resisted Biceps Curl",
+    "images": ["/exercises/self-resisted-biceps-curl.svg"],
+    "instructions": [
+      "Stand with one elbow close to your ribs and palm facing up. Place your other hand over that wrist.",
+      "Curl upward while your opposite hand applies smooth downward resistance.",
+      "Lower slowly against resistance, then switch arms."
+    ],
+    "source": "Original Let\u2019s Bulk schematic",
+    "reference": "self-resisted-biceps-curl",
+    "license": "CC0-1.0",
+    "author": "Let\u2019s Bulk project",
+    "style": "two-position schematic",
+    "mistakes": [
+      "Rushing or swinging through the movement.",
+      "Using a range or load you cannot control. Stop if the movement hurts."
+    ]
+  }
+}

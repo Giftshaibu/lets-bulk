@@ -364,7 +364,7 @@ export function aggregate(s: Snapshot, today: string) {
             (w) => w.status === "completed" && w.session_date >= start && w.session_date <= end,
           ).length,
           weightLogs: weights.length,
-          averageWeight: weights.length ? round(average(weights.map((w) => w.weight_kg))) : null,
+          averageWeight: weights.length ? round(average(weights.map((w) => w.weight_kg))!) : null,
           photos: s.photos.filter((p) => p.date >= start && p.date <= end).length,
           consistentDays: s.checkins.filter(
             (c) => c.day_completed && c.date >= start && c.date <= end,
