@@ -2,16 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Dumbbell, Scale, Utensils, Moon, Zap, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
-import {
-  getMeals,
-  getRecommendation,
-  getRecovery,
-  getTargets,
-  getTodayWeight,
-  getTodaysWorkout,
-  getWeightSeries,
-  sumMeals,
-} from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
+import { DailyForms, ReviewPanel } from "@/features/tracking-forms";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,42 +25,44 @@ export const Route = createFileRoute("/")({
 });
 
 function TodayPage() {
-  const targets = getTargets();
-  const meals = getMeals();
-  const eaten = sumMeals(meals);
-  const workout = getTodaysWorkout();
-  const recovery = getRecovery();
-  const weight = getTodayWeight();
-  const series = getWeightSeries();
-  const rec = getRecommendation();
-
+  const { data } = useAppData();
+  const {
+    targets,
+    meals,
+    eaten,
+    workout,
+    recovery,
+    todayWeight: weight,
+    recommendation: rec,
+  } = data;
+  const series = data.weight.series;
   const nextMeal = meals.find((m) => !m.logged);
-  const today = new Date().toLocaleDateString("en-GB", {
+  const today = new Date(`${data.date}T12:00:00+02:00`).toLocaleDateString("en-GB", {
+    timeZone: "Africa/Blantyre",
     weekday: "long",
     day: "numeric",
     month: "long",
   });
-
-  const tasks = [
-    { label: "Weight", done: weight.logged, icon: Scale },
-    { label: "Calories", done: eaten.kcal >= targets.kcal * 0.9, icon: Utensils },
-    { label: "Training", done: false, icon: Dumbbell },
-    { label: "Recovery", done: recovery.logged, icon: Moon },
-  ];
-  const doneCount = tasks.filter((t) => t.done).length;
+  const icons = [Scale, Utensils, Dumbbell, Moon, Zap];
+  const tasks = data.tasks.map((t, i) => ({ ...t, icon: icons[i]! }));
+  const doneCount = data.completion.completed;
 
   return (
     <AppShell title="Today" subtitle={today}>
       <div className="flex flex-col gap-4">
         <Card>
           <div className="flex items-end justify-between">
-            <BigStat value={`${doneCount}/4`} label="Daily checklist" tone="primary" />
-            <Pill tone={doneCount === 4 ? "success" : "primary"}>
-              {doneCount === 4 ? "Day complete" : "In progress"}
+            <BigStat
+              value={`${doneCount}/${data.completion.required}`}
+              label="Daily checklist"
+              tone="primary"
+            />
+            <Pill tone={data.completion.dayCompleted ? "success" : "primary"}>
+              {data.completion.dayCompleted ? "Day complete" : "In progress"}
             </Pill>
           </div>
-          <Bar className="mt-3" value={doneCount} max={4} />
-          <div className="mt-4 grid grid-cols-4 gap-2">
+          <Bar className="mt-3" value={doneCount} max={data.completion.required} />
+          <div className="mt-4 grid grid-cols-5 gap-2">
             {tasks.map((t) => (
               <div
                 key={t.label}
@@ -169,11 +163,14 @@ function TodayPage() {
               </li>
             ))}
           </ul>
-          <Link to="/train/active" className="mt-4 block">
-            <ChunkyButton full>Start workout</ChunkyButton>
-          </Link>
+          {workout.exercises.length > 0 && data.session?.status !== "completed" && (
+            <Link to="/train/active" className="mt-4 block">
+              <ChunkyButton full>Start workout</ChunkyButton>
+            </Link>
+          )}
         </Card>
 
+        <DailyForms />
         {/* Recovery */}
         <Card>
           <SectionTitle>Recovery</SectionTitle>
@@ -213,14 +210,13 @@ function TodayPage() {
             Weight trend
           </SectionTitle>
           <div className="flex items-end justify-between">
-            <BigStat value={series[series.length - 1]!.kg} suffix="kg" label="Latest" />
-            <Pill tone="success">
-              +{(series[series.length - 1]!.kg - series[0]!.kg).toFixed(1)} kg
-            </Pill>
+            <BigStat value={series.at(-1)?.kg ?? "—"} suffix="kg" label="Latest" />
+            <Pill tone="success">{data.weight.gained.toFixed(1)} kg</Pill>
           </div>
           <Sparkline points={series.map((p) => p.kg)} />
         </Card>
 
+        <ReviewPanel />
         <Card tone="special">
           <SectionTitle>This week's recommendation</SectionTitle>
           <div className="text-[18px] font-extrabold text-special-ink">{rec.title}</div>
@@ -281,19 +277,26 @@ function Macro({
 }
 
 function Sparkline({ points }: { points: number[] }) {
+  if (!points.length) return <p className="mt-3 text-sm">Log your weight to begin your trend.</p>;
   const min = Math.min(...points) - 0.4;
   const max = Math.max(...points) + 0.4;
   const w = 300;
   const h = 70;
   const d = points
     .map((p, i) => {
-      const x = (i / (points.length - 1)) * w;
+      const x = (i / Math.max(points.length - 1, 1)) * w;
       const y = h - ((p - min) / (max - min)) * h;
       return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 h-[70px] w-full" preserveAspectRatio="none">
+    <svg
+      role="img"
+      aria-label="Weight history"
+      viewBox={`0 0 ${w} ${h}`}
+      className="mt-3 h-[70px] w-full"
+      preserveAspectRatio="none"
+    >
       <path d={d} fill="none" stroke="var(--primary)" strokeWidth={4} strokeLinecap="round" />
     </svg>
   );

@@ -55,6 +55,7 @@ export interface Exercise {
   targetSets: number;
   targetReps: string;
   lastTime: string;
+  nextTarget?: string;
   restSeconds: number;
   sets: SetEntry[];
 }

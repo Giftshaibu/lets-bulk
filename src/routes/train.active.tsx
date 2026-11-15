@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, ChevronLeft, Minus, Plus, Timer, Trophy, X } from "lucide-react";
 import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
-import { getTodaysWorkout } from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
 import type { SetEntry } from "@/lib/data/types";
 
 export const Route = createFileRoute("/train/active")({
@@ -21,14 +21,51 @@ export const Route = createFileRoute("/train/active")({
 });
 
 function ActiveWorkout() {
+  const { data, act, pending } = useAppData();
+  if (!data.workout.exercises.length)
+    return (
+      <div className="mx-auto max-w-lg p-5">
+        <Card>
+          <h1 className="text-xl font-bold">Rest day</h1>
+          <Link to="/train" className="underline">
+            Back to training
+          </Link>
+        </Card>
+      </div>
+    );
+  if (!data.session || data.session.status === "abandoned")
+    return (
+      <div className="mx-auto max-w-lg p-5">
+        <Card>
+          <h1 className="mb-3 text-xl font-bold">{data.workout.title}</h1>
+          <p className="mb-3">
+            Your sets will be saved as you log them. Enter a comfortable starting load for each
+            exercise.
+          </p>
+          <ChunkyButton
+            disabled={pending}
+            onClick={() => void act("/api/workout-sessions", { templateId: data.workout.id })}
+          >
+            Start workout
+          </ChunkyButton>
+          <Link to="/train" className="ml-3 underline">
+            Back
+          </Link>
+        </Card>
+      </div>
+    );
+  return <WorkoutLogger key={data.session.id} />;
+}
+function WorkoutLogger() {
   const navigate = useNavigate();
-  const workout = getTodaysWorkout();
+  const { data, act, pending } = useAppData();
+  const workout = data.workout;
   const [exercises, setExercises] = useState(() =>
     workout.exercises.map((e) => ({ ...e, sets: e.sets.map((s) => ({ ...s })) })),
   );
   const [index, setIndex] = useState(0);
   const [rest, setRest] = useState<number | null>(null);
-  const [finished, setFinished] = useState(false);
+  const finished = data.session?.status === "completed";
 
   const exercise = exercises[index]!;
   const totalSets = exercises.reduce((a, e) => a + e.sets.length, 0);
@@ -54,9 +91,28 @@ function ActiveWorkout() {
     );
   }
 
-  function completeSet(set: SetEntry) {
-    updateSet(set.id, { done: true });
-    setRest(exercise.restSeconds);
+  async function completeSet(set: SetEntry) {
+    const setNumber = exercise.sets.findIndex((s) => s.id === set.id) + 1;
+    if (
+      await act("/api/sets", {
+        sessionId: data.session!.id,
+        exerciseId: exercise.id,
+        setNumber,
+        weight: set.weight,
+        reps: set.reps,
+        rir: set.rir,
+        done: true,
+      })
+    ) {
+      updateSet(set.id, { done: true });
+      setRest(exercise.restSeconds);
+    }
+  }
+  async function resetSet(set: SetEntry) {
+    const setNumber = exercise.sets.findIndex((s) => s.id === set.id) + 1;
+    const saved = data.workout.exercises.find((e) => e.id === exercise.id)?.sets[setNumber - 1];
+    if (saved && (await act(`/api/sets/${saved.id}`, undefined, "DELETE")))
+      updateSet(set.id, { done: false });
   }
 
   const exerciseDone = exercise.sets.every((s) => s.done);
@@ -84,10 +140,13 @@ function ActiveWorkout() {
               <BigStat value={Math.round(volume).toLocaleString()} suffix="kg" label="Volume" />
             </div>
             <div className="rounded-xl bg-card p-3">
-              <BigStat value={workout.estimatedMinutes} suffix="m" label="Time" />
+              <BigStat
+                value={Math.round((data.session?.duration_seconds ?? 0) / 60)}
+                suffix="m"
+                label="Time"
+              />
             </div>
           </div>
-          <Pill tone="special">New bench PR · 62.5 kg</Pill>
         </Card>
         <Link to="/">
           <ChunkyButton full tone="success">
@@ -149,9 +208,18 @@ function ActiveWorkout() {
                   Set {i + 1}
                 </span>
                 {set.done ? (
-                  <Pill tone="success">
-                    {set.weight}kg × {set.reps}
-                  </Pill>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Pill tone="success">
+                      {set.weight}kg × {set.reps}
+                    </Pill>
+                    <button
+                      disabled={pending}
+                      className="min-h-11 text-sm font-bold underline"
+                      onClick={() => void resetSet(set)}
+                    >
+                      Edit / remove saved set
+                    </button>
+                  </div>
                 ) : (
                   <Pill>RIR {set.rir}</Pill>
                 )}
@@ -180,7 +248,12 @@ function ActiveWorkout() {
                       onChange={(v) => updateSet(set.id, { rir: Math.min(5, Math.max(0, v)) })}
                     />
                   </div>
-                  <ChunkyButton full className="mt-3" onClick={() => completeSet(set)}>
+                  <ChunkyButton
+                    disabled={pending}
+                    full
+                    className="mt-3"
+                    onClick={() => void completeSet(set)}
+                  >
                     <Check className="h-5 w-5" strokeWidth={3} /> Complete set
                   </ChunkyButton>
                 </>
@@ -193,12 +266,13 @@ function ActiveWorkout() {
           <ChunkyButton
             full
             tone="success"
+            disabled={pending}
             onClick={() => {
               if (index + 1 < exercises.length) {
                 setIndex(index + 1);
                 setRest(null);
               } else {
-                setFinished(true);
+                void act(`/api/workout-sessions/${data.session!.id}/complete`, {});
               }
             }}
           >
@@ -206,6 +280,16 @@ function ActiveWorkout() {
           </ChunkyButton>
         )}
 
+        <button
+          disabled={pending}
+          className="min-h-11 text-sm font-bold underline"
+          onClick={async () => {
+            if (await act(`/api/workout-sessions/${data.session!.id}/abandon`, {}))
+              void navigate({ to: "/train" });
+          }}
+        >
+          End without completing
+        </button>
         <SectionTitle>Up next</SectionTitle>
         <div className="flex flex-col gap-2">
           {exercises.map((e, i) => (
@@ -273,7 +357,15 @@ function Stepper({
         {label}
       </div>
       <div className="my-1 text-[22px] leading-none font-extrabold">
-        {value}
+        <input
+          aria-label={label}
+          className="w-20 bg-transparent text-center outline-none"
+          type="number"
+          min={0}
+          step={step === 1 ? 1 : "any"}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
         {suffix ? <span className="text-[13px]">{suffix}</span> : null}
       </div>
       <div className="flex gap-1.5">

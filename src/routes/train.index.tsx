@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
-import { getLifts, getTodaysWorkout, getWeekSchedule } from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
+import { LoadOptions, InitialLoads } from "@/features/tracking-forms";
 
 export const Route = createFileRoute("/train/")({
   head: () => ({
@@ -24,9 +25,8 @@ export const Route = createFileRoute("/train/")({
 });
 
 function TrainPage() {
-  const workout = getTodaysWorkout();
-  const schedule = getWeekSchedule();
-  const lifts = getLifts();
+  const { data } = useAppData();
+  const { workout, schedule, lifts } = data;
 
   return (
     <AppShell title="Train" subtitle={workout.dayLabel}>
@@ -56,13 +56,23 @@ function TrainPage() {
                 <div className="mt-0.5 text-[12px] font-bold text-muted-foreground">
                   Last time: {e.lastTime} · rest {e.restSeconds}s
                 </div>
+                <p className="mt-2 text-sm font-bold">{e.nextTarget}</p>
               </li>
             ))}
           </ul>
 
-          <Link to="/train/active" className="mt-4 block">
-            <ChunkyButton full>Start workout</ChunkyButton>
-          </Link>
+          {workout.exercises.length > 0 && data.session?.status !== "completed" && (
+            <Link to="/train/active" className="mt-4 block">
+              <ChunkyButton full>
+                {data.session?.status === "in_progress" ? "Resume workout" : "Start workout"}
+              </ChunkyButton>
+            </Link>
+          )}
+          {data.session?.status === "completed" && (
+            <p className="mt-3 font-bold">Workout completed and saved.</p>
+          )}
+          <InitialLoads />
+          <LoadOptions />
         </Card>
 
         <Card>

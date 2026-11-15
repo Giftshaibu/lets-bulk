@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Plus, Search, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
-import { getFoods, getMeals, getTargets, sumMeals } from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
+import { FoodTools } from "@/features/tracking-forms";
 import type { FoodItem, LoggedFood, Meal } from "@/lib/data/types";
 
 export const Route = createFileRoute("/food")({
@@ -25,52 +27,33 @@ export const Route = createFileRoute("/food")({
 });
 
 function FoodPage() {
-  const targets = getTargets();
-  const foods = getFoods();
-  const [meals, setMeals] = useState<Meal[]>(() => getMeals().map((m) => ({ ...m })));
+  const { data, act, pending } = useAppData();
+  const { targets, foods, meals, eaten, remaining } = data;
   const [sheetMealId, setSheetMealId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const [multiplier, setMultiplier] = useState(1);
 
-  const eaten = useMemo(() => sumMeals(meals), [meals]);
-  const remaining = {
-    kcal: Math.max(targets.kcal - eaten.kcal, 0),
-    protein: Math.max(targets.protein - eaten.protein, 0),
-    carbs: Math.max(targets.carbs - eaten.carbs, 0),
-    fat: Math.max(targets.fat - eaten.fat, 0),
-  };
-
   const results = foods.filter((f) => f.name.toLowerCase().includes(query.toLowerCase()));
 
-  function addFood(mealId: string, food: FoodItem, mult: number) {
-    const item: LoggedFood = {
-      id: `${food.id}-${Date.now()}`,
-      foodId: food.id,
-      name: food.name,
-      portion: mult === 1 ? food.serving : `${mult}× ${food.serving}`,
-      kcal: Math.round(food.kcal * mult),
-      protein: Math.round(food.protein * mult),
-      carbs: Math.round(food.carbs * mult),
-      fat: Math.round(food.fat * mult),
-    };
-    setMeals((prev) =>
-      prev.map((m) => (m.id === mealId ? { ...m, logged: true, items: [...m.items, item] } : m)),
-    );
-    setSheetMealId(null);
-    setSelected(null);
-    setMultiplier(1);
-    setQuery("");
+  async function addFood(mealId: string, food: FoodItem, mult: number) {
+    if (
+      await act("/api/nutrition/logs", {
+        id: crypto.randomUUID(),
+        date: data.date,
+        slot: mealId,
+        foodId: food.id,
+        grams: 100 * mult,
+      })
+    ) {
+      setSheetMealId(null);
+      setSelected(null);
+      setMultiplier(1);
+      setQuery("");
+    }
   }
-
-  function removeItem(mealId: string, itemId: string) {
-    setMeals((prev) =>
-      prev.map((m) =>
-        m.id === mealId
-          ? { ...m, items: m.items.filter((i) => i.id !== itemId), logged: m.items.length > 1 }
-          : m,
-      ),
-    );
+  function removeItem(_mealId: string, itemId: string) {
+    void act(`/api/nutrition/items/${itemId}`, undefined, "DELETE");
   }
 
   const nextOpenMeal = meals.find((m) => !m.logged) ?? meals[meals.length - 1]!;
@@ -185,13 +168,27 @@ function FoodPage() {
         </div>
       </div>
 
-      {sheetMealId && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
-          <div className="max-h-[85vh] w-full max-w-[520px] overflow-y-auto rounded-t-3xl border-2 border-border bg-card p-4 sm:rounded-3xl">
+      <FoodTools />
+      <Dialog.Root
+        open={!!sheetMealId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSheetMealId(null);
+            setSelected(null);
+            setMultiplier(1);
+          }
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="fixed bottom-0 left-1/2 z-50 max-h-[85vh] w-full max-w-[520px] -translate-x-1/2 overflow-y-auto rounded-t-3xl border-2 border-border bg-card p-4 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
+          >
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[20px] font-extrabold">
+              <Dialog.Title className="text-[20px] font-extrabold">
                 {selected ? selected.name : "Add food"}
-              </h3>
+              </Dialog.Title>
               <button
                 aria-label="Close"
                 onClick={() => {
@@ -213,6 +210,7 @@ function FoodPage() {
                     autoFocus
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    aria-label="Search foods"
                     placeholder="Search foods"
                     className="min-h-[52px] w-full bg-transparent text-[16px] font-bold outline-none"
                   />
@@ -273,15 +271,18 @@ function FoodPage() {
                 <ChunkyButton
                   full
                   className="mt-4"
-                  onClick={() => addFood(sheetMealId, selected, multiplier)}
+                  disabled={pending}
+                  onClick={() => {
+                    if (sheetMealId) void addFood(sheetMealId, selected, multiplier);
+                  }}
                 >
-                  Add to meal
+                  {pending ? "Saving…" : "Add to meal"}
                 </ChunkyButton>
               </>
             )}
-          </div>
-        </div>
-      )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </AppShell>
   );
 }

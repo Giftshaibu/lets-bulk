@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Home, Utensils, Dumbbell, TrendingUp, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getProfile } from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
+import { browserDb } from "@/lib/db/client";
+import { SettingsPanel } from "@/features/tracking-forms";
 
 const tabs = [
   { to: "/", label: "Today", icon: Home },
@@ -20,7 +22,9 @@ export function AppShell({
   subtitle?: string;
   children: ReactNode;
 }) {
-  const profile = getProfile();
+  const {
+    data: { profile },
+  } = useAppData();
 
   return (
     <div className="min-h-screen bg-background pb-28 lg:pb-8">
@@ -30,7 +34,8 @@ export function AppShell({
           <div className="mb-6 px-3">
             <div className="text-[20px] font-extrabold text-primary">GIFT BULK</div>
             <div className="text-[13px] font-bold text-muted-foreground">
-              Week {profile.weekNumber} of {profile.totalWeeks}
+              Week {profile.weekNumber}
+              {profile.totalWeeks ? ` of ${profile.totalWeeks}` : ""}
             </div>
           </div>
           <nav className="flex flex-col gap-2">
@@ -67,6 +72,13 @@ export function AppShell({
             </div>
           </header>
           {children}
+          <SettingsPanel />
+          <button
+            className="mt-6 min-h-11 font-bold underline"
+            onClick={() => void browserDb().auth.signOut()}
+          >
+            Sign out
+          </button>
         </main>
       </div>
 

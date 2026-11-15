@@ -2,12 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, Pill, SectionTitle } from "@/components/kit";
-import {
-  getLifts,
-  getMeasurements,
-  getProfile,
-  getWeightSeries,
-} from "@/lib/data/service";
+import { useAppData } from "@/features/app-data";
+import { BodyForms } from "@/features/tracking-forms";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -29,20 +25,21 @@ export const Route = createFileRoute("/progress")({
 });
 
 function ProgressPage() {
-  const series = getWeightSeries();
-  const lifts = getLifts();
-  const measurements = getMeasurements();
-  const profile = getProfile();
-
-  const first = series[0]!;
-  const last = series[series.length - 1]!;
-  const gained = last.kg - first.kg;
-  const perWeek = gained / Math.max(series.length - 1, 1);
+  const { data } = useAppData();
+  const { lifts, measurements, profile } = data;
+  const series = data.weight.series;
+  const last = series.at(-1);
+  const gained = data.weight.gained;
+  const perWeek = data.weight.perWeek;
   const prCount = lifts.filter((l) => l.pr).length;
 
   return (
-    <AppShell title="Progress" subtitle={`Week ${profile.weekNumber} of ${profile.totalWeeks}`}>
+    <AppShell
+      title="Progress"
+      subtitle={`Week ${profile.weekNumber}${profile.totalWeeks ? ` of ${profile.totalWeeks}` : ""}`}
+    >
       <div className="flex flex-col gap-4">
+        <BodyForms />
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-3">
             <BigStat value={`+${gained.toFixed(1)}`} suffix="kg" label="Gained" tone="success" />
@@ -58,9 +55,9 @@ function ProgressPage() {
         <Card>
           <SectionTitle>Body weight</SectionTitle>
           <div className="flex items-end justify-between">
-            <BigStat value={last.kg} suffix="kg" label="Latest weigh-in" />
-            <Pill tone={perWeek >= 0.3 ? "success" : "primary"}>
-              {perWeek.toFixed(2)} kg / week
+            <BigStat value={last?.kg ?? "—"} suffix="kg" label="Latest weigh-in" />
+            <Pill tone={data.weight.status === "on_target" ? "success" : "primary"}>
+              {perWeek === null ? "Collect more weigh-ins" : `${perWeek.toFixed(2)} kg / week`}
             </Pill>
           </div>
           <WeightChart points={series} />
@@ -70,7 +67,7 @@ function ProgressPage() {
               <span>{profile.goalWeightKg} kg goal</span>
             </div>
             <Bar
-              value={last.kg - profile.startWeightKg}
+              value={(last?.kg ?? profile.startWeightKg) - profile.startWeightKg}
               max={profile.goalWeightKg - profile.startWeightKg}
               tone="success"
             />
@@ -101,7 +98,7 @@ function ProgressPage() {
                       <div key={h.week} className="flex flex-1 flex-col items-center gap-1">
                         <div
                           className={`w-full rounded-t-md ${l.pr ? "bg-special" : "bg-primary"}`}
-                          style={{ height: `${(h.kg / max) * 52}px` }}
+                          style={{ height: `${(h.kg / Math.max(max, 1)) * 52}px` }}
                         />
                         <span className="text-[9px] font-extrabold text-muted-foreground">
                           {h.week}
@@ -134,6 +131,7 @@ function ProgressPage() {
 }
 
 function WeightChart({ points }: { points: { date: string; kg: number; trend: number }[] }) {
+  if (!points.length) return <p className="mt-3 text-sm">No weigh-ins yet.</p>;
   const values = points.flatMap((p) => [p.kg, p.trend]);
   const min = Math.min(...values) - 0.5;
   const max = Math.max(...values) + 0.5;
@@ -142,7 +140,7 @@ function WeightChart({ points }: { points: { date: string; kg: number; trend: nu
   const line = (key: "kg" | "trend") =>
     points
       .map((p, i) => {
-        const x = (i / (points.length - 1)) * w;
+        const x = (i / Math.max(points.length - 1, 1)) * w;
         const y = h - ((p[key] - min) / (max - min)) * h;
         return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
       })
@@ -150,7 +148,13 @@ function WeightChart({ points }: { points: { date: string; kg: number; trend: nu
 
   return (
     <div className="mt-3">
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-[120px] w-full" preserveAspectRatio="none">
+      <svg
+        role="img"
+        aria-label="Weight history"
+        viewBox={`0 0 ${w} ${h}`}
+        className="h-[120px] w-full"
+        preserveAspectRatio="none"
+      >
         <path
           d={line("trend")}
           fill="none"
