@@ -128,3 +128,23 @@ and set **Site URL** to `https://giftshaibu-lets-bulk.giftshaibu.workers.dev`.
 Add the same origin to **Redirect URLs**, retaining any localhost URLs needed for
 local development. The connected Supabase tools do not expose Auth configuration
 updates, so this Dashboard setting needs to be completed by the account owner.
+
+## Expanded functionality
+
+Settings now supports one-to-seven training days, equipment changes, goal dates,
+experience, and required daily actions. Training changes are explicit proposals:
+load progression, one-set volume changes, compatible exercise swaps, seven-day
+deloads, and restoration of previous volume. Applying a change versions the plan;
+completed workouts and their prescriptions remain intact. Program edits wait until
+an active workout is finished or ended. Frequency edits during a deload wait for
+restoration so the baseline remains well defined.
+
+Progress includes weekly primary-muscle volume, effort/RIR trends, observed weight
+averages, conditional projections and guarded maintenance calibration. Budget
+summaries distinguish unpriced items and require at least five substantially logged,
+fully priced days for a monthly estimate. All estimates state their assumptions.
+
+Seven source-backed common foods are included using USDA SR Legacy fallback data.
+See `docs/FOOD_SOURCES.md` for preparation states and reproducible source records.
+Unsupported local dishes remain explicitly unverified. The full implementation
+checklist and remaining external-data boundaries are in `docs/REQUIREMENT_AUDIT.md`.
