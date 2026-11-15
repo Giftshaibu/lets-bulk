@@ -118,10 +118,6 @@ function WorkoutLogger() {
   const exerciseDone = exercise.sets.every((s) => s.done);
 
   if (finished) {
-    const volume = exercises
-      .flatMap((e) => e.sets)
-      .filter((s) => s.done)
-      .reduce((a, s) => a + s.weight * s.reps, 0);
     return (
       <div className="mx-auto flex min-h-screen max-w-[640px] flex-col justify-center gap-4 px-4 py-8">
         <Card tone="success" className="text-center">
@@ -137,7 +133,11 @@ function WorkoutLogger() {
               <BigStat value={doneSets} label="Sets" tone="success" />
             </div>
             <div className="rounded-xl bg-card p-3">
-              <BigStat value={Math.round(volume).toLocaleString()} suffix="kg" label="Volume" />
+              <BigStat
+                value={Math.round(data.sessionSummary?.volume ?? 0).toLocaleString()}
+                suffix="kg"
+                label="Volume"
+              />
             </div>
             <div className="rounded-xl bg-card p-3">
               <BigStat

@@ -66,6 +66,7 @@ function TodayPage() {
             {tasks.map((t) => (
               <div
                 key={t.label}
+                title={t.required ? "Required today" : "Optional today"}
                 className={`flex flex-col items-center gap-1 rounded-xl border-2 border-b-4 px-1 py-2 ${
                   t.done ? "border-success bg-success-soft" : "border-border bg-card"
                 }`}
@@ -86,7 +87,7 @@ function TodayPage() {
         {/* Next action */}
         <Card tone="primary">
           <SectionTitle>Next action</SectionTitle>
-          {!weight.logged ? (
+          {!weight.logged && data.completionPolicy.weight ? (
             <NextAction
               title="Log your morning weight"
               body="Weigh in before breakfast for a clean trend line."

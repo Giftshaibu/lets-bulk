@@ -1,38 +1,94 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
-import { useAppData, api } from "./app-data";
+import { Card, ChunkyButton } from "@/components/kit";
+import { useAppData } from "./app-data";
 import { inputClass, NumberField } from "./setup";
-import { browserDb } from "@/lib/db/client";
-import type {
-  budgetSuggestions,
-  budgetSummary,
-  substitutions,
-} from "@/lib/services/review.service";
 const num = (f: FormData, key: string) => Number(f.get(key));
+const equipment = ["barbell", "dumbbell", "cable", "machine", "pullup_bar"] as const;
 export function SettingsPanel() {
   const { data, act, pending } = useAppData();
+  const [days, setDays] = useState(data.trainingDays);
+  const labels = {
+    weight: "Weight log",
+    nutrition: "Nutrition target",
+    workout: "Scheduled workout",
+    recovery: "Recovery log",
+    water: "Water target",
+  };
   return (
     <Card className="mt-5">
       <details>
         <summary className="min-h-11 cursor-pointer font-bold">Settings & gym equipment</summary>
         <form
-          className="mt-3 grid gap-3"
+          className="mt-3 grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             const f = new FormData(e.currentTarget);
             void act("/api/settings", {
               first_name: String(f.get("name")),
+              height_cm: num(f, "height_cm"),
+              goal_weight_kg: num(f, "goal_weight_kg"),
+              target_date: String(f.get("target_date")) || null,
+              training_experience: String(f.get("experience")),
               water_target_ml: num(f, "water"),
               diet_type: String(f.get("diet")),
               budget_mode: String(f.get("budget")),
-              days: [0, 1, 2, 3].map((i) => num(f, `day-${i}`)),
+              days,
+              equipment: ["bodyweight", ...f.getAll("equipment")],
+              completion_policy: Object.fromEntries(
+                Object.keys(labels).map((k) => [k, f.get(`require-${k}`) === "on"]),
+              ),
             });
           }}
         >
-          <label>
+          <label className="font-bold">
             Name
-            <input name="name" className={inputClass} defaultValue={data.profile.name} required />
+            <input
+              name="name"
+              className={inputClass}
+              defaultValue={data.profile.name}
+              required
+              maxLength={80}
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <NumberField
+              name="height_cm"
+              label="Height (cm)"
+              value={data.rawProfile?.height_cm ?? 175}
+              min={50}
+              max={260}
+            />
+            <NumberField
+              name="goal_weight_kg"
+              label="Goal weight (kg)"
+              value={data.profile.goalWeightKg}
+              min={20}
+              max={500}
+            />
+          </div>
+          <label className="font-bold">
+            Optional target date
+            <input
+              className={inputClass}
+              name="target_date"
+              type="date"
+              defaultValue={data.rawProfile?.target_date ?? ""}
+            />
+          </label>
+          <p className="text-sm">
+            The date is a reference point. It will not force a faster rate of weight gain.
+          </p>
+          <label className="font-bold">
+            Training experience
+            <select
+              name="experience"
+              className={inputClass}
+              defaultValue={data.rawProfile?.training_experience ?? "beginner"}
+            >
+              <option>beginner</option>
+              <option>intermediate</option>
+              <option>advanced</option>
+            </select>
           </label>
           <NumberField
             name="water"
@@ -42,49 +98,102 @@ export function SettingsPanel() {
             max={10000}
             step="1"
           />
-          <label>
-            Diet
-            <select
-              name="diet"
-              className={inputClass}
-              defaultValue={data.preferences?.diet_type ?? "omnivore"}
-            >
-              <option>omnivore</option>
-              <option>vegetarian</option>
-              <option>vegan</option>
-            </select>
-          </label>
-          <label>
-            Budget preference
-            <select
-              name="budget"
-              className={inputClass}
-              defaultValue={data.preferences?.budget_mode ?? "balanced"}
-            >
-              <option>balanced</option>
-              <option>budget</option>
-            </select>
-          </label>
-          <p className="text-sm font-bold">Four training days (each must be different)</p>
           <div className="grid grid-cols-2 gap-3">
-            {["Upper A", "Lower A", "Upper B", "Lower B"].map((label, i) => (
-              <label key={label}>
-                {label}
-                <select
-                  className={inputClass}
-                  name={`day-${i}`}
-                  defaultValue={data.trainingDays[i] ?? [1, 2, 4, 5][i]}
-                >
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d, n) => (
-                    <option key={d} value={n}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
+            <label className="font-bold">
+              Diet
+              <select
+                name="diet"
+                className={inputClass}
+                defaultValue={data.preferences?.diet_type ?? "omnivore"}
+              >
+                <option>omnivore</option>
+                <option>vegetarian</option>
+                <option>vegan</option>
+              </select>
+            </label>
+            <label className="font-bold">
+              Budget preference
+              <select
+                name="budget"
+                className={inputClass}
+                defaultValue={data.preferences?.budget_mode ?? "balanced"}
+              >
+                <option>balanced</option>
+                <option>budget</option>
+              </select>
+            </label>
           </div>
-          <ChunkyButton disabled={pending}>Save settings</ChunkyButton>
+          <fieldset>
+            <legend className="font-bold">Training days ({days.length} per week)</legend>
+            <p className="text-sm">
+              Choose one to seven days. Changing the schedule creates a new version and keeps
+              previous workouts intact.
+            </p>
+            <div className="flex flex-wrap gap-x-4">
+              {[1, 2, 3, 4, 5, 6, 0].map((day) => (
+                <label key={day} className="inline-flex min-h-11 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={days.includes(day)}
+                    onChange={(e) =>
+                      setDays((previous) =>
+                        [1, 2, 3, 4, 5, 6, 0].filter((d) =>
+                          d === day ? e.target.checked : previous.includes(d),
+                        ),
+                      )
+                    }
+                  />
+                  {
+                    ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][
+                      day
+                    ]
+                  }
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className="font-bold">Available equipment</legend>
+            <p className="text-sm">
+              Bodyweight is included. After removing equipment, review replacements on Train before
+              starting an affected workout.
+            </p>
+            <div className="flex flex-wrap gap-x-4">
+              {equipment.map((kind) => (
+                <label key={kind} className="inline-flex min-h-11 items-center gap-2">
+                  <input
+                    name="equipment"
+                    type="checkbox"
+                    value={kind}
+                    defaultChecked={data.equipment.some(
+                      (e) => e.equipment_type === kind && e.is_available,
+                    )}
+                  />
+                  {kind.replace("_", " ")}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className="font-bold">Required for a completed day</legend>
+            <p className="text-sm">
+              Keep at least one daily logging requirement. A workout is required only on scheduled
+              training days.
+            </p>
+            <div className="grid grid-cols-2 gap-x-3">
+              {(Object.keys(labels) as (keyof typeof labels)[]).map((k) => (
+                <label key={k} className="inline-flex min-h-11 items-center gap-2">
+                  <input
+                    name={`require-${k}`}
+                    type="checkbox"
+                    defaultChecked={data.completionPolicy[k]}
+                  />
+                  {labels[k]}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <ChunkyButton disabled={pending || !days.length}>Save settings</ChunkyButton>
         </form>
         <LoadOptions />
       </details>
@@ -93,11 +202,15 @@ export function SettingsPanel() {
 }
 export function LoadOptions() {
   const { data, act, pending } = useAppData();
+  const [selectedEquipment, setSelectedEquipment] = useState(
+    data.equipment.find((e) => e.is_available)?.equipment_type ?? "bodyweight",
+  );
   return (
     <details className="mt-3">
       <summary className="min-h-11 cursor-pointer font-bold">Usable gym loads</summary>
       <p className="text-sm">
-        Enter actual increments, minimum and maximum loads. Progression waits until these are known.
+        Record the loads you can actually use. An exercise-specific entry overrides general
+        equipment entries.
       </p>
       <form
         className="mt-3 grid grid-cols-2 gap-3"
@@ -106,18 +219,48 @@ export function LoadOptions() {
           const f = new FormData(e.currentTarget);
           void act("/api/load-options", {
             equipment_type: String(f.get("equipment")),
+            exercise_id: String(f.get("exercise")) || null,
             increment_kg: num(f, "increment"),
             minimum_kg: num(f, "min"),
             maximum_kg: num(f, "max"),
           });
         }}
       >
-        <label className="col-span-2">
+        <label className="col-span-2 font-bold">
           Equipment
-          <select className={inputClass} name="equipment">
-            {data.equipment.map((e) => (
-              <option key={e.id}>{e.equipment_type}</option>
-            ))}
+          <select
+            className={inputClass}
+            name="equipment"
+            value={selectedEquipment}
+            onChange={(e) => setSelectedEquipment(e.target.value)}
+          >
+            {data.equipment
+              .filter((e) => e.is_available)
+              .map((e) => (
+                <option key={e.id}>{e.equipment_type}</option>
+              ))}
+          </select>
+        </label>
+        <label className="col-span-2 font-bold">
+          Apply to exercise
+          <select
+            className={inputClass}
+            name="exercise"
+            onChange={(e) => {
+              const exercise = data.exerciseLibrary.find((ex) => ex.id === e.target.value);
+              if (exercise) setSelectedEquipment(exercise.equipment);
+            }}
+          >
+            <option value="">All exercises using this equipment</option>
+            {data.exerciseLibrary
+              .filter((e) =>
+                data.equipment.some((a) => a.is_available && a.equipment_type === e.equipment),
+              )
+              .map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
           </select>
         </label>
         <NumberField name="increment" label="Increment (kg)" min={0.1} />
@@ -126,14 +269,25 @@ export function LoadOptions() {
         <ChunkyButton disabled={pending}>Save loads</ChunkyButton>
       </form>
       {data.loadOptions.map((o) => (
-        <p className="mt-2 text-sm" key={o.id}>
-          {o.equipment_type}: {o.minimum_kg}–{o.maximum_kg} kg in {o.increment_kg} kg steps
-        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm" key={o.id}>
+          <p>
+            {o.exercise_id
+              ? data.exerciseLibrary.find((e) => e.id === o.exercise_id)?.name
+              : o.equipment_type}
+            : {o.minimum_kg}–{o.maximum_kg} kg in {o.increment_kg} kg steps
+          </p>
+          <button
+            disabled={pending}
+            className="min-h-11 font-bold underline"
+            onClick={() => void act(`/api/load-options/${o.id}`, undefined, "DELETE")}
+          >
+            Remove load option
+          </button>
+        </div>
       ))}
     </details>
   );
 }
-
 export function InitialLoads() {
   const { data, act, pending } = useAppData();
   if (data.session || !data.workout.exercises.length) return null;

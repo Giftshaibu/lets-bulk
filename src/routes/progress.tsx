@@ -3,6 +3,7 @@ import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
+import { ProgressInsights } from "@/features/progress-insights";
 import { BodyForms } from "@/features/tracking-forms";
 
 export const Route = createFileRoute("/progress")({
@@ -40,6 +41,7 @@ function ProgressPage() {
     >
       <div className="flex flex-col gap-4">
         <BodyForms />
+        <ProgressInsights />
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-3">
             <BigStat value={`+${gained.toFixed(1)}`} suffix="kg" label="Gained" tone="success" />

@@ -34,6 +34,42 @@ export function FoodTools() {
       <SectionTitle>Food library & budget</SectionTitle>
       <details>
         <summary className="min-h-11 cursor-pointer font-bold">
+          Food sources & preparation states
+        </summary>
+        <p className="text-sm">
+          USDA entries are fallback reference foods, not measurements of a specific Malawian dish.
+          Match the preparation state and enter the weighed grams. Unknown local dishes remain
+          unavailable for logging.
+        </p>
+        {data.foodLibrary.map((f) => (
+          <div className="my-3 rounded-xl border-2 border-border p-3 text-sm" key={f.id}>
+            <p className="font-bold">
+              {f.name} · {f.preparation_state}
+            </p>
+            <p>
+              {f.calories_per_100g === null
+                ? "Nutrients unavailable — source needed"
+                : `${f.calories_per_100g} kcal / 100 g`}{" "}
+              · {f.source}
+              {f.source_year ? ` (${f.source_year})` : ""}
+            </p>
+            {f.source_reference?.startsWith("https://") ? (
+              <a
+                className="inline-flex min-h-11 items-center font-bold underline"
+                href={f.source_reference}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open source record
+              </a>
+            ) : (
+              <p>{f.source_reference}</p>
+            )}
+          </div>
+        ))}
+      </details>
+      <details>
+        <summary className="min-h-11 cursor-pointer font-bold">
           Add a food from a label or verified source
         </summary>
         <p className="text-sm">
@@ -178,6 +214,12 @@ export function FoodTools() {
               ? "needs complete prices and logs"
               : `${budget.data.summary.estimatedMonthlyCost.toLocaleString()} MWK`}
             .
+          </p>
+        )}
+        {budget.data && (
+          <p className="my-2 text-sm">
+            {budget.data.summary.substantiallyLoggedDays}/7 substantially logged, fully priced days.{" "}
+            {budget.data.summary.monthlyReason}
           </p>
         )}
         {budget.isError && <p role="alert">Could not load prices.</p>}

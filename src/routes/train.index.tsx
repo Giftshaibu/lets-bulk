@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
+import { TrainingChanges } from "@/features/training-changes";
 import { useAppData } from "@/features/app-data";
 import { LoadOptions, InitialLoads } from "@/features/tracking-forms";
 
@@ -75,6 +76,7 @@ function TrainPage() {
           <LoadOptions />
         </Card>
 
+        <TrainingChanges />
         <Card>
           <SectionTitle>This week</SectionTitle>
           <div className="grid grid-cols-7 gap-1.5">

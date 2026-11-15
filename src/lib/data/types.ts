@@ -10,6 +10,9 @@ export interface FoodItem {
   carbs: number;
   fat: number;
   frequent?: boolean;
+  source?: string;
+  reference?: string | null;
+  preparation?: string;
 }
 
 export interface LoggedFood {

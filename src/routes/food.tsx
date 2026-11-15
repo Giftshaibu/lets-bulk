@@ -202,6 +202,25 @@ function FoodPage() {
               </button>
             </div>
 
+            {selected && (
+              <p className="mb-3 text-sm">
+                {selected.preparation} · {selected.source}
+                {selected.reference?.startsWith("https://") && (
+                  <>
+                    {" "}
+                    ·{" "}
+                    <a
+                      href={selected.reference}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-bold underline"
+                    >
+                      Nutrient source
+                    </a>
+                  </>
+                )}
+              </p>
+            )}
             {!selected ? (
               <>
                 <div className="flex items-center gap-2 rounded-2xl border-2 border-border bg-muted px-3">
