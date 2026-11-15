@@ -148,3 +148,15 @@ Seven source-backed common foods are included using USDA SR Legacy fallback data
 See `docs/FOOD_SOURCES.md` for preparation states and reproducible source records.
 Unsupported local dishes remain explicitly unverified. The full implementation
 checklist and remaining external-data boundaries are in `docs/REQUIREMENT_AUDIT.md`.
+
+## Beginner experience
+
+Guided setup estimates energy/protein from ordinary measurements and activity.
+Progress opens on a journey map; logging streaks and full-plan consistency are
+separate. Settings has its own page. Food search supports weighed grams and
+saving logged combinations as meals. All 48 exercises include local imagery and
+beginner instructions, with explicit equipment and license metadata.
+
+See [product corrections and the remaining MAFOODS rights dependency](docs/PRODUCT_CORRECTIONS.md).
+The app currently uses explicitly identified USDA fallback foods while MAFOODS
+redistribution rights remain unverified.

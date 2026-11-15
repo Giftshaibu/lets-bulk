@@ -91,3 +91,12 @@ password checks in the project's Auth password settings if available for its pla
 no billing plan or unrelated Auth configuration was changed by this implementation.
 
 Guidance: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+## Beginner product correction update
+
+Guided server-estimated setup supersedes the original manual-target onboarding.
+`logging_days` derives intentional actions under caller RLS; it does not rewrite
+historical completion snapshots. Specific equipment requirements supplement the
+original equipment classes. Settings and progress detail destinations replace
+editable footers and nested weight-form tools. See `PRODUCT_CORRECTIONS.md` for
+current acceptance evidence and the MAFOODS reuse-rights limitation.

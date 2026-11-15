@@ -36,3 +36,12 @@ The importer never overwrites nutrients in previously logged meals. Nsima, usipa
 chambo and other unsupported preparations stay unverified until a suitable validated
 composition source is supplied. User-entered label values are identified as personal
 entries rather than USDA references.
+
+## MAFOODS 2019 review
+
+FAO's Africa INFOODS catalog links the official first-edition MAFOODS publication
+at https://dl.tufts.edu/downloads/g158bw806?filename=d217r336d.pdf . The Tufts record
+(https://dl.tufts.edu/concern/pdfs/d217r336d) reports Copyright Not Evaluated, not
+an open reuse license. The numeric table import is pending verification of reuse
+rights. See `PRODUCT_CORRECTIONS.md` for the source checksum and outstanding
+Malawi-first requirement. Existing USDA rows are never labeled MAFOODS.
