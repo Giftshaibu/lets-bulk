@@ -59,7 +59,14 @@ export function FoodActions({ food }: { food: Food }) {
                 </p>
                 <p>
                   {food.source} {food.source_year}
+                  {food.source_license ? ` · ${food.source_license}` : ""}
                 </p>
+                {Number(food.alcohol_g_per_100g ?? 0) > 0 && (
+                  <p>
+                    Alcohol: {food.alcohol_g_per_100g} g per 100 g. Its energy is included in the
+                    calories above.
+                  </p>
+                )}
                 {food.source_reference?.startsWith("https://") ? (
                   <a
                     className="inline-flex min-h-11 items-center underline"

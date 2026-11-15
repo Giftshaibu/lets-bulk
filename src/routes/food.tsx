@@ -1,3 +1,4 @@
+import { searchFoods, gramsPerMl } from "@/lib/domain/food-catalog";
 import { TargetExplanation } from "@/features/target-explanation";
 import { FoodActions } from "@/features/food-actions";
 import { useState } from "react";
@@ -36,7 +37,10 @@ function FoodPage() {
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const [multiplier, setMultiplier] = useState(1);
 
-  const results = foods.filter((f) => f.name.toLowerCase().includes(query.toLowerCase()));
+  const [amountUnit, setAmountUnit] = useState<"g" | "ml">("g");
+  const allResults = searchFoods(foods, query);
+  const results = allResults.slice(0, 50);
+  const density = selected ? gramsPerMl(selected) : null;
 
   async function addFood(mealId: string, food: FoodItem, mult: number) {
     if (
@@ -52,6 +56,7 @@ function FoodPage() {
       setSelected(null);
       setMultiplier(1);
       setQuery("");
+      setAmountUnit("g");
     }
   }
   function removeItem(_mealId: string, itemId: string) {
@@ -99,10 +104,12 @@ function FoodPage() {
           <div className="flex flex-wrap gap-2">
             {foods
               .filter((f) => f.frequent)
+              .slice(0, 8)
               .map((f) => (
                 <button
                   key={f.id}
                   onClick={() => {
+                    setAmountUnit("g");
                     setSelected(f);
                     setSheetMealId(nextOpenMeal.id);
                   }}
@@ -252,15 +259,24 @@ function FoodPage() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     aria-label="Search foods"
-                    placeholder="Search foods"
+                    placeholder="Search bread, wheat, rice, beer…"
                     className="min-h-[52px] w-full bg-transparent text-[16px] font-bold outline-none"
                   />
                 </div>
+                <p className="mt-2 text-sm">
+                  {allResults.length} matches · {foods.length} foods with verified nutrition
+                  {allResults.length > 50
+                    ? ". Showing the first 50; type to narrow your search."
+                    : "."}
+                </p>
                 <ul className="mt-3 flex flex-col gap-2">
                   {results.map((f) => (
                     <li key={f.id} className="flex items-center gap-2">
                       <button
-                        onClick={() => setSelected(f)}
+                        onClick={() => {
+                          setSelected(f);
+                          setAmountUnit("g");
+                        }}
                         className="press flex w-full items-center justify-between rounded-2xl border-2 border-b-4 border-border bg-card px-4 py-3 text-left"
                       >
                         <div>
@@ -288,7 +304,11 @@ function FoodPage() {
                 <div className="rounded-2xl border-2 border-b-4 border-primary bg-primary-soft p-4">
                   <BigStat
                     value={Math.round(selected.kcal * multiplier)}
-                    label={`${multiplier}× ${selected.serving}`}
+                    label={
+                      amountUnit === "ml" && density !== null
+                        ? `${Math.round(((multiplier * 100) / density) * 10) / 10} ml`
+                        : `${Math.round(multiplier * 100 * 10) / 10} g`
+                    }
                     tone="primary"
                   />
                   <div className="mt-3 grid grid-cols-3 gap-3">
@@ -297,23 +317,83 @@ function FoodPage() {
                     <MacroMini label="Fat" left={selected.fat * multiplier} />
                   </div>
                 </div>
+                {(selected.alcoholPer100g ?? 0) > 0 && (
+                  <p className="mt-3 rounded-xl bg-muted p-3 text-sm">
+                    Beer and other alcoholic drinks can be logged. Calories include alcohol energy.
+                    Alcohol can affect sleep and recovery; it does not replace food or protein.
+                    Generic values vary by brand and strength.
+                  </p>
+                )}
+                {density !== null && (
+                  <label className="mt-3 block font-bold">
+                    Measure
+                    <select
+                      aria-label="Measure"
+                      className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
+                      value={amountUnit}
+                      onChange={(e) => setAmountUnit(e.target.value as "g" | "ml")}
+                    >
+                      <option value="g">Grams</option>
+                      <option value="ml">Millilitres</option>
+                    </select>
+                  </label>
+                )}
                 <label className="mt-3 block font-bold">
-                  Amount in grams
+                  {amountUnit === "ml" ? "Amount in millilitres" : "Amount in grams"}
                   <input
                     className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
                     type="number"
                     min="1"
                     max="10000"
                     step="any"
-                    value={multiplier * 100}
-                    onChange={(e) => setMultiplier(Number(e.target.value) / 100)}
+                    value={Number(
+                      ((multiplier * 100) / (amountUnit === "ml" ? (density ?? 1) : 1)).toFixed(3),
+                    )}
+                    onChange={(e) =>
+                      setMultiplier(
+                        (Number(e.target.value) * (amountUnit === "ml" ? (density ?? 1) : 1)) / 100,
+                      )
+                    }
                   />
                 </label>
+                {selected.servingGrams && selected.servingGrams !== 100 && (
+                  <button
+                    className="mt-3 min-h-11 rounded-xl border-2 border-border px-3 font-bold"
+                    onClick={() => {
+                      setAmountUnit("g");
+                      setMultiplier(selected.servingGrams! / 100);
+                    }}
+                  >
+                    Use {selected.servingName} ({selected.servingGrams} g)
+                  </button>
+                )}
+                {density !== null && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {[330, 500].map((ml) => (
+                      <button
+                        key={ml}
+                        className="min-h-11 rounded-xl border-2 border-border px-3 font-bold"
+                        onClick={() => {
+                          setAmountUnit("ml");
+                          setMultiplier((ml * density) / 100);
+                        }}
+                      >
+                        {ml} ml
+                      </button>
+                    ))}
+                    <p className="w-full text-xs">
+                      Volume uses the source’s measured portion weight.
+                    </p>
+                  </div>
+                )}
                 <div className="mt-3 flex flex-wrap gap-2">
                   {[0.5, 1, 1.5, 2, 3].map((m) => (
                     <button
                       key={m}
-                      onClick={() => setMultiplier(m)}
+                      onClick={() => {
+                        setAmountUnit("g");
+                        setMultiplier(m);
+                      }}
                       className={`press min-h-[48px] flex-1 rounded-2xl border-2 border-b-4 px-3 text-[15px] font-extrabold ${
                         multiplier === m
                           ? "border-primary bg-primary-soft text-primary-shadow"
@@ -387,7 +467,7 @@ function SaveMeal({ meal }: { meal: Meal }) {
             meal_type: meal.slot,
             items: meal.items.map((i) => ({
               food_id: i.foodId,
-              grams: Number(i.portion.replace(" g", "")),
+              grams: i.grams,
             })),
           })
         )

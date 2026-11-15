@@ -144,7 +144,7 @@ averages, conditional projections and guarded maintenance calibration. Budget
 summaries distinguish unpriced items and require at least five substantially logged,
 fully priced days for a monthly estimate. All estimates state their assumptions.
 
-Seven source-backed common foods are included using USDA SR Legacy fallback data.
+200 source-backed foods are included using USDA SR Legacy fallback data, including bread, wheat/flours, pasta, chapati/roti, everyday ingredients and drinks. Source-measured portions support slices and millilitres where available. Beer energy includes alcohol; a 500 ml generic regular beer is about 216 kcal.
 See `docs/FOOD_SOURCES.md` for preparation states and reproducible source records.
 Unsupported local dishes remain explicitly unverified. The full implementation
 checklist and remaining external-data boundaries are in `docs/REQUIREMENT_AUDIT.md`.

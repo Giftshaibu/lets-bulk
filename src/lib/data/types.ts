@@ -10,12 +10,19 @@ export interface FoodItem {
   carbs: number;
   fat: number;
   frequent?: boolean;
+  aliases?: string | null;
+  category?: string;
+  servingName?: string | null;
+  servingGrams?: number | null;
+  servingVolumeMl?: number | null;
+  alcoholPer100g?: number | null;
   source?: string;
   reference?: string | null;
   preparation?: string;
 }
 
 export interface LoggedFood {
+  grams: number;
   id: string;
   foodId: string;
   name: string;

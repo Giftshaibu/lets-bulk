@@ -1,3 +1,4 @@
+import { matchesFoodQuery } from "../domain/food-catalog";
 import { z } from "zod";
 import { guidedSetup, estimatePlan } from "../domain/onboarding";
 import { requestDb } from "../db/client";
@@ -41,7 +42,7 @@ export async function handleApi(request: Request): Promise<Response> {
       else if (path === "/api/foods") {
         const query = (url.searchParams.get("q") ?? "").toLowerCase();
         data = s.foods.filter((f) =>
-          `${f.name} ${f.local_name ?? ""}`.toLowerCase().includes(query),
+          matchesFoodQuery({ name: f.name, aliases: f.local_name, category: f.category }, query),
         );
       } else if (path === "/api/budget")
         data = { items: budgetSuggestions(s), summary: budgetSummary(s, today) };

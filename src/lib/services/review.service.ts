@@ -279,7 +279,8 @@ export function substitutions(s: Snapshot, foodId: string, grams: number) {
         f.id === foodId ||
         !f.calories_per_100g ||
         f.protein_per_100g === null ||
-        f.availability === "unavailable"
+        f.availability === "unavailable" ||
+        Number(f.alcohol_g_per_100g ?? 0) > 0
       )
         return false;
       const animal = ["meat", "fish"].includes(f.category),

@@ -1,3 +1,4 @@
+import { gramsPerMl } from "../domain/food-catalog";
 import { hasEquipment } from "../domain/equipment";
 import { completionPolicy } from "../domain/completion-policy";
 import { exerciseHistory, trainingAnalytics, exerciseLoadConfig } from "./training.service";
@@ -33,16 +34,29 @@ export function aggregate(s: Snapshot, today: string) {
     const ids = todayLogs.filter((l) => l.meal_type === slot).map((l) => l.id);
     const items = s.items
       .filter((item) => ids.includes(item.nutrition_log_id))
-      .map((item) => ({
-        id: item.id,
-        foodId: item.food_id,
-        name: item.name,
-        portion: `${item.grams} g`,
-        kcal: round(item.calories),
-        protein: round(item.protein_g),
-        carbs: round(item.carbs_g),
-        fat: round(item.fat_g),
-      }));
+      .map((item) => {
+        const food = s.foods.find((f) => f.id === item.food_id),
+          density = food
+            ? gramsPerMl({
+                servingGrams: food.serving_grams,
+                servingVolumeMl: food.serving_volume_ml,
+              })
+            : null;
+        return {
+          grams: item.grams,
+          id: item.id,
+          foodId: item.food_id,
+          name: item.name,
+          portion:
+            density !== null
+              ? `${round(item.grams / density, 1)} ml · ${round(item.grams, 1)} g`
+              : `${item.grams} g`,
+          kcal: round(item.calories),
+          protein: round(item.protein_g),
+          carbs: round(item.carbs_g),
+          fat: round(item.fat_g),
+        };
+      });
     return {
       id: slot,
       slot,
@@ -262,7 +276,13 @@ export function aggregate(s: Snapshot, today: string) {
       protein: f.protein_per_100g!,
       carbs: f.carbs_per_100g!,
       fat: f.fat_per_100g!,
-      frequent: f.common_in_malawi ?? false,
+      frequent: s.items.some((item) => item.food_id === f.id),
+      aliases: f.local_name,
+      category: f.category,
+      servingName: f.serving_name,
+      servingGrams: f.serving_grams,
+      servingVolumeMl: f.serving_volume_ml,
+      alcoholPer100g: f.alcohol_g_per_100g,
       source: f.source,
       reference: f.source_reference,
       preparation: f.preparation_state,

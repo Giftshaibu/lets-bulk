@@ -46,7 +46,7 @@ documents were not present in the repository.
 - Food substitutions prioritize protein and approximate energy, then local availability
   and price. Diet restrictions filter candidates. Suggestions never modify a meal.
 - Food nutrients are snapshotted on logging. Unverified seed foods cannot be logged.
-  The reference library contains 48 exercises, seven source-backed USDA fallback foods, and ten explicitly unverified local-food placeholders.
+  The reference library contains 48 exercises, 200 source-backed USDA fallback foods, and ten explicitly unverified local-food placeholders.
 - Every personal table and child row has ownership policies; composite foreign keys
   prevent cross-owner parent links. Reference exercises are read-only. Custom foods
   belong to their creator; shared placeholders are read-only to ordinary accounts.

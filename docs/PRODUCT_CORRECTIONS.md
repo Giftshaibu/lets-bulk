@@ -60,8 +60,8 @@ disclaimer is not a reuse license. No permission to redistribute the compilation
 was established, so its numeric tables have **not** been imported or presented as
 licensed. The Malawi-first seeded-food criterion is therefore **pending**.
 
-The existing seven explicitly sourced USDA SR Legacy fallback foods remain
-loggable. Local foods without verified nutrient values remain unavailable. No
+The expanded 200-food USDA SR Legacy CC0 fallback catalog is loggable, including
+bread, wheat products and generic beer. Local foods without verified nutrient values remain unavailable. No
 USDA data is relabeled MAFOODS and no nsima/usipa/chambo nutrient values are
 invented. Once reuse rights are established, import MAFOODS using food codes,
 preparation states, per-100-g nutrients, source year and exact source references,
@@ -69,7 +69,7 @@ then prioritize those records ahead of regional and USDA fallbacks.
 
 ## Verification
 
-48 automated tests cover domain behavior and real SQL migrations in PGlite,
+55 automated tests cover domain behavior and real SQL migrations in PGlite,
 including RLS isolation of logging days, generic/specific equipment distinction,
 guided initialization idempotency, and full-body rescheduling. Playwright covers
 onboarding, persistence, journey details, food logging/saved meals/contextual
