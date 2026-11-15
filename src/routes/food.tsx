@@ -1,3 +1,5 @@
+import { TargetExplanation } from "@/features/target-explanation";
+import { FoodActions } from "@/features/food-actions";
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { createFileRoute } from "@tanstack/react-router";
@@ -5,7 +7,7 @@ import { Check, Plus, Search, X } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
-import { FoodTools } from "@/features/tracking-forms";
+import { Link } from "@tanstack/react-router";
 import type { FoodItem, LoggedFood, Meal } from "@/lib/data/types";
 
 export const Route = createFileRoute("/food")({
@@ -74,22 +76,36 @@ function FoodPage() {
             </Pill>
           </div>
           <Bar className="mt-3" value={eaten.kcal} max={targets.kcal} />
+          <TargetExplanation />
           <div className="mt-4 grid grid-cols-3 gap-3">
             <MacroMini label="Protein" left={remaining.protein} />
-            <MacroMini label="Carbs" left={remaining.carbs} />
-            <MacroMini label="Fat" left={remaining.fat} />
+            <details className="col-span-2">
+              <summary className="min-h-11 cursor-pointer font-bold">
+                More nutrition details
+              </summary>
+              <div className="grid grid-cols-2 gap-3">
+                <MacroMini label="Carbs" left={remaining.carbs} />
+                <MacroMini label="Fat" left={remaining.fat} />
+              </div>
+            </details>
           </div>
         </Card>
 
         <div>
-          <SectionTitle>Quick add</SectionTitle>
+          <SectionTitle>Find a food</SectionTitle>
+          <ChunkyButton full onClick={() => setSheetMealId(nextOpenMeal.id)}>
+            <Search className="h-5 w-5" /> Search foods
+          </ChunkyButton>
           <div className="flex flex-wrap gap-2">
             {foods
               .filter((f) => f.frequent)
               .map((f) => (
                 <button
                   key={f.id}
-                  onClick={() => addFood(nextOpenMeal.id, f, 1)}
+                  onClick={() => {
+                    setSelected(f);
+                    setSheetMealId(nextOpenMeal.id);
+                  }}
                   className="press inline-flex items-center gap-1.5 rounded-full border-2 border-b-4 border-border bg-card px-3.5 py-2 text-[13px] font-extrabold"
                 >
                   <Plus className="h-4 w-4 text-primary" strokeWidth={3} />
@@ -152,6 +168,7 @@ function FoodPage() {
                     </p>
                   )}
 
+                  {meal.items.length > 0 && <SaveMeal meal={meal} />}
                   <ChunkyButton
                     tone="neutral"
                     size="sm"
@@ -168,7 +185,12 @@ function FoodPage() {
         </div>
       </div>
 
-      <FoodTools />
+      <Link
+        to="/food-library"
+        className="my-4 inline-flex min-h-11 items-center font-bold underline"
+      >
+        Saved meals, custom foods and prices →
+      </Link>
       <Dialog.Root
         open={!!sheetMealId}
         onOpenChange={(open) => {
@@ -236,7 +258,7 @@ function FoodPage() {
                 </div>
                 <ul className="mt-3 flex flex-col gap-2">
                   {results.map((f) => (
-                    <li key={f.id}>
+                    <li key={f.id} className="flex items-center gap-2">
                       <button
                         onClick={() => setSelected(f)}
                         className="press flex w-full items-center justify-between rounded-2xl border-2 border-b-4 border-border bg-card px-4 py-3 text-left"
@@ -249,6 +271,9 @@ function FoodPage() {
                         </div>
                         <span className="text-[16px] font-extrabold">{f.kcal}</span>
                       </button>
+                      {data.foodLibrary.find((food) => food.id === f.id) && (
+                        <FoodActions food={data.foodLibrary.find((food) => food.id === f.id)!} />
+                      )}
                     </li>
                   ))}
                   {results.length === 0 && (
@@ -272,6 +297,18 @@ function FoodPage() {
                     <MacroMini label="Fat" left={selected.fat * multiplier} />
                   </div>
                 </div>
+                <label className="mt-3 block font-bold">
+                  Amount in grams
+                  <input
+                    className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
+                    type="number"
+                    min="1"
+                    max="10000"
+                    step="any"
+                    value={multiplier * 100}
+                    onChange={(e) => setMultiplier(Number(e.target.value) / 100)}
+                  />
+                </label>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {[0.5, 1, 1.5, 2, 3].map((m) => (
                     <button
@@ -287,10 +324,25 @@ function FoodPage() {
                     </button>
                   ))}
                 </div>
+                <label className="mt-3 block font-bold">
+                  Meal
+                  <select
+                    className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
+                    aria-label="Meal"
+                    value={sheetMealId ?? "lunch"}
+                    onChange={(e) => setSheetMealId(e.target.value)}
+                  >
+                    {meals.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <ChunkyButton
                   full
                   className="mt-4"
-                  disabled={pending}
+                  disabled={pending || multiplier <= 0 || multiplier > 100}
                   onClick={() => {
                     if (sheetMealId) void addFood(sheetMealId, selected, multiplier);
                   }}
@@ -317,5 +369,43 @@ function MacroMini({ label, left }: { label: string; left: number }) {
         {label}
       </div>
     </div>
+  );
+}
+
+function SaveMeal({ meal }: { meal: Meal }) {
+  const { act, pending } = useAppData();
+  const [name, setName] = useState("");
+  return (
+    <form
+      aria-label={`Save ${meal.title} as meal`}
+      className="mt-3 flex gap-2"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (
+          await act("/api/meals", {
+            name,
+            meal_type: meal.slot,
+            items: meal.items.map((i) => ({
+              food_id: i.foodId,
+              grams: Number(i.portion.replace(" g", "")),
+            })),
+          })
+        )
+          setName("");
+      }}
+    >
+      <input
+        aria-label={`Name for saved ${meal.title}`}
+        className="min-h-11 min-w-0 flex-1 rounded-xl border-2 border-border px-3"
+        placeholder="Name this meal"
+        maxLength={100}
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <ChunkyButton size="sm" disabled={pending}>
+        Save meal
+      </ChunkyButton>
+    </form>
   );
 }

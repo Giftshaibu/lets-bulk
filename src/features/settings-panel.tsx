@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { equipmentChoices, equipmentLabels } from "@/lib/domain/equipment";
 import { Card, ChunkyButton } from "@/components/kit";
 import { useAppData } from "./app-data";
 import { inputClass, NumberField } from "./setup";
 const num = (f: FormData, key: string) => Number(f.get(key));
-const equipment = ["barbell", "dumbbell", "cable", "machine", "pullup_bar"] as const;
+const equipment = equipmentChoices.filter((e) => e !== "bodyweight");
 export function SettingsPanel() {
   const { data, act, pending } = useAppData();
   const [days, setDays] = useState(data.trainingDays);
@@ -16,8 +17,7 @@ export function SettingsPanel() {
   };
   return (
     <Card className="mt-5">
-      <details>
-        <summary className="min-h-11 cursor-pointer font-bold">Settings & gym equipment</summary>
+      <section aria-label="Settings and gym equipment">
         <form
           className="mt-3 grid gap-4"
           onSubmit={(e) => {
@@ -169,7 +169,7 @@ export function SettingsPanel() {
                       (e) => e.equipment_type === kind && e.is_available,
                     )}
                   />
-                  {kind.replace("_", " ")}
+                  {equipmentLabels[kind]}
                 </label>
               ))}
             </div>
@@ -196,7 +196,7 @@ export function SettingsPanel() {
           <ChunkyButton disabled={pending || !days.length}>Save settings</ChunkyButton>
         </form>
         <LoadOptions />
-      </details>
+      </section>
     </Card>
   );
 }

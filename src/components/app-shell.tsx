@@ -3,8 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { Home, Utensils, Dumbbell, TrendingUp, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppData } from "@/features/app-data";
-import { browserDb } from "@/lib/db/client";
-import { SettingsPanel } from "@/features/tracking-forms";
 
 const tabs = [
   { to: "/", label: "Today", icon: Home },
@@ -71,14 +69,13 @@ export function AppShell({
               </span>
             </div>
           </header>
-          {children}
-          <SettingsPanel />
-          <button
-            className="mt-6 min-h-11 font-bold underline"
-            onClick={() => void browserDb().auth.signOut()}
+          <Link
+            to="/settings"
+            className="mb-4 inline-flex min-h-11 items-center font-bold underline"
           >
-            Sign out
-          </button>
+            Settings
+          </Link>
+          {children}
         </main>
       </div>
 

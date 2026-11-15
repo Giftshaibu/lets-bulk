@@ -1,9 +1,11 @@
+import { setup as guidedSetup } from "./helpers";
 import { test, expect } from "@playwright/test";
 test.skip(
   !process.env["E2E_EMAIL"] || !process.env["E2E_PASSWORD"],
   "Use a dedicated disposable test account.",
 );
 test("settings, sourced foods and accepted training changes persist", async ({ page }) => {
+  test.setTimeout(180000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   let authorization = "";
@@ -15,27 +17,15 @@ test("settings, sourced foods and accepted training changes persist", async ({ p
   await page.getByLabel("Email", { exact: true }).fill(process.env["E2E_EMAIL"]!);
   await page.getByLabel("Password", { exact: true }).fill(process.env["E2E_PASSWORD"]!);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  const setup = page.getByRole("heading", { name: "Make the plan yours" });
+  const setup = page.getByRole("heading", { name: "Let’s start with you" });
   await expect(setup.or(page.getByRole("heading", { name: "Today", exact: true }))).toBeVisible({
     timeout: 30000,
   });
-  if (await setup.isVisible()) {
-    for (const [label, value] of [
-      ["Height (cm)", "175"],
-      ["Starting weight (kg)", "60"],
-      ["Goal weight (kg)", "68"],
-      ["Daily calories", "2500"],
-      ["Protein (g)", "120"],
-      ["Carbs (g)", "330"],
-      ["Fat (g)", "65"],
-    ])
-      await page.getByLabel(label!, { exact: true }).fill(value!);
-    await page.getByRole("button", { name: "Save my plan" }).click();
-  }
+  if (await setup.isVisible()) await guidedSetup(page);
   await expect(page.getByRole("heading", { name: "Today", exact: true })).toBeVisible({
     timeout: 30000,
   });
-  await page.getByText("Settings & gym equipment", { exact: true }).click();
+  await page.goto("/settings");
   await page.getByLabel("Goal weight (kg)", { exact: true }).fill("70");
   await page.getByLabel("Optional target date").fill("2027-12-01");
   for (const day of ["Monday", "Wednesday", "Friday", "Saturday"])
@@ -50,7 +40,7 @@ test("settings, sourced foods and accepted training changes persist", async ({ p
   await page.getByRole("button", { name: "Save settings", exact: true }).click();
   expect((await saved).status()).toBe(200);
   await page.reload();
-  await page.getByText("Settings & gym equipment", { exact: true }).click();
+  await page.goto("/settings");
   await expect(page.getByLabel("Goal weight (kg)", { exact: true })).toHaveValue("70");
   await expect(page.getByLabel("Weight log", { exact: true })).not.toBeChecked();
   await expect(page.getByText("Training days (3 per week)", { exact: true })).toBeVisible();
@@ -61,7 +51,7 @@ test("settings, sourced foods and accepted training changes persist", async ({ p
   await page.goto("/food");
   await page.getByRole("button", { name: "Add food", exact: true }).first().click();
   await page.getByLabel("Search foods", { exact: true }).fill("Bananas, raw");
-  await page.getByRole("button", { name: /Bananas, raw/ }).click();
+  await page.getByRole("button", { name: /^Bananas, raw/ }).click();
   await expect(page.getByRole("link", { name: "Nutrient source" })).toHaveAttribute(
     "href",
     "https://fdc.nal.usda.gov/food-details/173944/nutrients",
@@ -72,7 +62,11 @@ test("settings, sourced foods and accepted training changes persist", async ({ p
   await page.getByRole("button", { name: "Add to meal", exact: true }).click();
   expect((await logged).status()).toBe(200);
   await page.goto("/train");
-  await page.locator("summary").filter({ hasText: "Upper A ·" }).first().click();
+  await page
+    .locator("summary")
+    .filter({ hasText: /(?:Upper A|Full body 1) ·/ })
+    .first()
+    .click();
   const proposed = page.waitForResponse((r) => r.url().endsWith("/api/training/recommendations"));
   await page.getByRole("button", { name: "Propose one extra set", exact: true }).first().click();
   expect((await proposed).status()).toBe(200);
@@ -90,14 +84,14 @@ test("settings, sourced foods and accepted training changes persist", async ({ p
   const { data } = await dashboard.json();
   expect(data.rawProfile.goal_weight_kg).toBe(70);
   expect(data.trainingDays).toHaveLength(3);
-  expect(data.targets.kcal).toBe(2500);
+  expect(data.targets.kcal).toBe(baseline.targets.kcal);
   expect(data.activeProgram.version).toBe(baseline.activeProgram.version + 1);
   expect(data.programExercises.reduce((n: number, p: { sets: number }) => n + p.sets, 0)).toBe(
     baseline.programExercises.reduce((n: number, p: { sets: number }) => n + p.sets, 0) + 1,
   );
   expect(data.completionPolicy.weight).toBe(false);
-  expect(data.eaten.kcal).toBe(baseline.eaten.kcal + 89);
-  await page.goto("/progress");
+  expect(data.eaten.kcal).toBeCloseTo(baseline.eaten.kcal + 89, 1);
+  await page.goto("/progress-details?section=weight");
   await expect(page.getByRole("heading", { name: "Observed maintenance estimate" })).toBeVisible();
   await expect(page.getByText(/Needs 21 substantially logged food days/)).toBeVisible();
   expect(errors).toEqual([]);

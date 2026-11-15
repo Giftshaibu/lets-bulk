@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FoodRouteImport } from './routes/food'
+import { Route as FoodLibraryRouteImport } from './routes/food-library'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ProgressDetailsRouteImport } from './routes/progress-details'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TrainIndexRouteImport } from './routes/train.index'
 import { Route as TrainActiveRouteImport } from './routes/train.active'
 
@@ -25,9 +28,24 @@ const FoodRoute = FoodRouteImport.update({
   path: '/food',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoodLibraryRoute = FoodLibraryRouteImport.update({
+  id: '/food-library',
+  path: '/food-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressDetailsRoute = ProgressDetailsRouteImport.update({
+  id: '/progress-details',
+  path: '/progress-details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrainIndexRoute = TrainIndexRouteImport.update({
@@ -44,14 +62,20 @@ const TrainActiveRoute = TrainActiveRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-library': typeof FoodLibraryRoute
   '/progress': typeof ProgressRoute
+  '/progress-details': typeof ProgressDetailsRoute
+  '/settings': typeof SettingsRoute
   '/train/active': typeof TrainActiveRoute
   '/train/': typeof TrainIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-library': typeof FoodLibraryRoute
   '/progress': typeof ProgressRoute
+  '/progress-details': typeof ProgressDetailsRoute
+  '/settings': typeof SettingsRoute
   '/train/active': typeof TrainActiveRoute
   '/train': typeof TrainIndexRoute
 }
@@ -59,22 +83,53 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-library': typeof FoodLibraryRoute
   '/progress': typeof ProgressRoute
+  '/progress-details': typeof ProgressDetailsRoute
+  '/settings': typeof SettingsRoute
   '/train/active': typeof TrainActiveRoute
   '/train/': typeof TrainIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/food' | '/progress' | '/train/active' | '/train/'
+  fullPaths:
+    | '/'
+    | '/food'
+    | '/food-library'
+    | '/progress'
+    | '/progress-details'
+    | '/settings'
+    | '/train/active'
+    | '/train/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/food' | '/progress' | '/train/active' | '/train'
-  id: '__root__' | '/' | '/food' | '/progress' | '/train/active' | '/train/'
+  to:
+    | '/'
+    | '/food'
+    | '/food-library'
+    | '/progress'
+    | '/progress-details'
+    | '/settings'
+    | '/train/active'
+    | '/train'
+  id:
+    | '__root__'
+    | '/'
+    | '/food'
+    | '/food-library'
+    | '/progress'
+    | '/progress-details'
+    | '/settings'
+    | '/train/active'
+    | '/train/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FoodRoute: typeof FoodRoute
+  FoodLibraryRoute: typeof FoodLibraryRoute
   ProgressRoute: typeof ProgressRoute
+  ProgressDetailsRoute: typeof ProgressDetailsRoute
+  SettingsRoute: typeof SettingsRoute
   TrainActiveRoute: typeof TrainActiveRoute
   TrainIndexRoute: typeof TrainIndexRoute
 }
@@ -95,11 +150,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoodRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/food-library': {
+      id: '/food-library'
+      path: '/food-library'
+      fullPath: '/food-library'
+      preLoaderRoute: typeof FoodLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/progress': {
       id: '/progress'
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress-details': {
+      id: '/progress-details'
+      path: '/progress-details'
+      fullPath: '/progress-details'
+      preLoaderRoute: typeof ProgressDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/train/': {
@@ -122,7 +198,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FoodRoute: FoodRoute,
+  FoodLibraryRoute: FoodLibraryRoute,
   ProgressRoute: ProgressRoute,
+  ProgressDetailsRoute: ProgressDetailsRoute,
+  SettingsRoute: SettingsRoute,
   TrainActiveRoute: TrainActiveRoute,
   TrainIndexRoute: TrainIndexRoute,
 }

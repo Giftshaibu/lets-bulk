@@ -1,3 +1,4 @@
+import { TargetExplanation } from "@/features/target-explanation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Dumbbell, Scale, Utensils, Moon, Zap, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -134,10 +135,16 @@ function TodayPage() {
             </div>
           </div>
           <Bar className="mt-3" value={eaten.kcal} max={targets.kcal} />
+          <TargetExplanation />
           <div className="mt-4 grid grid-cols-3 gap-3">
             <Macro label="Protein" value={eaten.protein} max={targets.protein} tone="success" />
-            <Macro label="Carbs" value={eaten.carbs} max={targets.carbs} tone="info" />
-            <Macro label="Fat" value={eaten.fat} max={targets.fat} tone="reward" />
+            <details className="col-span-2">
+              <summary className="min-h-11 cursor-pointer font-bold">
+                More nutrition details
+              </summary>
+              <Macro label="Carbs" value={eaten.carbs} max={targets.carbs} tone="info" />
+              <Macro label="Fat" value={eaten.fat} max={targets.fat} tone="reward" />
+            </details>
           </div>
         </Card>
 

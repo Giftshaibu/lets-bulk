@@ -10,72 +10,85 @@ import type {
   substitutions,
 } from "@/lib/services/review.service";
 const num = (f: FormData, key: string) => Number(f.get(key));
-export function BodyForms() {
+export function BodyForms({
+  section = "weight",
+}: {
+  section?: "weight" | "measurements" | "photos";
+}) {
   const { data, act, pending } = useAppData();
   return (
     <Card>
-      <SectionTitle>Log your progress</SectionTitle>
+      <SectionTitle>
+        {section === "weight"
+          ? "Quick weight log"
+          : section === "measurements"
+            ? "Body measurements"
+            : "Progress photos"}
+      </SectionTitle>
       <div className="grid gap-4">
-        <form
-          className="grid gap-3 sm:grid-cols-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const f = new FormData(e.currentTarget);
-            void act("/api/weight", { date: String(f.get("date")), weight_kg: num(f, "weight") });
-          }}
-        >
-          <label className="text-sm font-bold">
-            Date
-            <input
-              type="date"
-              name="date"
-              defaultValue={data.date}
-              max={data.date}
-              required
-              className={inputClass}
-            />
-          </label>
-          <NumberField name="weight" label="Weight (kg)" min={20} max={500} />
-          <ChunkyButton disabled={pending}>Save weight</ChunkyButton>
-        </form>
-        <details>
-          <summary className="min-h-11 cursor-pointer font-bold">Body measurements</summary>
+        {section === "weight" && (
           <form
-            className="mt-2 grid grid-cols-2 gap-3"
+            className="grid gap-3 sm:grid-cols-3"
             onSubmit={(e) => {
               e.preventDefault();
               const f = new FormData(e.currentTarget);
-              const body: Record<string, string | number> = { date: String(f.get("date")) };
-              for (const k of ["chest_cm", "arm_cm", "waist_cm", "thigh_cm"])
-                if (f.get(k)) body[k] = num(f, k);
-              void act("/api/measurements", body);
+              void act("/api/weight", { date: String(f.get("date")), weight_kg: num(f, "weight") });
             }}
           >
-            <label className="col-span-2">
+            <label className="text-sm font-bold">
               Date
               <input
-                className={inputClass}
                 type="date"
                 name="date"
                 defaultValue={data.date}
                 max={data.date}
                 required
+                className={inputClass}
               />
             </label>
-            {["chest", "arm", "waist", "thigh"].map((k) => (
-              <NumberField
-                key={k}
-                name={`${k}_cm`}
-                label={`${k} (cm)`}
-                min={1}
-                max={300}
-                required={false}
-              />
-            ))}
-            <ChunkyButton disabled={pending}>Save measurements</ChunkyButton>
+            <NumberField name="weight" label="Weight (kg)" min={20} max={500} />
+            <ChunkyButton disabled={pending}>Save weight</ChunkyButton>
           </form>
-        </details>
-        <PhotoForm />
+        )}
+        {section === "measurements" && (
+          <section>
+            <form
+              className="mt-2 grid grid-cols-2 gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const f = new FormData(e.currentTarget);
+                const body: Record<string, string | number> = { date: String(f.get("date")) };
+                for (const k of ["chest_cm", "arm_cm", "waist_cm", "thigh_cm"])
+                  if (f.get(k)) body[k] = num(f, k);
+                void act("/api/measurements", body);
+              }}
+            >
+              <label className="col-span-2">
+                Date
+                <input
+                  className={inputClass}
+                  type="date"
+                  name="date"
+                  defaultValue={data.date}
+                  max={data.date}
+                  required
+                />
+              </label>
+              {["chest", "arm", "waist", "thigh"].map((k) => (
+                <NumberField
+                  key={k}
+                  name={`${k}_cm`}
+                  label={`${k} (cm)`}
+                  min={1}
+                  max={300}
+                  required={false}
+                />
+              ))}
+              <ChunkyButton disabled={pending}>Save measurements</ChunkyButton>
+            </form>
+          </section>
+        )}
+        {section === "photos" && <PhotoForm />}
       </div>
     </Card>
   );
@@ -86,8 +99,7 @@ function PhotoForm() {
     [error, setError] = useState(""),
     [urls, setUrls] = useState<Record<string, string>>({});
   return (
-    <details>
-      <summary className="min-h-11 cursor-pointer font-bold">Private progress photos</summary>
+    <section aria-label="Private progress photos">
       <form
         className="grid gap-3"
         onSubmit={async (e) => {
@@ -195,6 +207,6 @@ function PhotoForm() {
           </div>
         ))}
       </div>
-    </details>
+    </section>
   );
 }
