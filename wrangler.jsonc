@@ -6,6 +6,12 @@
   "compatibility_date": "2026-11-15",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "ai": { "binding": "AI" },
+  "vars": {
+    "AI_ENABLED": "false",
+    "AI_FREE_TIER_CONFIRMED": "false",
+    "CLOUDFLARE_AI_MODEL": "@cf/google/gemma-4-26b-a4b-it",
+  },
   "no_bundle": true,
   "rules": [{ "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }],
   "assets": { "binding": "ASSETS", "directory": ".output/public" },
