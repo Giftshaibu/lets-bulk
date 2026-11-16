@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "deploy": "npm run build && wrangler deploy --config wrangler.jsonc",
-    "deploy:check": "npm run build && wrangler deploy --config wrangler.jsonc --dry-run"
+    "deploy:check": "npm run build && wrangler deploy --config wrangler.jsonc --dry-run",
+    "types:cloudflare": "wrangler types src/lib/ai/worker-env.d.ts --env-interface CloudflareBindings --include-main-module false --strict-vars false"
   },
   "overrides": {
     "rolldown": "1.2.1"

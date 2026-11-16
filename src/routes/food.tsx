@@ -1,3 +1,4 @@
+import { FoodAIActions } from "@/features/food-ai";
 import { searchFoods, gramsPerMl } from "@/lib/domain/food-catalog";
 import { TargetExplanation } from "@/features/target-explanation";
 import { FoodActions } from "@/features/food-actions";
@@ -98,6 +99,7 @@ function FoodPage() {
 
         <div>
           <SectionTitle>Find a food</SectionTitle>
+          <FoodAIActions onManualSearch={() => setSheetMealId(nextOpenMeal.id)} />
           <ChunkyButton full onClick={() => setSheetMealId(nextOpenMeal.id)}>
             <Search className="h-5 w-5" /> Search foods
           </ChunkyButton>

@@ -160,3 +160,14 @@ beginner instructions, with explicit equipment and license metadata.
 See [product corrections and the remaining MAFOODS rights dependency](docs/PRODUCT_CORRECTIONS.md).
 The app currently uses explicitly identified USDA fallback foods while MAFOODS
 redistribution rights remain unverified.
+
+## Optional AI helpers
+
+Focused helpers explain saved recommendations/exercises/weeks, parse food
+sentences into confirmation drafts, and describe meals built from confirmed
+available foods. Deterministic logic still calculates all targets, nutrition,
+prices and plan changes. Every helper has a normal-app fallback.
+
+The native Workers AI binding is configured, but production inference defaults to
+**off** until the account is confirmed to use Workers Free. No billing upgrade or
+paid inference is authorized. See [AI configuration, safeguards and tests](docs/AI_IMPLEMENTATION.md).

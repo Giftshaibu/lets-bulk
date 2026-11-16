@@ -1,3 +1,4 @@
+import { AIExplanation } from "./ai-actions";
 import guidance from "@/lib/data/exercise-guidance.json";
 import { useAppData } from "./app-data";
 export function ExerciseGuide({ id }: { id: string }) {
@@ -43,6 +44,11 @@ export function ExerciseGuide({ id }: { id: string }) {
             <li key={m}>{m}</li>
           ))}
         </ul>
+        <AIExplanation
+          key={exercise.id + JSON.stringify(exercise.instructions)}
+          kind="exercise"
+          id={exercise.id}
+        />
         <p className="mt-3 text-xs">
           {guide.author} · {guide.license} · {guide.style}
           {guide.source.startsWith("https://") && (

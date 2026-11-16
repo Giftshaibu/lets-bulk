@@ -704,3 +704,116 @@ it("stores the full source energy when logging a measured beer portion", async (
   );
   expect(energy).toBeCloseTo((43 * grams) / 100, 1);
 });
+it("logs confirmed food batches atomically and treats retries as immutable replays", async () => {
+  await asUser("00000000-0000-4000-8000-000000000003");
+  const banana = await scalar(
+      "select id from public.foods where source_reference='https://fdc.nal.usda.gov/food-details/173944/nutrients' and user_id is null",
+    ),
+    unknown = await scalar("select id from public.foods where name='Nsima' and user_id is null"),
+    date = "2026-01-01";
+  const before = Number(await scalar("select count(*) from public.nutrition_log_items"));
+  const items = [
+    { id: "00000000-0000-4000-9000-000000000001", foodId: banana, grams: 100, slot: "lunch" },
+    { id: "00000000-0000-4000-9000-000000000002", foodId: unknown, grams: 50, slot: "lunch" },
+  ];
+  await expect(
+    db.query("select public.log_food_batch($1,$2)", [date, JSON.stringify(items)]),
+  ).rejects.toThrow("INVALID_INPUT");
+  expect(Number(await scalar("select count(*) from public.nutrition_log_items"))).toBe(before);
+  items[1]!.foodId = banana;
+  await db.query("select public.log_food_batch($1,$2)", [date, JSON.stringify(items)]);
+  await db.query("select public.log_food_batch($1,$2)", [date, JSON.stringify(items)]);
+  expect(Number(await scalar("select count(*) from public.nutrition_log_items"))).toBe(before + 2);
+  items[0]!.grams = 200;
+  await expect(
+    db.query("select public.log_food_batch($1,$2)", [date, JSON.stringify(items)]),
+  ).rejects.toThrow("CONFLICT");
+  await asUser(other);
+  await expect(
+    db.query("select public.log_food_batch($1,$2)", [date, JSON.stringify(items)]),
+  ).rejects.toThrow();
+});
+it("isolates AI caches and prevents counter edits, duplicate calls and burst retries", async () => {
+  await asUser(owner);
+  const hash = "a".repeat(64);
+  const begin = await scalar<{ state: string; id: string }>(
+    "select public.ai_begin('explainExercise',$1,'model','1')",
+    [hash],
+  );
+  expect(begin.state).toBe("reserved");
+  expect(
+    (
+      await scalar<{ state: string }>("select public.ai_begin('explainExercise',$1,'model','1')", [
+        hash,
+      ])
+    ).state,
+  ).toBe("pending");
+  await db.query("select public.ai_finish($1,$2,null,86400)", [
+    begin.id,
+    JSON.stringify({ safe: "cached" }),
+  ]);
+  expect(
+    (
+      await scalar<{ state: string }>("select public.ai_begin('explainExercise',$1,'model','1')", [
+        hash,
+      ])
+    ).state,
+  ).toBe("cached");
+  await expect(
+    db.query("update app_private.ai_generations set created_at=now()-interval '2 days'"),
+  ).rejects.toThrow();
+  await expect(db.query("delete from app_private.ai_generations")).rejects.toThrow();
+  await expect(
+    db.query(
+      "insert into app_private.ai_generations(user_id,task,context_hash,model,prompt_version,created_at) values(auth.uid(),'explainExercise',$1,'model','1',now()-interval '1 day')",
+      ["b".repeat(64)],
+    ),
+  ).rejects.toThrow();
+  for (let i = 0; i < 4; i++)
+    expect(
+      (
+        await scalar<{ state: string }>(
+          "select public.ai_begin('explainExercise',$1,'model','1')",
+          [i.toString(16).padStart(64, "0")],
+        )
+      ).state,
+    ).toBe("reserved");
+  expect(
+    (
+      await scalar<{ state: string }>("select public.ai_begin('explainExercise',$1,'model','1')", [
+        "c".repeat(64),
+      ])
+    ).state,
+  ).toBe("limited");
+  await asUser(other);
+  expect(Number(await scalar("select count(*) from app_private.ai_cache"))).toBe(0);
+  await expect(
+    db.query("select public.ai_finish($1,$2,null,86400)", [begin.id, "{}"]),
+  ).rejects.toThrow();
+});
+it("caps AI generations per UTC day even after errors and prevents counter deletion", async () => {
+  await asUser(owner);
+  await db.exec(
+    "reset role;update app_private.ai_generations set created_at=now()-interval '2 minutes' where user_id='00000000-0000-4000-8000-000000000001'",
+  );
+  await asUser(owner);
+  for (let i = 5; i < 20; i++) {
+    const r = await scalar<{ state: string; id: string }>(
+      "select public.ai_begin('parseFoodLog',$1,'model','1')",
+      [i.toString(16).padStart(64, "0")],
+    );
+    expect(r.state).toBe("reserved");
+    await db.query("select public.ai_finish($1,null,'AI_TIMEOUT',0)", [r.id]);
+    await db.exec(
+      "reset role;update app_private.ai_generations set created_at=now()-interval '2 minutes' where user_id='00000000-0000-4000-8000-000000000001'",
+    );
+    await asUser(owner);
+  }
+  expect(
+    (
+      await scalar<{ state: string }>("select public.ai_begin('parseFoodLog',$1,'model','1')", [
+        "f".repeat(64),
+      ])
+    ).state,
+  ).toBe("limited");
+});

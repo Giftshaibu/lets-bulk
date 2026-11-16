@@ -1,3 +1,4 @@
+import { AIExplanation } from "./ai-actions";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
@@ -32,6 +33,13 @@ export function ReviewPanel() {
           {Math.round(data.reviews[0].confidence * 100)}%
         </p>
       )}
+      {data.reviews[0] && (
+        <AIExplanation
+          key={data.reviews[0].id + JSON.stringify(data.reviews[0].raw_analysis)}
+          kind="week"
+          id={data.reviews[0].id}
+        />
+      )}
       {data.reviews[0] && <ReviewExplanation analysis={data.reviews[0].raw_analysis} />}
       <div className="grid gap-3">
         {data.recommendations.map((r) => (
@@ -45,6 +53,11 @@ export function ReviewPanel() {
               </p>
             )}
             {r.blockedReason && <p className="mt-2 text-sm font-bold">{r.blockedReason}</p>}
+            <AIExplanation
+              key={r.id + r.status + String(r.recommended_value) + r.reason}
+              kind="recommendation"
+              id={r.id}
+            />
             <p className="my-2 text-xs font-bold uppercase">
               {r.status} ·{" "}
               {r.request_id ? "Your request" : `confidence ${Math.round(r.confidence * 100)}%`}

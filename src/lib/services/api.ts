@@ -1,3 +1,6 @@
+import { requestSchemas as aiRequestSchemas } from "../ai/schemas";
+import { handleAIAction } from "../ai/service";
+import type { AIRuntime } from "../ai/runtime";
 import { matchesFoodQuery } from "../domain/food-catalog";
 import { z } from "zod";
 import { guidedSetup, estimatePlan } from "../domain/onboarding";
@@ -10,7 +13,7 @@ import { aggregate } from "./dashboard.service";
 import { budgetSuggestions, budgetSummary, saveReview, substitutions } from "./review.service";
 import { AppError, result } from "./errors";
 import * as schema from "../validation/schemas";
-export async function handleApi(request: Request): Promise<Response> {
+export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promise<Response> {
   const headers = { "Cache-Control": "no-store", "Content-Type": "application/json" };
   try {
     const token = request.headers.get("Authorization")?.match(/^Bearer (.+)$/)?.[1];
@@ -73,7 +76,41 @@ export async function handleApi(request: Request): Promise<Response> {
         );
       } else throw new AppError("NOT_FOUND", "Endpoint not found.", 404);
     } else if (method === "POST" || method === "PATCH" || method === "DELETE") {
-      if (path === "/api/setup/preview" && method === "POST") {
+      if (path.startsWith("/api/ai/") && method === "POST") {
+        const raw = await body();
+        const action = path.split("/")[3] ?? "";
+        let end = today;
+        if (action === "weekly-summary") {
+          const v = aiRequestSchemas["weekly-summary"].parse(raw);
+          const review = await result(
+            db
+              .from("weekly_analyses")
+              .select("period_end")
+              .eq("id", v.reviewId)
+              .eq("user_id", userId)
+              .single(),
+          );
+          end = review.period_end;
+        }
+        data = await handleAIAction(action, raw, await read(end), db, today, aiRuntime);
+      } else if (path === "/api/nutrition/logs/batch" && method === "POST") {
+        const v = z
+          .object({
+            date: schema.date,
+            items: z
+              .array(schema.logFood.omit({ date: true }))
+              .min(1)
+              .max(20),
+          })
+          .strict()
+          .parse(await body());
+        data = await result(
+          db.rpc("log_food_batch", {
+            p_date: v.date,
+            p_items: JSON.parse(JSON.stringify(v.items)),
+          }),
+        );
+      } else if (path === "/api/setup/preview" && method === "POST") {
         data = estimatePlan(guidedSetup.parse(await body()));
       } else if (path === "/api/setup" && method === "POST") {
         const v = guidedSetup.parse(await body());

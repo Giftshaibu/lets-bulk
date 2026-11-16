@@ -5,19 +5,25 @@ import { browserDb, supabaseUrl, supabaseKey } from "@/lib/db/client";
 import type { Dashboard } from "@/lib/services/dashboard.service";
 import { Card, ChunkyButton } from "@/components/kit";
 import { SetupForm } from "./setup";
-export async function api<T>(path: string, method = "GET", body?: unknown): Promise<T> {
+export async function api<T>(
+  path: string,
+  method = "GET",
+  body?: unknown,
+  signal?: AbortSignal,
+): Promise<T> {
   const {
     data: { session },
   } = await browserDb().auth.getSession();
   const response = await fetch(path, {
     method,
+    ...(signal ? { signal } : {}),
     headers: {
       Authorization: `Bearer ${session?.access_token ?? ""}`,
       "Content-Type": "application/json",
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  const payload = await response.json();
+  const payload = (await response.json()) as { error?: { message?: string }; data: unknown };
   if (!response.ok) throw new Error(payload.error?.message ?? "Request failed. Please try again.");
   return payload.data as T;
 }

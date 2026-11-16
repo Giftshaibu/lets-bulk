@@ -1157,6 +1157,19 @@ export type Database = {
       };
     };
     Functions: {
+      ai_begin: {
+        Args: {
+          p_hash: string;
+          p_model: string;
+          p_task: string;
+          p_version: string;
+        };
+        Returns: Json;
+      };
+      ai_finish: {
+        Args: { p_error: string; p_id: string; p_output: Json; p_ttl: number };
+        Returns: undefined;
+      };
       can_use_exercise: { Args: { p_exercise: string }; Returns: boolean };
       complete_workout: { Args: { p_session: string }; Returns: undefined };
       delete_set: { Args: { p_id: string }; Returns: undefined };
@@ -1182,6 +1195,10 @@ export type Database = {
           p_slot: string;
         };
         Returns: string;
+      };
+      log_food_batch: {
+        Args: { p_date: string; p_items: Json };
+        Returns: number;
       };
       log_meal: {
         Args: { p_date: string; p_id: string; p_meal: string; p_slot: string };

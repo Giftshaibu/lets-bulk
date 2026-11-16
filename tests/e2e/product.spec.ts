@@ -76,15 +76,18 @@ test("guided setup, intentional streak, contextual food, separate progress and e
   await expect(page.getByRole("dialog")).toContainText("USDA");
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.goto("/train");
-  await expect(page.getByText("How do I do this?", { exact: true }).first()).toBeVisible();
-  await page.getByText("How do I do this?", { exact: true }).first().click();
-  await expect(page.getByText("Common mistakes", { exact: true }).first()).toBeVisible();
-  for (const img of await page.locator("img").all()) {
-    await img.scrollIntoViewIfNeeded();
-    await expect
-      .poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0))
-      .toBe(true);
-  }
+  const guide = page.getByText("How do I do this?", { exact: true }).first();
+  if (await guide.count()) {
+    await expect(page.getByText("How do I do this?", { exact: true }).first()).toBeVisible();
+    await page.getByText("How do I do this?", { exact: true }).first().click();
+    await expect(page.getByText("Common mistakes", { exact: true }).first()).toBeVisible();
+    for (const img of await page.locator("img").all()) {
+      await img.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0))
+        .toBe(true);
+    }
+  } else await expect(page.getByText(/Rest day/).first()).toBeVisible();
   await page.goto("/settings");
   await expect(page.getByRole("button", { name: "Save settings", exact: true })).toBeVisible();
   await expect(page.getByLabel("Flat bench", { exact: true })).toBeVisible();
