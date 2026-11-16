@@ -77,7 +77,9 @@ Centralized/versioned prompts treat all supplied text as data, disable tool use,
 and forbid invented targets, nutrition, prices, medical diagnoses and guarantees.
 The model uses non-streaming JSON mode, temperature 0 for parsing and 0.2 for
 explanations, at most 1,536 output tokens, at most 16 KB of serialized prompt
-context, and a 12-second abort deadline. There are no automatic retries or
+context, and a 12-second abort deadline. Cache/reservation RPCs each have a
+three-second deadline, and browser helper requests have a twenty-second deadline.
+There are no automatic retries or
 provider/model switches. JSON, strict Zod schemas, supplied candidate/food IDs,
 recommendation identity/direction, and grounded numerical claims are validated.
 Invalid, truncated, rejected, timed-out or unavailable results use deterministic
@@ -155,3 +157,20 @@ Run typecheck, lint, tests and deployment dry run, then deploy to the existing
 Worker and verify normal/fallback flows with a disposable account. Real inference
 smoke tests stay pending until Workers Free is confirmed. Do not claim model
 quality or live inference has been tested while inference is disabled.
+
+### Deployment verification — 2026-11-16
+
+- 99 unit/API/database tests passed; typecheck passed; lint has no errors and
+  eight existing Fast Refresh warnings.
+- Production build and Wrangler deployment dry run passed. Client assets contain
+  no provider prompts or native binding configuration.
+- All five browser tests passed locally and on
+  `https://giftshaibu-lets-bulk.giftshaibu.workers.dev`, including the actual
+  `AI_DISABLED` response from the deployed native environment and the existing
+  food, settings, training, persistence and product flows.
+- Supabase migration `20261116163203_ai_support_and_atomic_food_batches` is applied.
+- Worker version `9128061b-c2c8-4926-9d90-1a9a0ca40991` receives 100% of traffic;
+  Cloudflare settings confirm AI/ASSETS bindings, the configured model, and both
+  inference flags set to `false`.
+- The disposable test account was globally signed out and deleted after testing.
+  Real inference and model-quality smoke tests remain pending free-plan confirmation.
