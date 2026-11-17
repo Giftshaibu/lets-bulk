@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowDown, Check, Flag, LockKeyhole, Mountain, Trophy, X } from "lucide-react";
 import { Brand, ChiuliIcon } from "@/components/brand";
+import { SettingsLink } from "@/components/settings-link";
 import { useAppData } from "@/features/app-data";
 import { addDays } from "@/lib/domain/dates";
 
@@ -48,9 +49,12 @@ function Journey() {
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
             Progress
           </Link>
-          <Link to="/" aria-label="Chiuli home">
-            <Brand />
-          </Link>
+          <div className="ml-auto flex items-center gap-1 sm:gap-3">
+            <Link to="/" aria-label="Chiuli home">
+              <Brand />
+            </Link>
+            <SettingsLink />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-4 pb-12">

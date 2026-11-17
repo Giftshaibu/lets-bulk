@@ -4,6 +4,7 @@ import { Home, Utensils, Dumbbell, TrendingUp, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppData } from "@/features/app-data";
 import { Brand, ChiuliIcon } from "@/components/brand";
+import { SettingsLink } from "@/components/settings-link";
 
 const tabs = [
   { to: "/", label: "Today", icon: Home },
@@ -58,9 +59,12 @@ export function AppShell({
         </aside>
 
         <main className="w-full max-w-[720px] py-5">
-          <Link to="/" aria-label="Chiuli home" className="mb-4 inline-flex lg:hidden">
-            <Brand />
-          </Link>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <Link to="/" aria-label="Chiuli home" className="inline-flex">
+              <Brand />
+            </Link>
+            <SettingsLink />
+          </div>
           <header className="mb-5 flex items-start justify-between gap-3">
             <div>
               <h1 className="text-[30px] leading-tight font-extrabold">{title}</h1>
@@ -75,12 +79,6 @@ export function AppShell({
               </span>
             </div>
           </header>
-          <Link
-            to="/settings"
-            className="mb-4 inline-flex min-h-11 items-center font-bold underline"
-          >
-            Settings
-          </Link>
           {children}
         </main>
       </div>
