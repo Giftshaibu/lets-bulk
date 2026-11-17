@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FoodRouteImport } from './routes/food'
 import { Route as FoodLibraryRouteImport } from './routes/food-library'
+import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ProgressDetailsRouteImport } from './routes/progress-details'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -31,6 +32,11 @@ const FoodRoute = FoodRouteImport.update({
 const FoodLibraryRoute = FoodLibraryRouteImport.update({
   id: '/food-library',
   path: '/food-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JourneyRoute = JourneyRouteImport.update({
+  id: '/journey',
+  path: '/journey',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressRoute = ProgressRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
   '/food-library': typeof FoodLibraryRoute
+  '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
   '/settings': typeof SettingsRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
   '/food-library': typeof FoodLibraryRoute
+  '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
   '/settings': typeof SettingsRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
   '/food-library': typeof FoodLibraryRoute
+  '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
   '/settings': typeof SettingsRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/food'
     | '/food-library'
+    | '/journey'
     | '/progress'
     | '/progress-details'
     | '/settings'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/food'
     | '/food-library'
+    | '/journey'
     | '/progress'
     | '/progress-details'
     | '/settings'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/food'
     | '/food-library'
+    | '/journey'
     | '/progress'
     | '/progress-details'
     | '/settings'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FoodRoute: typeof FoodRoute
   FoodLibraryRoute: typeof FoodLibraryRoute
+  JourneyRoute: typeof JourneyRoute
   ProgressRoute: typeof ProgressRoute
   ProgressDetailsRoute: typeof ProgressDetailsRoute
   SettingsRoute: typeof SettingsRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/food-library'
       fullPath: '/food-library'
       preLoaderRoute: typeof FoodLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journey': {
+      id: '/journey'
+      path: '/journey'
+      fullPath: '/journey'
+      preLoaderRoute: typeof JourneyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/progress': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FoodRoute: FoodRoute,
   FoodLibraryRoute: FoodLibraryRoute,
+  JourneyRoute: JourneyRoute,
   ProgressRoute: ProgressRoute,
   ProgressDetailsRoute: ProgressDetailsRoute,
   SettingsRoute: SettingsRoute,

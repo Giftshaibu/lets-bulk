@@ -9,12 +9,12 @@ import type { SetEntry } from "@/lib/data/types";
 export const Route = createFileRoute("/train/active")({
   head: () => ({
     meta: [
-      { title: "Active workout — Let’s Bulk Training Companion" },
+      { title: "Active workout — Chiuli Training Companion" },
       {
         name: "description",
         content: "Log every set with weight, reps and RIR, rest between sets and finish strong.",
       },
-      { property: "og:title", content: "Active workout — Let’s Bulk" },
+      { property: "og:title", content: "Active workout — Chiuli" },
       { property: "og:description", content: "Set-by-set logging with a built-in rest timer." },
     ],
   }),

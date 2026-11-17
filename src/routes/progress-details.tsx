@@ -12,13 +12,13 @@ export const Route = createFileRoute("/progress-details")({
   }),
   head: () => ({
     meta: [
-      { title: "Progress — Let’s Bulk Training Companion" },
+      { title: "Progress — Chiuli Training Companion" },
       {
         name: "description",
         content:
           "Track body weight trend, strength gains on the main lifts and body measurements over your bulk.",
       },
-      { property: "og:title", content: "Progress — Let’s Bulk Training Companion" },
+      { property: "og:title", content: "Progress — Chiuli Training Companion" },
       {
         property: "og:description",
         content: "Weight trend, strength curves and measurements across the bulk.",

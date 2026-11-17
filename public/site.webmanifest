@@ -1,0 +1,13 @@
+{
+  "name": "Chiuli",
+  "short_name": "Chiuli",
+  "description": "Your daily training companion. Eat, train, recover, and grow.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffaf4",
+  "theme_color": "#f78b18",
+  "icons": [
+    { "src": "/chiuli-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/chiuli-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

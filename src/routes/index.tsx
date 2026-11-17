@@ -9,13 +9,13 @@ import { DailyForms, ReviewPanel } from "@/features/tracking-forms";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Today — Let’s Bulk Training Companion" },
+      { title: "Today — Chiuli Training Companion" },
       {
         name: "description",
         content:
           "Your daily bulking dashboard: calories, protein, today's workout, recovery and weight trend in one place.",
       },
-      { property: "og:title", content: "Today — Let’s Bulk Training Companion" },
+      { property: "og:title", content: "Today — Chiuli Training Companion" },
       {
         property: "og:description",
         content: "Daily calories, protein, training and recovery at a glance.",

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Home, Utensils, Dumbbell, TrendingUp, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppData } from "@/features/app-data";
+import { Brand, ChiuliIcon } from "@/components/brand";
 
 const tabs = [
   { to: "/", label: "Today", icon: Home },
@@ -30,7 +31,9 @@ export function AppShell({
         {/* Desktop side nav */}
         <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 flex-col justify-center py-8 lg:flex">
           <div className="mb-6 px-3">
-            <div className="text-[20px] font-extrabold text-primary">LET’S BULK</div>
+            <Link to="/" aria-label="Chiuli home">
+              <Brand />
+            </Link>
             <div className="text-[13px] font-bold text-muted-foreground">
               Week {profile.weekNumber}
               {profile.totalWeeks ? ` of ${profile.totalWeeks}` : ""}
@@ -55,6 +58,9 @@ export function AppShell({
         </aside>
 
         <main className="w-full max-w-[720px] py-5">
+          <Link to="/" aria-label="Chiuli home" className="mb-4 inline-flex lg:hidden">
+            <Brand />
+          </Link>
           <header className="mb-5 flex items-start justify-between gap-3">
             <div>
               <h1 className="text-[30px] leading-tight font-extrabold">{title}</h1>
@@ -94,10 +100,14 @@ export function AppShell({
             >
               {({ isActive }) => (
                 <>
-                  <t.icon
-                    className={cn("h-6 w-6", isActive && "scale-110")}
-                    strokeWidth={isActive ? 2.8 : 2.2}
-                  />
+                  {t.to === "/progress" ? (
+                    <ChiuliIcon className="h-7 w-7" />
+                  ) : (
+                    <t.icon
+                      className={cn("h-6 w-6", isActive && "scale-110")}
+                      strokeWidth={isActive ? 2.8 : 2.2}
+                    />
+                  )}
                   {t.label}
                 </>
               )}

@@ -15,12 +15,12 @@ import type { FoodItem, LoggedFood, Meal } from "@/lib/data/types";
 export const Route = createFileRoute("/food")({
   head: () => ({
     meta: [
-      { title: "Food — Let’s Bulk Training Companion" },
+      { title: "Food — Chiuli Training Companion" },
       {
         name: "description",
         content: "Log meals, track calories and macros, and see exactly what's left to eat today.",
       },
-      { property: "og:title", content: "Food — Let’s Bulk Training Companion" },
+      { property: "og:title", content: "Food — Chiuli Training Companion" },
       {
         property: "og:description",
         content: "Meal timeline, remaining targets and quick-add favourites.",

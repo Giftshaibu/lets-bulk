@@ -5,6 +5,7 @@ import { browserDb, supabaseUrl, supabaseKey } from "@/lib/db/client";
 import type { Dashboard } from "@/lib/services/dashboard.service";
 import { Card, ChunkyButton } from "@/components/kit";
 import { SetupForm } from "./setup";
+import { ChiuliIcon } from "@/components/brand";
 export async function api<T>(
   path: string,
   method = "GET",
@@ -154,7 +155,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
 function Gate({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 p-5">
-      <Card>{children}</Card>
+      <Card>
+        <ChiuliIcon className="mx-auto mb-4 h-24 w-24" />
+        {children}
+      </Card>
     </main>
   );
 }
@@ -165,7 +169,7 @@ function AuthForm() {
     [message, setMessage] = useState("");
   return (
     <Gate>
-      <h1 className="text-2xl font-extrabold">LET’S BULK</h1>
+      <h1 className="text-center text-3xl font-black text-primary">Chiuli</h1>
       <p className="my-3 font-bold">
         {signup ? "Create your private account" : "Sign in to your training companion"}
       </p>

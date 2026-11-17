@@ -1,4 +1,4 @@
-# Let's Bulk
+# Chiuli
 
 A private bulking and strength companion built with **TanStack Start, React 19,
 TypeScript and Supabase**. The existing Lovable visual design is preserved.
@@ -152,8 +152,11 @@ checklist and remaining external-data boundaries are in `docs/REQUIREMENT_AUDIT.
 ## Beginner experience
 
 Guided setup estimates energy/protein from ordinary measurements and activity.
-Progress opens on a journey map; logging streaks and full-plan consistency are
-separate. Settings has its own page. Food search supports weighed grams and
+Progress links to a dedicated full-page journey map at `/journey`, with SVG
+landmarks and the Chiuli lion marking the current week. Logging streaks and
+full-plan consistency are separate. The transparent lion appears in navigation,
+sign-in, onboarding, browser favicons and home-screen icons. Settings has its own page.
+Food search supports weighed grams and
 saving logged combinations as meals. All 48 exercises include local imagery and
 beginner instructions, with explicit equipment and license metadata.
 
