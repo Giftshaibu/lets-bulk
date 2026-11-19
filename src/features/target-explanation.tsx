@@ -1,3 +1,4 @@
+import { InfoCard } from "@/components/bottom-sheet";
 import { useAppData } from "./app-data";
 export function TargetExplanation() {
   const { data } = useAppData();
@@ -10,11 +11,14 @@ export function TargetExplanation() {
     ? (Date.parse(p.target_date) - Date.parse(data.date)) / 604800000
     : null;
   return (
-    <details className="mt-3 rounded-xl border-2 border-border p-3">
-      <summary className="min-h-11 cursor-pointer break-words font-bold">
-        Bulk target: {data.targets.kcal.toLocaleString()} kcal · {data.targets.protein}g protein
-        fuel
-      </summary>
+    <InfoCard
+      title={
+        <>
+          Bulk target: {data.targets.kcal.toLocaleString()} kcal · {data.targets.protein}g protein
+          fuel
+        </>
+      }
+    >
       <p>
         {reason ?? "Your saved starting targets"}. Current daily targets: {data.targets.kcal} kcal
         and {data.targets.protein} g protein.
@@ -34,6 +38,6 @@ export function TargetExplanation() {
           We never force catch-up calories to meet a date.
         </p>
       )}
-    </details>
+    </InfoCard>
   );
 }

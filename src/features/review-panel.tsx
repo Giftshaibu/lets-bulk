@@ -1,3 +1,6 @@
+import { BottomSheet } from "@/components/bottom-sheet";
+import { Check, X, Info, Dumbbell } from "lucide-react";
+import { InfoCard } from "@/components/bottom-sheet";
 import { Mascot } from "@/components/mascot";
 import { AIExplanation } from "./ai-actions";
 import { useState } from "react";
@@ -13,92 +16,108 @@ import type {
 } from "@/lib/services/review.service";
 const num = (f: FormData, key: string) => Number(f.get(key));
 export function ReviewPanel() {
-  const { data, act, pending } = useAppData();
+  const { data, act, pending, operation } = useAppData();
+  const review = data.reviews[0],
+    waiting = data.recommendations.filter((r) => r.status === "pending");
+  const raw = review?.raw_analysis as Record<string, unknown> | undefined;
+  const verdict =
+    typeof raw?.["reason"] === "string"
+      ? raw["reason"]
+      : review
+        ? "Your check-in is ready. Review any suggested changes below."
+        : "Run a check-in to see how your last full week went.";
   return (
     <Card tone="special">
       <SectionTitle
-        action={<Mascot expression="thinking" variant="face" className="h-8 w-8" interactive />}
+        action={
+          <Mascot
+            expression={
+              operation?.path === "/api/checkins/weekly" && operation.status === "saving"
+                ? "thinking"
+                : "confident"
+            }
+            className="h-20 w-20"
+          />
+        }
       >
-        Weekly review
+        Weekly Check-In
       </SectionTitle>
-      <p className="text-sm font-bold">Coach Chiuli checked your week. You decide what sticks.</p>
-      <ChunkyButton
-        className="my-3"
-        disabled={pending}
-        onClick={() => void act("/api/checkins/weekly", {})}
-      >
+      <p className="mb-3 text-sm font-bold">{verdict}</p>
+      <ChunkyButton disabled={pending} onClick={() => void act("/api/checkins/weekly", {})}>
         Run weekly check-in
       </ChunkyButton>
-      {data.reviews[0] && (
-        <details className="mb-3 text-sm">
-          <summary className="min-h-11 cursor-pointer font-bold">Review evidence</summary>
-          <p>
-            {data.reviews[0].period_start}–{data.reviews[0].period_end} · data{" "}
-            {Math.round(data.reviews[0].data_completeness * 100)}% · confidence{" "}
-            {Math.round(data.reviews[0].confidence * 100)}%
-          </p>
-          <ReviewExplanation analysis={data.reviews[0].raw_analysis} />
-        </details>
+      {review && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Last full week: {review.period_start}–{review.period_end}
+        </p>
       )}
-      {data.reviews[0] && (
-        <AIExplanation
-          key={data.reviews[0].id + JSON.stringify(data.reviews[0].raw_analysis)}
-          kind="week"
-          id={data.reviews[0].id}
-        />
-      )}
-      <div className="grid gap-3">
-        {data.recommendations.map((r) => (
-          <div key={r.id} className="rounded-xl border-2 border-border bg-card p-3">
+      <div className="mt-4 grid gap-3">
+        {waiting.map((r) => (
+          <div key={r.id} className="rounded-2xl border-2 border-border bg-card p-3">
             <div className="flex items-center gap-2">
-              <Mascot expression="thinking" variant="face" className="h-8 w-8" interactive />
-              <h3 className="min-w-0 font-extrabold">{r.title}</h3>
+              <Dumbbell className="h-5 w-5 shrink-0 text-primary" />
+              <h3 className="min-w-0 flex-1 truncate font-extrabold" title={r.title}>
+                {r.title}
+              </h3>
+              <BottomSheet
+                title="Why this suggestion?"
+                trigger={
+                  <button
+                    type="button"
+                    aria-label={`Why: ${r.title}`}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted"
+                  >
+                    <Info className="h-5 w-5" />
+                  </button>
+                }
+              >
+                <p className="font-bold">{r.title}</p>
+                <ul className="my-3 list-disc space-y-2 pl-5">
+                  <li>{r.reason}</li>
+                  {r.description && <li>{r.description}</li>}
+                  {r.current_value !== null && r.recommended_value !== null && (
+                    <li>
+                      {r.current_value} → {r.recommended_value} {r.unit}
+                    </li>
+                  )}
+                  {r.blockedReason && <li>{r.blockedReason}</li>}
+                </ul>
+                <p className="text-sm">
+                  Nothing changes until you choose Apply. Skip keeps your current plan.
+                </p>
+                <AIExplanation kind="recommendation" id={r.id} />
+                {review && <AIExplanation kind="week" id={review.id} />}
+              </BottomSheet>
             </div>
-            <p className="text-sm">{r.reason}</p>
-            {r.description && <p className="mt-2 text-sm">{r.description}</p>}
-            {r.current_value !== null && r.recommended_value !== null && (
-              <p className="mt-2 font-bold">
-                {r.current_value} → {r.recommended_value} {r.unit}
-              </p>
-            )}
-            {r.blockedReason && <p className="mt-2 text-sm font-bold">{r.blockedReason}</p>}
-            <AIExplanation
-              key={r.id + r.status + String(r.recommended_value) + r.reason}
-              kind="recommendation"
-              id={r.id}
-            />
-            <p className="my-2 text-xs font-bold uppercase">
-              {r.status} ·{" "}
-              {r.request_id
-                ? "Your request"
-                : `confidence ${Math.round((r.confidence ?? 0) * 100)}%`}
-            </p>
-            {r.status === "pending" && (
-              <div className="flex flex-wrap gap-2">
-                <ChunkyButton
-                  size="sm"
-                  disabled={pending || !!r.blockedReason}
-                  onClick={() => void act(`/api/recommendations/${r.id}/accept`, {})}
-                >
-                  Apply
-                </ChunkyButton>
-                <ChunkyButton
-                  size="sm"
-                  tone="neutral"
-                  disabled={pending}
-                  onClick={() => void act(`/api/recommendations/${r.id}/reject`, {})}
-                >
-                  Keep current
-                </ChunkyButton>
-              </div>
-            )}
+            {r.blockedReason && <p className="my-2 text-sm">{r.blockedReason}</p>}
+            <div className="mt-3 flex gap-3">
+              <ChunkyButton
+                size="sm"
+                disabled={pending || !!r.blockedReason}
+                onClick={() => void act(`/api/recommendations/${r.id}/accept`, {})}
+              >
+                <Check className="h-4 w-4" />
+                Apply
+              </ChunkyButton>
+              <ChunkyButton
+                size="sm"
+                tone="neutral"
+                disabled={pending}
+                onClick={() => void act(`/api/recommendations/${r.id}/reject`, {})}
+              >
+                <X className="h-4 w-4" />
+                Skip
+              </ChunkyButton>
+            </div>
           </div>
         ))}
       </div>
+      {review && !waiting.length && (
+        <p className="mt-3 text-sm">No changes waiting. Keep following your saved plan.</p>
+      )}
     </Card>
   );
 }
-
 function ReviewExplanation({ analysis }: { analysis: unknown }) {
   if (!analysis || typeof analysis !== "object" || Array.isArray(analysis)) return null;
   const a = analysis as Record<string, unknown>;
@@ -106,8 +125,7 @@ function ReviewExplanation({ analysis }: { analysis: unknown }) {
     ? a["blocks"].filter((b): b is string => typeof b === "string")
     : [];
   return (
-    <details className="mb-3">
-      <summary className="min-h-11 font-bold">Why this recommendation?</summary>
+    <InfoCard title={<>Why this recommendation?</>}>
       <div className="grid grid-cols-2 gap-2 text-sm">
         {["calorieAdherence", "proteinAdherence", "workoutAdherence"].map((k) =>
           typeof a[k] === "number" ? (
@@ -122,6 +140,6 @@ function ReviewExplanation({ analysis }: { analysis: unknown }) {
           {b}
         </p>
       ))}
-    </details>
+    </InfoCard>
   );
 }

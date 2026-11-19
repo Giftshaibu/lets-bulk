@@ -1,3 +1,4 @@
+import { units, massFromKg, massToKg, massLabel, massText } from "@/lib/domain/units";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/progress-details")({
 
 function ProgressPage() {
   const { data } = useAppData();
+  const mass = units(data.preferences).mass;
   const { section } = Route.useSearch();
   const { lifts, measurements, profile } = data;
   const series = data.weight.series;
@@ -58,7 +60,12 @@ function ProgressPage() {
         {(section === "weight" || section === "strength") && <ProgressInsights />}
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-3">
-            <BigStat value={`+${gained.toFixed(1)}`} suffix="kg" label="Gained" tone="success" />
+            <BigStat
+              value={`+${massFromKg(gained, mass).toFixed(1)}`}
+              suffix={mass}
+              label="Gained"
+              tone="success"
+            />
           </Card>
           <Card className="p-3" tone="reward">
             <BigStat value={profile.streakDays} label="Day streak" tone="reward" />
@@ -72,16 +79,22 @@ function ProgressPage() {
           <Card>
             <SectionTitle>Body weight</SectionTitle>
             <div className="flex items-end justify-between">
-              <BigStat value={last?.kg ?? "—"} suffix="kg" label="Latest weigh-in" />
+              <BigStat
+                value={last ? Number(massFromKg(last.kg, mass).toFixed(1)) : "—"}
+                suffix={mass}
+                label="Latest weigh-in"
+              />
               <Pill tone={data.weight.status === "on_target" ? "success" : "primary"}>
-                {perWeek === null ? "Collect more weigh-ins" : `${perWeek.toFixed(2)} kg / week`}
+                {perWeek === null
+                  ? "Collect more weigh-ins"
+                  : `${massLabel(perWeek, mass, 2)} / week`}
               </Pill>
             </div>
             <WeightChart points={series} />
             <div className="mt-3">
               <div className="mb-1.5 flex justify-between text-[12px] font-extrabold text-muted-foreground uppercase">
-                <span>{profile.startWeightKg} kg start</span>
-                <span>{profile.goalWeightKg} kg goal</span>
+                <span>{massLabel(profile.startWeightKg, mass)} start</span>
+                <span>{massLabel(profile.goalWeightKg, mass)} goal</span>
               </div>
               <Bar
                 value={(last?.kg ?? profile.startWeightKg) - profile.startWeightKg}
@@ -110,7 +123,9 @@ function ProgressPage() {
                         <span className="text-[16px] font-extrabold">{l.name}</span>
                         {l.pr && <Trophy className="h-4 w-4 text-special-ink" strokeWidth={2.8} />}
                       </div>
-                      <span className="text-[20px] font-extrabold">{l.currentKg} kg</span>
+                      <span className="text-[20px] font-extrabold">
+                        {massLabel(l.currentKg, mass)}
+                      </span>
                     </div>
                     <div className="mt-3 flex h-16 items-end gap-1.5">
                       {l.history.map((h) => (

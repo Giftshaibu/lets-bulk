@@ -13,7 +13,7 @@ const asUser = async (id: string) => {
 };
 beforeAll(async () => {
   db = new PGlite();
-  await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;
+  await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth to authenticated,anon;grant execute on function auth.uid() to authenticated,anon;
  create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;grant usage on schema storage to authenticated;grant all on storage.objects to authenticated;create function storage.foldername(text) returns text[] language sql as $$select string_to_array($1,'/')$$;
  `);
   for (const f of readdirSync("supabase/migrations").sort())
@@ -977,4 +977,134 @@ it("caps AI generations per UTC day even after errors and prevents counter delet
       ])
     ).state,
   ).toBe("limited");
+});
+
+describe("confirmed Settings and push queue", () => {
+  const uid = "00000000-0000-4000-8000-000000000444",
+    endpoint = "https://fcm.googleapis.com/fcm/send/ux-fixture";
+  let targetId: string, subscriptionId: string;
+  const payload = () => ({
+    first_name: "UX fixture",
+    height_cm: 175,
+    goal_weight_kg: 68,
+    water_target_ml: 2500,
+    diet_type: "omnivore",
+    budget_mode: "balanced",
+    days: [1, 3, 5],
+    mass_unit: "lb",
+    volume_unit: "fl_oz",
+    nutrition_targets: { sourceTargetId: targetId, kcal: 2700, protein: 130 },
+    reminders: { morningEnabled: false, eveningEnabled: false, morningTime: "07:00" },
+  });
+  afterAll(async () => {
+    await asUser(owner);
+  });
+  it("saves units and one confirmed target version, idempotently", async () => {
+    await db.exec("reset role");
+    await db.query("insert into auth.users(id) values($1)", [uid]);
+    await asUser(uid);
+    await db.query("select public.initialize_profile($1,$2,$3)", [
+      JSON.stringify({ name: "UX fixture", height: 175, weight: 60, goal: 68 }),
+      JSON.stringify({ kcal: 2500, protein: 120, carbs: 330, fat: 65 }),
+      JSON.stringify(["bodyweight"]),
+    ]);
+    targetId = await scalar("select id from public.nutrition_targets where effective_to is null");
+    await db.query("select public.save_settings($1)", [JSON.stringify(payload())]);
+    expect(
+      Number(
+        await scalar(
+          "select carbs_target_g from public.nutrition_targets where effective_to is null",
+        ),
+      ),
+    ).toBe(370);
+    expect(await scalar("select mass_unit from public.user_preferences")).toBe("lb");
+    expect(await scalar("select volume_unit from public.user_preferences")).toBe("fl_oz");
+    await db.query("select public.save_settings($1)", [JSON.stringify(payload())]);
+    expect(Number(await scalar("select count(*) from public.nutrition_targets"))).toBe(2);
+  });
+  it("rejects stale/incompatible targets and enabling without a subscription atomically", async () => {
+    const stale = {
+      ...payload(),
+      first_name: "Wrong name",
+      nutrition_targets: { sourceTargetId: targetId, kcal: 2800, protein: 130 },
+    };
+    await expect(
+      db.query("select public.save_settings($1)", [JSON.stringify(stale)]),
+    ).rejects.toThrow("CONFLICT");
+    await expect(
+      db.query("select public.save_settings($1)", [
+        JSON.stringify({
+          ...payload(),
+          nutrition_targets: { sourceTargetId: targetId, kcal: 500, protein: 500 },
+        }),
+      ]),
+    ).rejects.toThrow("INVALID_TARGETS");
+    await expect(
+      db.query("select public.save_settings($1)", [
+        JSON.stringify({
+          ...payload(),
+          reminders: { morningEnabled: true, eveningEnabled: false, morningTime: "07:00" },
+        }),
+      ]),
+    ).rejects.toThrow("PUSH_NOT_SUBSCRIBED");
+    expect(await scalar("select first_name from public.profiles")).toBe("UX fixture");
+  });
+  it("enforces subscription ownership and blocks unsafe providers and dispatcher calls", async () => {
+    await expect(
+      db.query("select public.save_push_subscription($1,$2,$3)", [
+        "https://localhost/private",
+        "B".repeat(87),
+        "A".repeat(22),
+      ]),
+    ).rejects.toThrow("INVALID_INPUT");
+    subscriptionId = await scalar("select public.save_push_subscription($1,$2,$3)", [
+      endpoint,
+      "B".repeat(87),
+      "A".repeat(22),
+    ]);
+    await db.query("select public.prepare_test_push($1)", [endpoint]);
+    await expect(db.query("select public.prepare_test_push($1)", [endpoint])).rejects.toThrow(
+      "RATE_LIMITED",
+    );
+    await expect(db.query("select public.claim_due_reminders()")).rejects.toThrow();
+    await asUser(owner);
+    expect(Number(await scalar("select count(*) from app_private.push_subscriptions"))).toBe(0);
+    await expect(db.query("select public.prepare_test_push($1)", [endpoint])).rejects.toThrow();
+    await asUser(uid);
+  });
+  it("claims reminders once, suppresses after a weigh-in, and removes expired subscriptions", async () => {
+    await db.query(
+      "update public.user_preferences set morning_reminder=true,morning_time=(now() at time zone 'Africa/Blantyre')::time where user_id=$1",
+      [uid],
+    );
+    await db.exec("reset role;set role service_role;");
+    const claimed = await scalar<{ id: string; token: string }[]>(
+      "select public.claim_due_reminders()",
+    );
+    const job = claimed.find((j) => !!j.id)!;
+    expect(job).toBeTruthy();
+    expect(await scalar("select public.claim_due_reminders()")).toEqual([]);
+    await asUser(uid);
+    await db.query(
+      "insert into public.weight_logs(user_id,date,weight_kg) values($1,(now() at time zone 'Africa/Blantyre')::date,60)",
+      [uid],
+    );
+    await db.exec("reset role;set role service_role;");
+    expect(await scalar("select public.reminder_still_needed($1,$2)", [job.id, job.token])).toBe(
+      false,
+    );
+    await db.exec("reset role");
+    await db.query(
+      "update app_private.reminder_deliveries set status='sending',token=$2 where id=$1",
+      [job.id, job.token],
+    );
+    await db.exec("set role service_role");
+    await db.query("select public.finish_reminder($1,$2,410)", [job.id, job.token]);
+    expect(
+      await scalar("select enabled from app_private.push_subscriptions where id=$1", [
+        subscriptionId,
+      ]),
+    ).toBe(false);
+    await asUser(uid);
+  });
 });

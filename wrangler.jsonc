@@ -6,8 +6,11 @@
   "compatibility_date": "2026-11-15",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "triggers": { "crons": ["*/5 * * * *"] },
   "ai": { "binding": "AI" },
   "vars": {
+    "PUSH_ENABLED": "true",
+    "VAPID_PUBLIC_KEY": "BLK4cmpwju2rNI9Qf-SoIPcuod2dzmpK7Xzx8sUry3CUZDLdK9R1RVcIi09viHCPvOhGn2eNvNlX-s1tY8A3wNE",
     "AI_ENABLED": "false",
     "AI_FREE_TIER_CONFIRMED": "false",
     "CLOUDFLARE_AI_MODEL": "@cf/google/gemma-4-26b-a4b-it",

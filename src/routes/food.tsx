@@ -1,3 +1,4 @@
+import { units, ML_PER_FL_OZ, volumeLabel } from "@/lib/domain/units";
 import { MacroTiles, NutritionMascot } from "@/features/quest-ui";
 import { Mascot } from "@/components/mascot";
 import { FoodAIActions } from "@/features/food-ai";
@@ -34,13 +35,14 @@ export const Route = createFileRoute("/food")({
 
 function FoodPage() {
   const { data, act, pending } = useAppData();
+  const preferred = units(data.preferences);
   const { targets, foods, meals, eaten, remaining } = data;
   const [sheetMealId, setSheetMealId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const [multiplier, setMultiplier] = useState(1);
 
-  const [amountUnit, setAmountUnit] = useState<"g" | "ml">("g");
+  const [amountUnit, setAmountUnit] = useState<"g" | "ml" | "fl_oz">("g");
   const allResults = searchFoods(foods, query);
   const results = allResults.slice(0, 50);
   const density = selected ? gramsPerMl(selected) : null;
@@ -318,8 +320,11 @@ function FoodPage() {
                   <BigStat
                     value={Math.round(selected.kcal * multiplier)}
                     label={
-                      amountUnit === "ml" && density !== null
-                        ? `${Math.round(((multiplier * 100) / density) * 10) / 10} ml`
+                      amountUnit !== "g" && density !== null
+                        ? volumeLabel(
+                            (multiplier * 100) / density,
+                            amountUnit === "fl_oz" ? "fl_oz" : "ml",
+                          )
                         : `${Math.round(multiplier * 100 * 10) / 10} g`
                     }
                     tone="primary"
@@ -344,15 +349,20 @@ function FoodPage() {
                       aria-label="Measure"
                       className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
                       value={amountUnit}
-                      onChange={(e) => setAmountUnit(e.target.value as "g" | "ml")}
+                      onChange={(e) => setAmountUnit(e.target.value as "g" | "ml" | "fl_oz")}
                     >
                       <option value="g">Grams</option>
                       <option value="ml">Millilitres</option>
+                      <option value="fl_oz">US fluid ounces</option>
                     </select>
                   </label>
                 )}
                 <label className="mt-3 block font-bold">
-                  {amountUnit === "ml" ? "Amount in millilitres" : "Amount in grams"}
+                  {amountUnit === "ml"
+                    ? "Amount in millilitres"
+                    : amountUnit === "fl_oz"
+                      ? "Amount in US fluid ounces"
+                      : "Amount in grams"}
                   <input
                     className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
                     type="number"
@@ -360,11 +370,20 @@ function FoodPage() {
                     max="10000"
                     step="any"
                     value={Number(
-                      ((multiplier * 100) / (amountUnit === "ml" ? (density ?? 1) : 1)).toFixed(3),
+                      (
+                        (multiplier * 100) /
+                        (amountUnit !== "g"
+                          ? (density ?? 1) * (amountUnit === "fl_oz" ? ML_PER_FL_OZ : 1)
+                          : 1)
+                      ).toFixed(3),
                     )}
                     onChange={(e) =>
                       setMultiplier(
-                        (Number(e.target.value) * (amountUnit === "ml" ? (density ?? 1) : 1)) / 100,
+                        (Number(e.target.value) *
+                          (amountUnit !== "g"
+                            ? (density ?? 1) * (amountUnit === "fl_oz" ? ML_PER_FL_OZ : 1)
+                            : 1)) /
+                          100,
                       )
                     }
                   />
@@ -387,11 +406,11 @@ function FoodPage() {
                         key={ml}
                         className="min-h-11 rounded-xl border-2 border-border px-3 font-bold"
                         onClick={() => {
-                          setAmountUnit("ml");
+                          setAmountUnit(preferred.volume === "fl_oz" ? "fl_oz" : "ml");
                           setMultiplier((ml * density) / 100);
                         }}
                       >
-                        {ml} ml
+                        {volumeLabel(ml, preferred.volume)}
                       </button>
                     ))}
                     <p className="w-full text-xs">

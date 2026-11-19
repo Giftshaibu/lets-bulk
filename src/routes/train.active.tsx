@@ -1,3 +1,4 @@
+import { units, massFromKg, massToKg, massLabel, massText } from "@/lib/domain/units";
 import { ExerciseGuide } from "@/features/exercise-guide";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -62,6 +63,7 @@ function ActiveWorkout() {
 function WorkoutLogger() {
   const navigate = useNavigate();
   const { data, act, pending } = useAppData();
+  const mass = units(data.preferences).mass;
   const workout = data.workout;
   const [exercises, setExercises] = useState(() =>
     workout.exercises.map((e) => ({ ...e, sets: e.sets.map((s) => ({ ...s })) })),
@@ -138,8 +140,10 @@ function WorkoutLogger() {
             </div>
             <div className="rounded-xl bg-card p-3">
               <BigStat
-                value={Math.round(data.sessionSummary?.volume ?? 0).toLocaleString()}
-                suffix="kg"
+                value={Math.round(
+                  massFromKg(data.sessionSummary?.volume ?? 0, mass),
+                ).toLocaleString()}
+                suffix={mass}
                 label="Volume"
               />
             </div>
@@ -204,7 +208,7 @@ function WorkoutLogger() {
               </p>
               <div className="text-[13px] font-bold text-muted-foreground">
                 {exercise.muscle} · target {exercise.targetSets} × {exercise.targetReps} · last{" "}
-                {exercise.lastTime}
+                {massText(exercise.lastTime, mass)}
               </div>
             </div>
             {exerciseDone && <Check className="h-7 w-7 text-success" strokeWidth={3} />}
@@ -221,7 +225,7 @@ function WorkoutLogger() {
                 {set.done ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone="success">
-                      {set.weight}kg × {set.reps}
+                      {massLabel(set.weight, mass)} × {set.reps}
                     </Pill>
                     <button
                       disabled={pending}
@@ -241,10 +245,12 @@ function WorkoutLogger() {
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <Stepper
                       label="Weight"
-                      value={set.weight}
-                      suffix="kg"
-                      step={2.5}
-                      onChange={(v) => updateSet(set.id, { weight: Math.max(0, v) })}
+                      value={Number(massFromKg(set.weight, mass).toFixed(3))}
+                      suffix={mass}
+                      step={Number(massFromKg(2.5, mass).toFixed(6))}
+                      onChange={(v) =>
+                        updateSet(set.id, { weight: Math.max(0, massToKg(v, mass)) })
+                      }
                     />
                     <Stepper
                       label="Reps"

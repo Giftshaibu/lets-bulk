@@ -1,3 +1,4 @@
+import { units, massFromKg, massToKg, massLabel, massText } from "@/lib/domain/units";
 import { ExerciseGuide } from "@/features/exercise-guide";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/train/")({
 
 function TrainPage() {
   const { data } = useAppData();
+  const mass = units(data.preferences).mass;
   const { workout, schedule, lifts } = data;
 
   return (
@@ -51,17 +53,14 @@ function TrainPage() {
                 key={e.id}
                 className="rounded-2xl border-2 border-b-4 border-border bg-card px-3 py-3"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-[15px] font-extrabold">{e.name}</span>
-                  <span className="text-[14px] font-extrabold text-muted-foreground">
-                    {e.targetSets} × {e.targetReps}
-                  </span>
-                </div>
+                <ExerciseGuide id={e.id} row />
+                <p className="text-sm font-bold">
+                  {e.targetSets} × {e.targetReps}
+                </p>
                 <div className="mt-0.5 text-[12px] font-bold text-muted-foreground">
-                  Last time: {e.lastTime} · rest {e.restSeconds}s
+                  Last time: {massText(e.lastTime, mass)} · rest {e.restSeconds}s
                 </div>
-                <p className="mt-2 text-sm font-bold">{e.nextTarget}</p>
-                <ExerciseGuide id={e.id} />
+                <p className="mt-2 text-sm font-bold">{massText(e.nextTarget, mass)}</p>
               </li>
             ))}
           </ul>
@@ -119,12 +118,16 @@ function TrainPage() {
                 <div>
                   <div className="text-[15px] font-extrabold">{l.name}</div>
                   <div className="text-[12px] font-bold text-muted-foreground">
-                    +{(l.currentKg - l.startKg).toFixed(1)} kg since week 1
+                    +{massLabel(l.currentKg - l.startKg, mass)} since week 1
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {l.pr && <Trophy className="h-5 w-5 text-special-ink" strokeWidth={2.6} />}
-                  <BigStat value={l.currentKg} suffix="kg" label="Top set" />
+                  <BigStat
+                    value={Number(massFromKg(l.currentKg, mass).toFixed(1))}
+                    suffix={mass}
+                    label="Top set"
+                  />
                 </div>
               </div>
             ))}

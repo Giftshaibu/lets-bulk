@@ -1,10 +1,20 @@
+import { units, massFromKg, massToKg, massLabel, massText } from "@/lib/domain/units";
 import { TargetExplanation } from "@/features/target-explanation";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Dumbbell, Scale, Utensils, Moon, Zap, ArrowRight } from "lucide-react";
+import {
+  Check,
+  Dumbbell,
+  Scale,
+  Utensils,
+  Moon,
+  Zap,
+  ArrowRight,
+  ChevronRight,
+} from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
-import { DailyForms, ReviewPanel } from "@/features/tracking-forms";
+import { DailyForms } from "@/features/tracking-forms";
 import { MacroTiles, NutritionMascot, XpSummary } from "@/features/quest-ui";
 import { Mascot } from "@/components/mascot";
 import { StreakMascot } from "@/features/mascot-feedback";
@@ -39,6 +49,7 @@ function TodayPage() {
     todayWeight: weight,
     recommendation: rec,
   } = data;
+  const mass = units(data.preferences).mass;
   const series = data.weight.series;
   const nextMeal = meals.find((m) => !m.logged);
   const today = new Date(`${data.date}T12:00:00+02:00`).toLocaleDateString("en-GB", {
@@ -143,8 +154,11 @@ function TodayPage() {
             action={
               <div className="flex items-center gap-2">
                 <NutritionMascot />
-                <Link to="/food" className="text-[13px] font-extrabold text-primary uppercase">
-                  Food
+                <Link
+                  to="/food"
+                  className="inline-flex min-h-10 items-center gap-1 rounded-full bg-primary/10 px-3 text-[13px] font-extrabold text-primary uppercase"
+                >
+                  Food <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
             }
@@ -229,16 +243,23 @@ function TodayPage() {
         <Card>
           <SectionTitle
             action={
-              <Link to="/progress" className="text-[13px] font-extrabold text-primary uppercase">
-                Details
+              <Link
+                to="/progress"
+                className="inline-flex min-h-10 items-center gap-1 rounded-full bg-primary/10 px-3 text-[13px] font-extrabold text-primary uppercase"
+              >
+                Details <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             }
           >
             Weight trend
           </SectionTitle>
           <div className="flex items-end justify-between">
-            <BigStat value={series.at(-1)?.kg ?? "—"} suffix="kg" label="Latest" />
-            <Pill tone="success">{data.weight.gained.toFixed(1)} kg</Pill>
+            <BigStat
+              value={series.at(-1) ? Number(massFromKg(series.at(-1)!.kg, mass).toFixed(1)) : "—"}
+              suffix={mass}
+              label="Latest"
+            />
+            <Pill tone="success">{massLabel(data.weight.gained, mass)}</Pill>
           </div>
           {!series.length ? (
             <div className="mt-3 flex items-center gap-3">
@@ -250,13 +271,6 @@ function TodayPage() {
           ) : (
             <Sparkline points={series.map((p) => p.kg)} />
           )}
-        </Card>
-
-        <ReviewPanel />
-        <Card tone="special">
-          <SectionTitle>This week's recommendation</SectionTitle>
-          <div className="text-[18px] font-extrabold text-special-ink">{rec.title}</div>
-          <p className="mt-1 text-[14px] font-bold text-ink-soft">{rec.body}</p>
         </Card>
       </div>
     </AppShell>

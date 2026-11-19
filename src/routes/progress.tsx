@@ -1,3 +1,7 @@
+import { BottomSheet } from "@/components/bottom-sheet";
+import { ReviewPanel } from "@/features/review-panel";
+import { Scale, Dumbbell, Ruler, Camera } from "lucide-react";
+import { InfoCard } from "@/components/bottom-sheet";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -11,7 +15,13 @@ import { Mascot } from "@/components/mascot";
 import { ChiuliIcon } from "@/components/brand";
 import { StreakMascot } from "@/features/mascot-feedback";
 export const Route = createFileRoute("/progress")({
-  head: () => ({ meta: [{ title: "Progress — Chiuli" }] }),
+  head: () => ({
+    meta: [
+      {
+        title: "Progress — Chiuli",
+      },
+    ],
+  }),
   component: Progress,
 });
 function Progress() {
@@ -29,13 +39,12 @@ function Progress() {
             <Flame className="h-7 w-7 shrink-0 text-primary" aria-hidden="true" />
             {data.streak.current} day logging streak
           </p>
-          <details>
-            <summary className="min-h-11 cursor-pointer font-bold">What keeps my streak?</summary>
+          <InfoCard title={<>What keeps my streak?</>}>
             <p>
               Log food, weight, a set, water, recovery, measurements or a photo. Opening the app
               alone does not count.
             </p>
-          </details>
+          </InfoCard>
           <p className="mt-2">
             Full plan consistency: {data.consistency.completedThisWeek} days this week. Longest
             logging streak: {data.streak.longest} days.
@@ -64,18 +73,61 @@ function Progress() {
           <ArrowUpRight className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
         </Link>
         <TargetExplanation />
-        <nav className="grid grid-cols-2 gap-3">
-          {["Weight", "Strength", "Measurements", "Photos"].map((label) => (
+        <nav aria-label="Progress sections" className="grid auto-rows-fr grid-cols-2 gap-3">
+          {[
+            {
+              label: "Weight",
+              icon: Scale,
+              fill: "#FFF6E8",
+              border: "#FFD699",
+              lip: "#F5B963",
+              badge: "#FF9600",
+            },
+            {
+              label: "Strength",
+              icon: Dumbbell,
+              fill: "#FFF9EB",
+              border: "#FFE099",
+              lip: "#F2C661",
+              badge: "#DD7100",
+            },
+            {
+              label: "Measurements",
+              icon: Ruler,
+              fill: "#FAF3EC",
+              border: "#E3CBB5",
+              lip: "#CCA98B",
+              badge: "#60351F",
+            },
+            {
+              label: "Photos",
+              icon: Camera,
+              fill: "#FFF4EC",
+              border: "#FFCCB0",
+              lip: "#F0A882",
+              badge: "#E66A00",
+            },
+          ].map((t) => (
             <Link
-              className="rounded-2xl border-2 border-b-4 border-border bg-card p-4 font-bold"
+              key={t.label}
               to="/progress-details"
-              search={{ section: label.toLowerCase() }}
-              key={label}
+              search={{ section: t.label.toLowerCase() }}
+              aria-label={t.label}
+              title={t.label}
+              className="press flex min-h-[76px] min-w-0 items-center gap-2 rounded-2xl border-2 border-b-[3px] px-3 py-3 text-[#25201F]"
+              style={{ background: t.fill, borderColor: t.border, borderBottomColor: t.lip }}
             >
-              {label} →
+              <span
+                className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl text-white"
+                style={{ background: t.badge }}
+              >
+                <t.icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 truncate text-xs font-extrabold sm:text-sm">{t.label}</span>
             </Link>
           ))}
         </nav>
+        <ReviewPanel />
         <Card>
           <SectionTitle>Your milestones</SectionTitle>
           <div className="flex flex-wrap gap-2">
@@ -103,19 +155,9 @@ function Progress() {
           </p>
         </Card>
 
-        <Dialog.Root open={weightOpen} onOpenChange={setWeightOpen}>
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-            <Dialog.Content
-              aria-describedby={undefined}
-              className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-border bg-card p-4"
-            >
-              <Dialog.Title className="text-xl font-bold">Log weight</Dialog.Title>
-              <Dialog.Close className="my-2 min-h-11 font-bold underline">Close</Dialog.Close>
-              <BodyForms />
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
+        <BottomSheet title="Log weight" open={weightOpen} onOpenChange={setWeightOpen}>
+          <BodyForms />
+        </BottomSheet>
       </div>
     </AppShell>
   );

@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { DateStepper, NumberStepper } from "@/components/stepper";
+import { units, massFromKg, massToKg } from "@/lib/domain/units";
 import { useQuery } from "@tanstack/react-query";
 import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
 import { useAppData, api } from "./app-data";
@@ -74,6 +76,11 @@ export function BodyForms({
 }
 function WeightForm() {
   const { data, act, pending } = useAppData();
+  const preferred = units(data.preferences);
+  const [selectedDate, setSelectedDate] = useState(data.date),
+    [kgValue, setKgValue] = useState(
+      () => data.weight.series.at(-1)?.kg ?? data.profile.startWeightKg,
+    );
   const [busy, setBusy] = useState(false),
     [feedback, setFeedback] = useState<MascotState | null>(null);
   const saving = useRef(false);
@@ -102,7 +109,7 @@ function WeightForm() {
           if (saving.current || pending) return;
           const f = new FormData(e.currentTarget),
             date = String(f.get("date")),
-            kg = num(f, "weight");
+            kg = kgValue;
           const result = weightMascot(data.weight.series, date, kg);
           saving.current = true;
           setBusy(true);
@@ -124,19 +131,59 @@ function WeightForm() {
           }
         }}
       >
-        <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-3">
-          <label className="text-sm font-bold">
-            Date
-            <input
-              type="date"
-              name="date"
-              defaultValue={data.date}
-              max={data.date}
-              required
-              className={inputClass}
-            />
-          </label>
-          <NumberField name="weight" label="Weight (kg)" min={20} max={500} />
+        <fieldset disabled={busy} className="grid gap-4">
+          <DateStepper
+            value={selectedDate}
+            today={data.date}
+            disabled={busy}
+            onChange={(date) => {
+              setSelectedDate(date);
+              setKgValue(
+                data.weight.series.filter((w) => w.date <= date).at(-1)?.kg ??
+                  data.profile.startWeightKg,
+              );
+              setFeedback(null);
+            }}
+          />
+          <NumberStepper
+            label={`Weight (${preferred.mass})`}
+            value={massFromKg(kgValue, preferred.mass)}
+            onChange={(n) => {
+              setKgValue(massToKg(n, preferred.mass));
+              setFeedback(null);
+            }}
+            min={massFromKg(20, preferred.mass)}
+            max={massFromKg(500, preferred.mass)}
+            step={0.1}
+            suffix={preferred.mass}
+            disabled={busy}
+          />
+          <div className="flex gap-3">
+            {[-0.5, 0.5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                disabled={
+                  busy ||
+                  massFromKg(kgValue, preferred.mass) + n < massFromKg(20, preferred.mass) ||
+                  massFromKg(kgValue, preferred.mass) + n > massFromKg(500, preferred.mass)
+                }
+                onClick={() => {
+                  setKgValue(
+                    massToKg(
+                      Number((massFromKg(kgValue, preferred.mass) + n).toFixed(8)),
+                      preferred.mass,
+                    ),
+                  );
+                  setFeedback(null);
+                }}
+                className="press min-h-11 flex-1 rounded-xl border-2 border-b-4 border-border bg-primary-soft font-bold"
+              >
+                {n > 0 ? "+" : ""}
+                {n} {preferred.mass}
+              </button>
+            ))}
+          </div>
           <ChunkyButton disabled={pending}>{busy ? "Saving weight…" : "Save weight"}</ChunkyButton>
         </fieldset>
       </form>

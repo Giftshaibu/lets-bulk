@@ -144,6 +144,22 @@ export const changeRequest = z.object({
   direction: z.union([z.literal(-1), z.literal(1)]).optional(),
 });
 export const settings = z.object({
+  mass_unit: z.enum(["kg", "lb"]).optional(),
+  volume_unit: z.enum(["ml", "fl_oz"]).optional(),
+  reminders: z
+    .object({
+      morningEnabled: z.boolean(),
+      eveningEnabled: z.boolean(),
+      morningTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    })
+    .optional(),
+  nutrition_targets: z
+    .object({
+      sourceTargetId: id,
+      kcal: z.number().int().min(500).max(10000),
+      protein: z.number().int().min(1).max(500),
+    })
+    .optional(),
   height_cm: positive.min(50).max(260).optional(),
   goal_weight_kg: positive.min(20).max(500).optional(),
   target_date: calendarDate.nullable().optional(),

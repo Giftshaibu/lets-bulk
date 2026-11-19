@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
-import * as Dialog from "@radix-ui/react-dialog";
+import { BottomSheet } from "@/components/bottom-sheet";
+import { useSharedMascot } from "./use-shared-mascot";
 import { X } from "lucide-react";
 import { Mascot } from "@/components/mascot";
 import {
@@ -49,43 +50,27 @@ export function MascotFeedback({
 }
 
 export function MascotStatus() {
-  const registry = useContext(MascotContext),
-    path = useLocation({ select: (l) => l.pathname });
-  const state = highestMascot(
-    Object.values(registry?.entries ?? {}).filter((e) => e.path === path),
-  );
+  const state = useSharedMascot();
   return (
-    <Dialog.Root>
-      <Dialog.Trigger
-        aria-label="Chiuli status"
-        title="Chiuli status"
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <Mascot expression={state.expression} variant="face" className="h-9 w-9" />
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-        <Dialog.Content
-          aria-describedby="chiuli-status-description"
-          className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-3xl border-2 border-border bg-card p-5 text-center"
+    <BottomSheet
+      title="Chiuli is with you"
+      trigger={
+        <button
+          type="button"
+          aria-label="Chiuli status"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-primary"
         >
-          <div className="flex items-center justify-between">
-            <Dialog.Title className="text-xl font-black">Chiuli is with you</Dialog.Title>
-            <Dialog.Close
-              aria-label="Close Chiuli status"
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-border"
-            >
-              <X className="h-5 w-5" />
-            </Dialog.Close>
-          </div>
-          <Mascot expression={state.expression} className="mx-auto my-4 h-40 w-40" />
-          <p id="chiuli-status-description" className="font-bold">
-            {state.message || defaultMascot.message}
-          </p>
-          <XpSummary />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          <Mascot expression={state.expression} variant="face" className="h-10 w-10" />
+        </button>
+      }
+    >
+      <Mascot expression={state.expression} className="mx-auto my-3 h-32 w-32" />
+      <p className="text-center font-bold">{state.message}</p>
+      <XpSummary />
+      <p className="mt-3 text-sm">
+        One intentional action keeps your logging story moving. Rest and recovery count too.
+      </p>
+    </BottomSheet>
   );
 }
 

@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useState } from "react";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -45,10 +46,15 @@ export function FoodActions({ food }: { food: Food }) {
             aria-describedby={undefined}
             className="fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-2xl border-2 border-border bg-card p-5"
           >
-            <Dialog.Title className="text-xl font-extrabold">
+            <Dialog.Title className="pr-11 text-xl font-extrabold">
               {mode}: {food.name}
             </Dialog.Title>
-            <Dialog.Close className="my-2 min-h-11 font-bold underline">Close</Dialog.Close>
+            <Dialog.Close
+              aria-label="Close"
+              className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-muted"
+            >
+              <X className="h-5 w-5" />
+            </Dialog.Close>
             {mode === "View nutrition" && (
               <>
                 <p>{food.preparation_state} · per 100 g</p>

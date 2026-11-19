@@ -144,6 +144,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           });
       });
       await qc.invalidateQueries({ queryKey: ["dashboard"] });
+      await qc.invalidateQueries({ queryKey: ["daily-logs"] });
       const refreshed = qc.getQueryData<Dashboard>(["dashboard", session?.user.id]);
       if (
         refreshed &&

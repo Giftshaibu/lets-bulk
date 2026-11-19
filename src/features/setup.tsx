@@ -1,3 +1,4 @@
+import { InfoCard } from "@/components/bottom-sheet";
 import { useState } from "react";
 import { equipmentChoices, equipmentLabels } from "@/lib/domain/equipment";
 import { api } from "./app-data";
@@ -66,7 +67,10 @@ export function SetupForm({
     weeklyBudget: null,
   });
   const update = <K extends keyof GuidedSetup>(key: K, v: GuidedSetup[K]) =>
-    setValue((old) => ({ ...old, [key]: v }));
+    setValue((old) => ({
+      ...old,
+      [key]: v,
+    }));
   const field = (
     key: "weight" | "height" | "goal" | "months",
     label: string,
@@ -324,10 +328,9 @@ export function SetupForm({
             Your goal implies about {preview.weeklyGoal} kg per week. A common gradual starting pace
             is 0.25–0.5% of body weight per week; a longer timeline may be more practical.
           </p>
-          <details>
-            <summary>Other nutrition targets</summary>
+          <InfoCard title={<>Other nutrition targets</>}>
             {preview.targets.carbs} g carbs · {preview.targets.fat} g fat
-          </details>
+          </InfoCard>
         </section>
       )}
       {error && <p role="alert">{error}</p>}

@@ -889,34 +889,49 @@ export type Database = {
           budget_mode: string | null;
           completion_policy: Json;
           diet_type: string | null;
+          evening_reminder: boolean;
           id: string;
+          mass_unit: string;
           meals_per_day: number | null;
+          morning_reminder: boolean;
+          morning_time: string;
           notifications_enabled: boolean | null;
           onboarding_context: Json;
           units: string | null;
           user_id: string;
+          volume_unit: string;
         };
         Insert: {
           budget_mode?: string | null;
           completion_policy?: Json;
           diet_type?: string | null;
+          evening_reminder?: boolean;
           id?: string;
+          mass_unit?: string;
           meals_per_day?: number | null;
+          morning_reminder?: boolean;
+          morning_time?: string;
           notifications_enabled?: boolean | null;
           onboarding_context?: Json;
           units?: string | null;
           user_id: string;
+          volume_unit?: string;
         };
         Update: {
           budget_mode?: string | null;
           completion_policy?: Json;
           diet_type?: string | null;
+          evening_reminder?: boolean;
           id?: string;
+          mass_unit?: string;
           meals_per_day?: number | null;
+          morning_reminder?: boolean;
+          morning_time?: string;
           notifications_enabled?: boolean | null;
           onboarding_context?: Json;
           units?: string | null;
           user_id?: string;
+          volume_unit?: string;
         };
         Relationships: [];
       };
@@ -1171,9 +1186,14 @@ export type Database = {
         Returns: undefined;
       };
       can_use_exercise: { Args: { p_exercise: string }; Returns: boolean };
+      claim_due_reminders: { Args: never; Returns: Json };
       complete_workout: { Args: { p_session: string }; Returns: undefined };
       delete_set: { Args: { p_id: string }; Returns: undefined };
       expire_recommendations: { Args: never; Returns: number };
+      finish_reminder: {
+        Args: { p_id: string; p_status: number; p_token: string };
+        Returns: undefined;
+      };
       guided_initialize: {
         Args: { p_input: Json; p_targets: Json };
         Returns: undefined;
@@ -1204,14 +1224,27 @@ export type Database = {
         Args: { p_date: string; p_id: string; p_meal: string; p_slot: string };
         Returns: string;
       };
+      prepare_test_push: { Args: { p_endpoint: string }; Returns: Json };
       reconcile_rewards: { Args: never; Returns: Json };
       refresh_completion: { Args: { p_date: string }; Returns: undefined };
+      reminder_still_needed: {
+        Args: { p_id: string; p_token: string };
+        Returns: boolean;
+      };
+      remove_push_subscription: {
+        Args: { p_endpoint: string };
+        Returns: undefined;
+      };
       resolve_recommendation: {
         Args: { p_accept: boolean; p_id: string };
         Returns: undefined;
       };
       save_meal: {
         Args: { p_id: string; p_items: Json; p_name: string; p_slot: string };
+        Returns: string;
+      };
+      save_push_subscription: {
+        Args: { p_auth: string; p_endpoint: string; p_p256dh: string };
         Returns: string;
       };
       save_review: {

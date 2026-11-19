@@ -1,3 +1,4 @@
+import { InfoCard } from "@/components/bottom-sheet";
 import { useState } from "react";
 import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
 import { useAppData } from "./app-data";
@@ -6,16 +7,21 @@ export function TrainingChanges() {
   const { data, act, pending } = useAppData();
   const [message, setMessage] = useState("");
   async function propose(value: Record<string, unknown>) {
-    if (await act("/api/training/recommendations", { id: crypto.randomUUID(), ...value }))
+    if (
+      await act("/api/training/recommendations", {
+        id: crypto.randomUUID(),
+        ...value,
+      })
+    )
       setMessage(
-        "Proposal saved. Open Today → Weekly review to apply it or keep your current plan.",
+        "Proposal saved. Open Progress → Weekly Check-In to apply it or keep your current plan.",
       );
   }
   return (
     <Card>
       <SectionTitle>Review training changes</SectionTitle>
       <p className="text-sm">
-        Test a tweak — nothing changes until you approve it in Weekly review.
+        Test a tweak — nothing changes until you approve it in Weekly Check-In.
       </p>
       {data.activeProgram?.phase === "deload" ? (
         <div className="my-3">
@@ -27,7 +33,11 @@ export function TrainingChanges() {
             <ChunkyButton
               className="mt-3"
               disabled={pending}
-              onClick={() => void propose({ type: "restore" })}
+              onClick={() =>
+                void propose({
+                  type: "restore",
+                })
+              }
             >
               Propose restoring volume
             </ChunkyButton>
@@ -37,7 +47,11 @@ export function TrainingChanges() {
         <ChunkyButton
           className="my-3"
           disabled={pending}
-          onClick={() => void propose({ type: "deload" })}
+          onClick={() =>
+            void propose({
+              type: "deload",
+            })
+          }
         >
           Request 7-day deload
         </ChunkyButton>
@@ -45,11 +59,14 @@ export function TrainingChanges() {
       {data.programExercises.map((p) => {
         const option = data.exerciseOptions.find((o) => o.planId === p.id);
         return (
-          <details key={p.id} className="my-3 rounded-xl border-2 border-border p-3">
-            <summary className="min-h-11 font-bold">
-              {p.workoutName} · {option?.name}
-              {option && !option.equipmentAvailable ? " — equipment unavailable" : ""}
-            </summary>
+          <InfoCard
+            title={
+              <>
+                {p.workoutName} · {option?.name}
+                {option && !option.equipmentAvailable ? " — equipment unavailable" : ""}
+              </>
+            }
+          >
             <p className="text-sm">
               Current prescription: {p.sets} sets, {p.rep_min}–{p.rep_max} reps.
             </p>
@@ -58,7 +75,13 @@ export function TrainingChanges() {
                 <ChunkyButton
                   size="sm"
                   disabled={pending || p.sets >= 10}
-                  onClick={() => void propose({ type: "volume", planId: p.id, direction: 1 })}
+                  onClick={() =>
+                    void propose({
+                      type: "volume",
+                      planId: p.id,
+                      direction: 1,
+                    })
+                  }
                 >
                   Propose one extra set
                 </ChunkyButton>
@@ -66,7 +89,13 @@ export function TrainingChanges() {
                   size="sm"
                   tone="neutral"
                   disabled={pending || p.sets <= 1}
-                  onClick={() => void propose({ type: "volume", planId: p.id, direction: -1 })}
+                  onClick={() =>
+                    void propose({
+                      type: "volume",
+                      planId: p.id,
+                      direction: -1,
+                    })
+                  }
                 >
                   Propose one fewer set
                 </ChunkyButton>
@@ -98,7 +127,7 @@ export function TrainingChanges() {
                 Propose exercise swap
               </ChunkyButton>
             </form>
-          </details>
+          </InfoCard>
         );
       })}
       {message && (

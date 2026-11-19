@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowDown, Check, Flag, LockKeyhole, Mountain, Trophy, X } from "lucide-react";
 import { Mascot } from "@/components/mascot";
-import { Brand, ChiuliIcon } from "@/components/brand";
+import { LiveBrand } from "@/features/live-brand";
+import { ChiuliIcon } from "@/components/brand";
 import { SettingsLink } from "@/components/settings-link";
 import { MascotStatus } from "@/features/mascot-feedback";
 import { useAppData } from "@/features/app-data";
@@ -47,16 +48,12 @@ function Journey() {
           <Link
             to="/progress"
             aria-label="Back to progress"
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 font-extrabold"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-muted font-extrabold"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-            <span className="hidden sm:inline">Progress</span>
           </Link>
           <div className="ml-auto flex items-center gap-1 sm:gap-3">
-            <Link to="/" aria-label="Chiuli home">
-              <Brand />
-            </Link>
-            <MascotStatus />
+            <LiveBrand />
             <SettingsLink />
           </div>
         </div>

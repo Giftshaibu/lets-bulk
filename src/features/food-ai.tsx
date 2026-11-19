@@ -9,7 +9,7 @@ import type { Output } from "@/lib/ai/schemas";
 import { portionGrams } from "@/lib/ai/portions";
 import { mealReady } from "@/lib/ai/meal-ranking";
 import { matchesFoodQuery } from "@/lib/domain/food-catalog";
-import { X } from "lucide-react";
+import { X, Sparkles, Utensils } from "lucide-react";
 import { MascotFeedback } from "./mascot-feedback";
 import { helperMascot } from "@/lib/domain/mascot";
 type Match = {
@@ -111,7 +111,7 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
             setDraft([]);
           }}
         >
-          Describe what you ate
+          <Sparkles className="mr-2 h-5 w-5" aria-hidden="true" /> Describe what you ate
         </ChunkyButton>
         <ChunkyButton
           tone="neutral"
@@ -124,7 +124,7 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
             setDraft([]);
           }}
         >
-          Suggest a meal
+          <Utensils className="mr-2 h-5 w-5" aria-hidden="true" /> Suggest a meal
         </ChunkyButton>
       </div>
       <Dialog.Root

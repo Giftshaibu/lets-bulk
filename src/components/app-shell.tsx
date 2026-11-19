@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
-import { Home, Utensils, Dumbbell, TrendingUp, Flame } from "lucide-react";
+import { Link, useLocation } from "@tanstack/react-router";
+import { Home, Utensils, Dumbbell, TrendingUp, Flame, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppData } from "@/features/app-data";
-import { Brand, ChiuliIcon } from "@/components/brand";
+import { LiveBrand, LiveMascotIcon } from "@/features/live-brand";
 import { SettingsLink } from "@/components/settings-link";
 import { MascotStatus } from "@/features/mascot-feedback";
 
@@ -28,15 +28,14 @@ export function AppShell({
     checkpoint,
   } = useAppData();
 
+  const back = useLocation({ select: (l) => l.pathname }) === "/settings";
   return (
     <div className="min-h-screen bg-background pb-28 lg:pb-8">
       <div className="mx-auto flex max-w-[1040px] gap-8 px-4 lg:px-6">
         {/* Desktop side nav */}
         <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 flex-col justify-center py-8 lg:flex">
           <div className="mb-6 px-3">
-            <Link to="/" aria-label="Chiuli home">
-              <Brand />
-            </Link>
+            <p className="text-xl font-black text-primary">Your companion</p>
             <div className="text-[13px] font-bold text-muted-foreground">
               Week {profile.weekNumber}
               {profile.totalWeeks ? ` of ${profile.totalWeeks}` : ""}
@@ -62,11 +61,19 @@ export function AppShell({
 
         <main className="w-full max-w-[720px] py-5">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <Link to="/" aria-label="Chiuli home" className="inline-flex">
-              <Brand />
-            </Link>
+            <div className="flex items-center gap-2">
+              {back && (
+                <Link
+                  to="/"
+                  aria-label="Back to Today"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-muted"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Link>
+              )}
+              <LiveBrand />
+            </div>
             <div className="ml-auto flex items-center gap-1">
-              <MascotStatus />
               <SettingsLink />
             </div>
           </div>
@@ -108,10 +115,13 @@ export function AppShell({
               {({ isActive }) => (
                 <>
                   {t.to === "/progress" ? (
-                    <ChiuliIcon className={cn("h-7 w-7", checkpoint && "checkpoint-pop")} />
+                    <LiveMascotIcon className={cn("h-7 w-7", checkpoint && "checkpoint-pop")} />
                   ) : (
                     <t.icon
-                      className={cn("h-6 w-6", isActive && "scale-110")}
+                      className={cn(
+                        t.to === "/" ? "h-[30px] w-[30px]" : "h-6 w-6",
+                        isActive && t.to !== "/" && "scale-110",
+                      )}
                       strokeWidth={isActive ? 2.8 : 2.2}
                     />
                   )}

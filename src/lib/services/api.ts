@@ -14,6 +14,7 @@ import { budgetSuggestions, budgetSummary, saveReview, substitutions } from "./r
 import { AppError, result } from "./errors";
 import * as schema from "../validation/schemas";
 import { reconcileRewards } from "./rewards.service";
+import { handlePushAction } from "./push.service";
 export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promise<Response> {
   const headers = { "Cache-Control": "no-store", "Content-Type": "application/json" };
   try {
@@ -40,9 +41,26 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
       }
     };
     let data: unknown = null;
+    if (path.startsWith("/api/push/"))
+      return new Response(
+        JSON.stringify({
+          data: await handlePushAction(db, path, method, method === "GET" ? {} : await body()),
+        }),
+        { headers },
+      );
     if (method === "GET") {
-      const s = await read();
-      if (path === "/api/dashboard") {
+      const requestedDay =
+        path === "/api/daily-logs" ? schema.date.parse(url.searchParams.get("date")) : today;
+      const s = await read(requestedDay);
+      if (path === "/api/daily-logs") {
+        const d = aggregate(s, requestedDay);
+        data = {
+          date: requestedDay,
+          waterTotal: d.waterTotal,
+          recovery: d.recovery,
+          weight: d.todayWeight,
+        };
+      } else if (path === "/api/dashboard") {
         const rewards = await reconcileRewards(db);
         data = {
           ...aggregate(s, today),
