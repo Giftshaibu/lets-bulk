@@ -63,3 +63,11 @@ API calls; it needs no real account and writes no real user records. It exercise
 save states/failures, cleanup, the clock boundary, keyboard behavior, helper
 fallbacks, workout states, all assets, image fallback, narrow/desktop layouts and
 unchanged identity icons. Existing core tests remain part of validation.
+
+Verified on 2026-11-19: all 120 unit/API/database tests passed, typecheck passed,
+and lint reported no errors (eight existing Fast Refresh warnings). Production
+build and deployment dry run passed. The mascot browser test passed locally and
+on the live Worker with no JavaScript errors. It uses synthetic intercepted data,
+not real user records. Worker version `9f10bb08-7840-4d28-b0c8-685ea872e545`
+receives 100% of traffic; existing bindings and disabled inference flags were
+verified after deployment.
