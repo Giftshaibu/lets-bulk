@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowDown, Check, Flag, LockKeyhole, Mountain, Trophy, X } from "lucide-react";
 import { Brand, ChiuliIcon } from "@/components/brand";
 import { SettingsLink } from "@/components/settings-link";
+import { MascotStatus } from "@/features/mascot-feedback";
 import { useAppData } from "@/features/app-data";
 import { addDays } from "@/lib/domain/dates";
 
@@ -44,15 +45,17 @@ function Journey() {
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
           <Link
             to="/progress"
+            aria-label="Back to progress"
             className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 font-extrabold"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-            Progress
+            <span className="hidden sm:inline">Progress</span>
           </Link>
           <div className="ml-auto flex items-center gap-1 sm:gap-3">
             <Link to="/" aria-label="Chiuli home">
               <Brand />
             </Link>
+            <MascotStatus />
             <SettingsLink />
           </div>
         </div>

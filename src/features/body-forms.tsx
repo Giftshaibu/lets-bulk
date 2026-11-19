@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
 import { useAppData, api } from "./app-data";
@@ -9,6 +9,8 @@ import type {
   budgetSummary,
   substitutions,
 } from "@/lib/services/review.service";
+import { MascotFeedback } from "./mascot-feedback";
+import { mascot, weightMascot, type MascotState } from "@/lib/domain/mascot";
 const num = (f: FormData, key: string) => Number(f.get(key));
 export function BodyForms({
   section = "weight",
@@ -26,30 +28,7 @@ export function BodyForms({
             : "Progress photos"}
       </SectionTitle>
       <div className="grid gap-4">
-        {section === "weight" && (
-          <form
-            className="grid gap-3 sm:grid-cols-3"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              void act("/api/weight", { date: String(f.get("date")), weight_kg: num(f, "weight") });
-            }}
-          >
-            <label className="text-sm font-bold">
-              Date
-              <input
-                type="date"
-                name="date"
-                defaultValue={data.date}
-                max={data.date}
-                required
-                className={inputClass}
-              />
-            </label>
-            <NumberField name="weight" label="Weight (kg)" min={20} max={500} />
-            <ChunkyButton disabled={pending}>Save weight</ChunkyButton>
-          </form>
-        )}
+        {section === "weight" && <WeightForm />}
         {section === "measurements" && (
           <section>
             <form
@@ -93,6 +72,77 @@ export function BodyForms({
     </Card>
   );
 }
+function WeightForm() {
+  const { data, act, pending } = useAppData();
+  const [busy, setBusy] = useState(false),
+    [feedback, setFeedback] = useState<MascotState | null>(null);
+  const saving = useRef(false);
+  const state = busy
+    ? mascot("thinking", "Saving your weigh-in…", 60)
+    : (feedback ??
+      mascot(
+        "neutral",
+        data.weight.series.length
+          ? "Ready for your next weigh-in. Look for the trend, not a single number."
+          : "No weigh-ins yet. Your first entry gives you a starting point.",
+      ));
+  return (
+    <div>
+      <MascotFeedback
+        state={state}
+        announce={busy || feedback !== null}
+        label="Weight logging encouragement"
+      />
+      <form
+        onChange={() => {
+          if (!busy) setFeedback(null);
+        }}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (saving.current || pending) return;
+          const f = new FormData(e.currentTarget),
+            date = String(f.get("date")),
+            kg = num(f, "weight");
+          const result = weightMascot(data.weight.series, date, kg);
+          saving.current = true;
+          setBusy(true);
+          setFeedback(null);
+          try {
+            const saved = await act("/api/weight", { date, weight_kg: kg });
+            setFeedback(
+              saved
+                ? result
+                : mascot(
+                    "shocked",
+                    "Your weigh-in wasn’t saved. Please try again; no progress is lost.",
+                    50,
+                  ),
+            );
+          } finally {
+            saving.current = false;
+            setBusy(false);
+          }
+        }}
+      >
+        <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-3">
+          <label className="text-sm font-bold">
+            Date
+            <input
+              type="date"
+              name="date"
+              defaultValue={data.date}
+              max={data.date}
+              required
+              className={inputClass}
+            />
+          </label>
+          <NumberField name="weight" label="Weight (kg)" min={20} max={500} />
+          <ChunkyButton disabled={pending}>{busy ? "Saving weight…" : "Save weight"}</ChunkyButton>
+        </fieldset>
+      </form>
+    </div>
+  );
+}
 function PhotoForm() {
   const { data, act } = useAppData();
   const [busy, setBusy] = useState(false),
@@ -100,6 +150,17 @@ function PhotoForm() {
     [urls, setUrls] = useState<Record<string, string>>({});
   return (
     <section aria-label="Private progress photos">
+      {(busy || error) && (
+        <MascotFeedback
+          state={
+            busy
+              ? mascot("thinking", "Uploading your private photo…", 60)
+              : mascot("shocked", "Your photo couldn’t be opened or saved. Please try again.", 50)
+          }
+          compact
+          label="Photo action encouragement"
+        />
+      )}
       <form
         className="grid gap-3"
         onSubmit={async (e) => {

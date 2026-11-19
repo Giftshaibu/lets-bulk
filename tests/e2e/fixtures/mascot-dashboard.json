@@ -1,0 +1,559 @@
+{
+  "date": "2026-11-17",
+  "needsOnboarding": false,
+  "profile": {
+    "name": "Fixture",
+    "weekNumber": 5,
+    "totalWeeks": 14,
+    "streakDays": 0,
+    "startWeightKg": 60,
+    "goalWeightKg": 65
+  },
+  "rawProfile": {
+    "user_id": "00000000-0000-4000-8000-000000000001",
+    "first_name": "Fixture",
+    "height_cm": 170,
+    "starting_weight_kg": 60,
+    "goal_weight_kg": 65,
+    "start_date": "2026-10-20",
+    "target_date": "2027-01-20",
+    "training_experience": "beginner",
+    "water_target_ml": 2500
+  },
+  "preferences": {
+    "diet_type": "omnivore",
+    "budget_mode": "balanced"
+  },
+  "targets": {
+    "kcal": 2500,
+    "protein": 110,
+    "carbs": 340,
+    "fat": 65
+  },
+  "activeTarget": {
+    "id": "00000000-0000-4000-8000-000000000020",
+    "version": 1,
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "calories_target": 2500,
+    "protein_target_g": 110,
+    "carbs_target_g": 340,
+    "fat_target_g": 65
+  },
+  "meals": [
+    {
+      "id": "breakfast",
+      "slot": "breakfast",
+      "title": "Breakfast",
+      "time": "07:00",
+      "targetKcal": 625,
+      "items": [],
+      "logged": false
+    },
+    {
+      "id": "lunch",
+      "slot": "lunch",
+      "title": "Lunch",
+      "time": "12:30",
+      "targetKcal": 625,
+      "items": [],
+      "logged": false
+    },
+    {
+      "id": "snack",
+      "slot": "snack",
+      "title": "Snack",
+      "time": "16:00",
+      "targetKcal": 625,
+      "items": [],
+      "logged": false
+    },
+    {
+      "id": "dinner",
+      "slot": "dinner",
+      "title": "Dinner",
+      "time": "19:30",
+      "targetKcal": 625,
+      "items": [],
+      "logged": false
+    }
+  ],
+  "eaten": {
+    "kcal": 0,
+    "protein": 0,
+    "carbs": 0,
+    "fat": 0
+  },
+  "remaining": {
+    "kcal": 2500,
+    "protein": 110,
+    "carbs": 340,
+    "fat": 65
+  },
+  "foods": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "name": "Egg, whole, cooked, hard-boiled",
+      "serving": "100 g",
+      "kcal": 155,
+      "protein": 12.6,
+      "carbs": 20,
+      "fat": 5,
+      "frequent": false,
+      "aliases": null,
+      "category": "other",
+      "servingName": "1 large",
+      "servingGrams": 50,
+      "servingVolumeMl": null,
+      "alcoholPer100g": 0,
+      "source": "Fixture",
+      "preparation": "as described"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "name": "Rice, cooked",
+      "serving": "100 g",
+      "kcal": 130,
+      "protein": 2.7,
+      "carbs": 20,
+      "fat": 5,
+      "frequent": false,
+      "aliases": null,
+      "category": "staple",
+      "servingName": "1 cup",
+      "servingGrams": 150,
+      "servingVolumeMl": null,
+      "alcoholPer100g": 0,
+      "source": "Fixture",
+      "preparation": "as described"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "name": "Bread, whole-wheat",
+      "serving": "100 g",
+      "kcal": 252,
+      "protein": 12.5,
+      "carbs": 20,
+      "fat": 5,
+      "frequent": false,
+      "aliases": null,
+      "category": "staple",
+      "servingName": "1 slice",
+      "servingGrams": 32,
+      "servingVolumeMl": null,
+      "alcoholPer100g": 0,
+      "source": "Fixture",
+      "preparation": "as described"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000104",
+      "name": "Wheat flour",
+      "serving": "100 g",
+      "kcal": 360,
+      "protein": 10,
+      "carbs": 20,
+      "fat": 5,
+      "frequent": false,
+      "aliases": null,
+      "category": "staple",
+      "servingName": "1 cup",
+      "servingGrams": 100,
+      "servingVolumeMl": null,
+      "alcoholPer100g": 0,
+      "source": "Fixture",
+      "preparation": "as described"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000105",
+      "name": "Beer",
+      "serving": "100 g",
+      "kcal": 43,
+      "protein": 0.46,
+      "carbs": 20,
+      "fat": 5,
+      "frequent": false,
+      "aliases": null,
+      "category": "beverage",
+      "servingName": "1 cup",
+      "servingGrams": 29.7,
+      "servingVolumeMl": 29.5735295625,
+      "alcoholPer100g": 3.9,
+      "source": "Fixture",
+      "preparation": "as described"
+    }
+  ],
+  "foodLibrary": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "name": "Egg, whole, cooked, hard-boiled",
+      "local_name": null,
+      "category": "other",
+      "preparation_state": "as described",
+      "calories_per_100g": 155,
+      "protein_per_100g": 12.6,
+      "carbs_per_100g": 20,
+      "fat_per_100g": 5,
+      "serving_name": "1 large",
+      "serving_grams": 50,
+      "serving_volume_ml": null,
+      "alcohol_g_per_100g": 0,
+      "source": "Fixture",
+      "availability": "common",
+      "is_active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "name": "Rice, cooked",
+      "local_name": null,
+      "category": "staple",
+      "preparation_state": "as described",
+      "calories_per_100g": 130,
+      "protein_per_100g": 2.7,
+      "carbs_per_100g": 20,
+      "fat_per_100g": 5,
+      "serving_name": "1 cup",
+      "serving_grams": 150,
+      "serving_volume_ml": null,
+      "alcohol_g_per_100g": 0,
+      "source": "Fixture",
+      "availability": "common",
+      "is_active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "name": "Bread, whole-wheat",
+      "local_name": null,
+      "category": "staple",
+      "preparation_state": "as described",
+      "calories_per_100g": 252,
+      "protein_per_100g": 12.5,
+      "carbs_per_100g": 20,
+      "fat_per_100g": 5,
+      "serving_name": "1 slice",
+      "serving_grams": 32,
+      "serving_volume_ml": null,
+      "alcohol_g_per_100g": 0,
+      "source": "Fixture",
+      "availability": "common",
+      "is_active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000104",
+      "name": "Wheat flour",
+      "local_name": null,
+      "category": "staple",
+      "preparation_state": "as described",
+      "calories_per_100g": 360,
+      "protein_per_100g": 10,
+      "carbs_per_100g": 20,
+      "fat_per_100g": 5,
+      "serving_name": "1 cup",
+      "serving_grams": 100,
+      "serving_volume_ml": null,
+      "alcohol_g_per_100g": 0,
+      "source": "Fixture",
+      "availability": "common",
+      "is_active": true
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000105",
+      "name": "Beer",
+      "local_name": null,
+      "category": "beverage",
+      "preparation_state": "as described",
+      "calories_per_100g": 43,
+      "protein_per_100g": 0.46,
+      "carbs_per_100g": 20,
+      "fat_per_100g": 5,
+      "serving_name": "1 cup",
+      "serving_grams": 29.7,
+      "serving_volume_ml": 29.5735295625,
+      "alcohol_g_per_100g": 3.9,
+      "source": "Fixture",
+      "availability": "common",
+      "is_active": true
+    }
+  ],
+  "prices": [],
+  "mealTemplates": [],
+  "workout": {
+    "id": "",
+    "title": "Rest day",
+    "focus": "Recover and log your daily habits",
+    "dayLabel": "2026-11-17",
+    "estimatedMinutes": 0,
+    "exercises": []
+  },
+  "sessionSummary": null,
+  "schedule": [
+    {
+      "day": "MON",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "TUE",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "WED",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "THU",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "FRI",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "SAT",
+      "label": "Rest",
+      "state": "rest"
+    },
+    {
+      "day": "SUN",
+      "label": "Rest",
+      "state": "rest"
+    }
+  ],
+  "recovery": {
+    "sleepHours": 0,
+    "soreness": "\u2014",
+    "energy": 0,
+    "logged": false,
+    "score": null,
+    "status": "Not logged"
+  },
+  "weight": {
+    "gained": 0,
+    "perWeek": null,
+    "status": "insufficient_data",
+    "series": [],
+    "days": 0
+  },
+  "todayWeight": {
+    "logged": false,
+    "kg": null
+  },
+  "waterTotal": 0,
+  "tasks": [
+    {
+      "label": "Weight",
+      "done": false,
+      "required": true
+    },
+    {
+      "label": "Calories",
+      "done": false,
+      "required": true
+    },
+    {
+      "label": "Training",
+      "done": true,
+      "required": false
+    },
+    {
+      "label": "Recovery",
+      "done": false,
+      "required": true
+    },
+    {
+      "label": "Water",
+      "done": false,
+      "required": true
+    }
+  ],
+  "completion": {
+    "completed": 0,
+    "required": 4,
+    "percentage": 0,
+    "dayCompleted": false
+  },
+  "streak": {
+    "current": 0,
+    "longest": 0,
+    "completedThisWeek": 0
+  },
+  "consistency": {
+    "current": 0,
+    "longest": 0,
+    "completedThisWeek": 0
+  },
+  "loggingDates": ["2026-10-20", "2026-10-21", "2026-11-04", "2026-11-17"],
+  "journeyWeeks": [
+    {
+      "start": "2026-10-20",
+      "end": "2026-10-26",
+      "workouts": 0,
+      "weightLogs": 0,
+      "averageWeight": null,
+      "photos": 0,
+      "consistentDays": 0
+    },
+    {
+      "start": "2026-10-27",
+      "end": "2026-11-02",
+      "workouts": 0,
+      "weightLogs": 0,
+      "averageWeight": null,
+      "photos": 0,
+      "consistentDays": 0
+    },
+    {
+      "start": "2026-11-03",
+      "end": "2026-11-09",
+      "workouts": 0,
+      "weightLogs": 0,
+      "averageWeight": null,
+      "photos": 0,
+      "consistentDays": 0
+    },
+    {
+      "start": "2026-11-10",
+      "end": "2026-11-16",
+      "workouts": 0,
+      "weightLogs": 0,
+      "averageWeight": null,
+      "photos": 0,
+      "consistentDays": 0
+    },
+    {
+      "start": "2026-11-17",
+      "end": "2026-11-23",
+      "workouts": 0,
+      "weightLogs": 0,
+      "averageWeight": null,
+      "photos": 0,
+      "consistentDays": 0
+    }
+  ],
+  "lifts": [],
+  "measurements": [],
+  "photos": [],
+  "reviews": [
+    {
+      "id": "00000000-0000-4000-8000-000000000601",
+      "period_start": "2026-11-09",
+      "period_end": "2026-11-15",
+      "raw_analysis": {
+        "calorieAdherence": 0.9,
+        "proteinAdherence": 0.9
+      },
+      "confidence": 0.8,
+      "data_completeness": 0.8
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "00000000-0000-4000-8000-000000000501",
+      "type": "increase_calories",
+      "title": "Add energy",
+      "reason": "Your recorded gain was below the saved range.",
+      "current_value": 2500,
+      "recommended_value": 2650,
+      "unit": "kcal",
+      "status": "pending",
+      "request_id": null,
+      "weekly_analysis_id": "00000000-0000-4000-8000-000000000601",
+      "source_period_end": "2026-11-15",
+      "blockedReason": null
+    }
+  ],
+  "progressAnalysis": {
+    "maintenance": {
+      "available": false,
+      "reason": "Needs 21 substantially logged food days, 10 weigh-ins and at least 21 days of observations.",
+      "calories": null,
+      "confidence": 0
+    },
+    "projections": [
+      {
+        "weeks": 4,
+        "kg": null
+      },
+      {
+        "weeks": 8,
+        "kg": null
+      },
+      {
+        "weeks": 12,
+        "kg": null
+      }
+    ],
+    "weeklyAverages": [
+      {
+        "start": "2026-10-21",
+        "end": "2026-10-27",
+        "count": 0,
+        "average": null
+      },
+      {
+        "start": "2026-10-28",
+        "end": "2026-11-03",
+        "count": 0,
+        "average": null
+      },
+      {
+        "start": "2026-11-04",
+        "end": "2026-11-10",
+        "count": 0,
+        "average": null
+      },
+      {
+        "start": "2026-11-11",
+        "end": "2026-11-17",
+        "count": 0,
+        "average": null
+      }
+    ],
+    "projectionReason": "At least three weigh-ins per comparison week are needed."
+  },
+  "trainingAnalytics": {
+    "week": {
+      "start": "2026-11-16",
+      "end": "2026-11-22"
+    },
+    "weeklyMuscles": [],
+    "performance": []
+  },
+  "completionPolicy": {
+    "weight": true,
+    "nutrition": true,
+    "workout": true,
+    "recovery": true,
+    "water": true
+  },
+  "exerciseLibrary": [
+    {
+      "id": "00000000-0000-4000-8000-000000000401",
+      "name": "Bodyweight Squat",
+      "slug": "bodyweight-squat",
+      "primary_muscle": "Quads",
+      "secondary_muscles": [],
+      "instructions": [
+        "Stand with feet shoulder-width apart.",
+        "Bend your knees and hips in a controlled squat.",
+        "Press through your feet to stand."
+      ],
+      "common_mistakes": ["Rushing the movement."],
+      "required_equipment": ["bodyweight"],
+      "is_active": true
+    }
+  ],
+  "programExercises": [],
+  "exerciseOptions": [],
+  "recommendation": {
+    "title": "Add energy",
+    "body": "Your recorded gain was below the saved range."
+  },
+  "equipment": [],
+  "loadOptions": [],
+  "trainingDays": [],
+  "plannedExercises": []
+}

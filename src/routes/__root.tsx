@@ -11,6 +11,8 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { DataProvider } from "@/features/app-data";
+import { MascotProvider } from "@/features/mascot-provider";
+import { Mascot } from "@/components/mascot";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -20,6 +22,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <Mascot expression="thinking" className="mx-auto my-4 h-28 w-28" />
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
@@ -49,6 +52,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
+        <Mascot expression="shocked" className="mx-auto my-4 h-28 w-28" />
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
@@ -133,9 +137,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <DataProvider>
-        <Outlet />
-      </DataProvider>
+      <MascotProvider>
+        <DataProvider>
+          <Outlet />
+        </DataProvider>
+      </MascotProvider>
     </QueryClientProvider>
   );
 }

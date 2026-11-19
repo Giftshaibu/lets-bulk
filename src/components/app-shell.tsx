@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAppData } from "@/features/app-data";
 import { Brand, ChiuliIcon } from "@/components/brand";
 import { SettingsLink } from "@/components/settings-link";
+import { MascotStatus } from "@/features/mascot-feedback";
 
 const tabs = [
   { to: "/", label: "Today", icon: Home },
@@ -63,7 +64,10 @@ export function AppShell({
             <Link to="/" aria-label="Chiuli home" className="inline-flex">
               <Brand />
             </Link>
-            <SettingsLink />
+            <div className="ml-auto flex items-center gap-1">
+              <MascotStatus />
+              <SettingsLink />
+            </div>
           </div>
           <header className="mb-5 flex items-start justify-between gap-3">
             <div>

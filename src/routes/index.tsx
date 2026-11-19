@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
 import { DailyForms, ReviewPanel } from "@/features/tracking-forms";
+import { StreakMascot } from "@/features/mascot-feedback";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,6 +52,7 @@ function TodayPage() {
   return (
     <AppShell title="Today" subtitle={today}>
       <div className="flex flex-col gap-4">
+        <StreakMascot />
         <Card>
           <div className="flex items-end justify-between">
             <BigStat

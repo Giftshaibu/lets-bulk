@@ -160,6 +160,10 @@ Food search supports weighed grams and
 saving logged combinations as meals. All 48 exercises include local imagery and
 beginner instructions, with explicit equipment and license metadata.
 
+Chiuli’s [mascot reactions](docs/MASCOT_REACTIONS.md) respond independently to
+weight saves, streaks, workouts and helper requests. The header status button
+summarizes the current page while the identity icons stay fixed.
+
 See [product corrections and the remaining MAFOODS rights dependency](docs/PRODUCT_CORRECTIONS.md).
 The app currently uses explicitly identified USDA fallback foods while MAFOODS
 redistribution rights remain unverified.

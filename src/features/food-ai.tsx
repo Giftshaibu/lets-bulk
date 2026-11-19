@@ -9,6 +9,8 @@ import type { Output } from "@/lib/ai/schemas";
 import { portionGrams } from "@/lib/ai/portions";
 import { mealReady } from "@/lib/ai/meal-ranking";
 import { matchesFoodQuery } from "@/lib/domain/food-catalog";
+import { MascotFeedback } from "./mascot-feedback";
+import { helperMascot } from "@/lib/domain/mascot";
 type Match = {
   id: string;
   name: string;
@@ -140,6 +142,14 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
               {mode === "parse" ? "Describe what you ate" : "Suggest a meal"}
             </Dialog.Title>
             <Dialog.Close className="my-2 min-h-11 font-bold underline">Close</Dialog.Close>
+            <MascotFeedback
+              state={
+                mode === "parse"
+                  ? helperMascot(parse.pending, parse.error, !!parse.value)
+                  : helperMascot(meals.pending, meals.error, !!meals.value)
+              }
+              label="Food helper encouragement"
+            />
             {!draft.length && (
               <>
                 <label className="block font-bold">

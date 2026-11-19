@@ -8,6 +8,7 @@ import { BodyForms } from "@/features/body-forms";
 import { TargetExplanation } from "@/features/target-explanation";
 import { ArrowUpRight, Check, Circle, Flame } from "lucide-react";
 import { ChiuliIcon } from "@/components/brand";
+import { StreakMascot } from "@/features/mascot-feedback";
 export const Route = createFileRoute("/progress")({
   head: () => ({ meta: [{ title: "Progress — Chiuli" }] }),
   component: Progress,
@@ -22,6 +23,7 @@ function Progress() {
     >
       <div className="grid gap-4">
         <Card>
+          <StreakMascot />
           <p className="flex items-center gap-2 text-2xl font-extrabold">
             <Flame className="h-7 w-7 shrink-0 text-primary" aria-hidden="true" />
             {data.streak.current} day logging streak

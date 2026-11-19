@@ -5,6 +5,7 @@ import { Check, ChevronLeft, Minus, Plus, Timer, Trophy, X } from "lucide-react"
 import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
 import type { SetEntry } from "@/lib/data/types";
+import { WorkoutMascot, MascotStatus } from "@/features/mascot-feedback";
 
 export const Route = createFileRoute("/train/active")({
   head: () => ({
@@ -39,6 +40,7 @@ function ActiveWorkout() {
       <div className="mx-auto max-w-lg p-5">
         <Card>
           <h1 className="mb-3 text-xl font-bold">{data.workout.title}</h1>
+          <WorkoutMascot />
           <p className="mb-3">
             Your sets will be saved as you log them. Enter a comfortable starting load for each
             exercise.
@@ -126,6 +128,7 @@ function WorkoutLogger() {
             <Trophy className="h-10 w-10 text-success" strokeWidth={2.6} />
           </div>
           <h1 className="text-[30px] font-extrabold">Workout complete</h1>
+          <WorkoutMascot />
           <p className="mt-1 text-[15px] font-bold text-ink-soft">
             {workout.title} — logged and banked.
           </p>
@@ -181,10 +184,12 @@ function WorkoutLogger() {
           <span className="text-[14px] font-extrabold text-muted-foreground">
             {doneSets}/{totalSets}
           </span>
+          <MascotStatus />
         </div>
       </header>
 
       <main className="mx-auto flex max-w-[640px] flex-col gap-4 px-4 py-4">
+        <WorkoutMascot />
         <Card tone={exerciseDone ? "success" : "default"}>
           <div className="flex items-start justify-between">
             <div>

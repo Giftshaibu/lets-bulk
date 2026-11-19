@@ -6,6 +6,7 @@ import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/ki
 import { TrainingChanges } from "@/features/training-changes";
 import { useAppData } from "@/features/app-data";
 import { LoadOptions, InitialLoads } from "@/features/tracking-forms";
+import { WorkoutMascot } from "@/features/mascot-feedback";
 
 export const Route = createFileRoute("/train/")({
   head: () => ({
@@ -35,6 +36,7 @@ function TrainPage() {
       <div className="flex flex-col gap-4">
         <Card tone="primary">
           <SectionTitle>Today's session</SectionTitle>
+          <WorkoutMascot />
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-[24px] leading-tight font-extrabold">{workout.title}</div>

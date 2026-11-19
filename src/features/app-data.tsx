@@ -6,6 +6,9 @@ import type { Dashboard } from "@/lib/services/dashboard.service";
 import { Card, ChunkyButton } from "@/components/kit";
 import { SetupForm } from "./setup";
 import { ChiuliIcon } from "@/components/brand";
+import { useLocation } from "@tanstack/react-router";
+import { Mascot } from "@/components/mascot";
+import { useMascotContribution } from "./mascot-context";
 export async function api<T>(
   path: string,
   method = "GET",
@@ -28,10 +31,17 @@ export async function api<T>(
   if (!response.ok) throw new Error(payload.error?.message ?? "Request failed. Please try again.");
   return payload.data as T;
 }
+type Operation = {
+  path: string;
+  route: string;
+  status: "saving" | "success" | "error";
+  message?: string;
+};
 type State = {
   data: Dashboard;
   act: (path: string, body?: unknown, method?: string) => Promise<boolean>;
   pending: boolean;
+  operation: Operation | null;
 };
 const AppData = createContext<State | null>(null);
 export const useAppData = () => {
@@ -44,6 +54,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [pending, setPending] = useState(false);
+  const [operation, setOperation] = useState<Operation | null>(null);
+  const route = useLocation({ select: (l) => l.pathname });
   const qc = useQueryClient();
   const saving = useRef(false);
   useEffect(() => {
@@ -63,6 +75,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setSession(next);
         setReady(true);
         if (!next) qc.clear();
+        if (!next) {
+          setOperation(null);
+          setError("");
+        }
       }
     });
     return () => {
@@ -83,12 +99,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     saving.current = true;
     setPending(true);
     setError("");
+    setOperation({ path, route, status: "saving" });
     try {
       await api(path, method, body);
       await qc.invalidateQueries({ queryKey: ["dashboard"] });
+      setOperation({ path, route, status: "success" });
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unable to save. Try again.");
+      const message = e instanceof Error ? e.message : "Unable to save. Try again.";
+      setError(message);
+      setOperation({ path, route, status: "error", message });
       return false;
     } finally {
       saving.current = false;
@@ -105,6 +125,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   if (!ready)
     return (
       <Gate>
+        <Mascot expression="thinking" variant="face" className="mx-auto h-12 w-12" />
         <p role="status">Loading your session…</p>
       </Gate>
     );
@@ -112,12 +133,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   if (query.isPending)
     return (
       <Gate>
+        <Mascot expression="thinking" variant="face" className="mx-auto h-12 w-12" />
         <p role="status">Loading your logs…</p>
       </Gate>
     );
   if (query.isError)
     return (
       <Gate>
+        <Mascot expression="shocked" className="mx-auto h-24 w-24" />
         <p role="alert">{query.error.message}</p>
         <ChunkyButton onClick={() => void query.refetch()}>Try again</ChunkyButton>
         <button onClick={() => void browserDb().auth.signOut()}>Sign out</button>
@@ -126,31 +149,73 @@ export function DataProvider({ children }: { children: ReactNode }) {
   if (query.data.needsOnboarding)
     return (
       <Gate>
-        {error && <p role="alert">{error}</p>}
+        {error && (
+          <p role="alert">
+            <Mascot
+              expression="shocked"
+              variant="face"
+              className="mr-2 inline-block h-8 w-8 align-middle"
+            />
+            {error}
+          </p>
+        )}
         <SetupForm save={act} pending={pending} />
       </Gate>
     );
   return (
-    <AppData.Provider value={{ data: query.data, act, pending }}>
+    <AppData.Provider value={{ data: query.data, act, pending, operation }}>
+      <OperationContribution operation={operation} />
       {error && (
         <div
           role="alert"
           className="sticky top-0 z-50 border-b-2 border-danger bg-card p-3 text-center font-bold"
         >
+          <Mascot
+            expression="shocked"
+            variant="face"
+            className="mr-2 inline-block h-8 w-8 align-middle"
+          />
           {error}
-          <button className="ml-4 underline" onClick={() => setError("")}>
+          <button
+            className="ml-4 underline"
+            onClick={() => {
+              setError("");
+              setOperation(null);
+            }}
+          >
             Dismiss
           </button>
         </div>
       )}
       {pending && (
         <div role="status" className="fixed right-4 top-3 z-50 rounded-xl bg-card p-2 shadow">
+          <Mascot
+            expression="thinking"
+            variant="face"
+            className="mr-2 inline-block h-8 w-8 align-middle"
+          />
           Saving…
         </div>
       )}
       {children}
     </AppData.Provider>
   );
+}
+function OperationContribution({ operation }: { operation: Operation | null }) {
+  const route = useLocation({ select: (l) => l.pathname });
+  useMascotContribution(
+    operation?.status === "saving"
+      ? { expression: "thinking", message: "Saving your action…", priority: 60 }
+      : operation?.status === "error"
+        ? {
+            expression: "shocked",
+            message: "That action couldn’t be saved. Please try again.",
+            priority: 50,
+          }
+        : null,
+    operation?.route === route,
+  );
+  return null;
 }
 function Gate({ children }: { children: ReactNode }) {
   return (
@@ -223,7 +288,17 @@ function AuthForm() {
             required
           />
         </label>
-        {error && <p role="alert">{error}</p>}
+        {busy && <Mascot expression="thinking" variant="face" className="mx-auto h-10 w-10" />}
+        {error && (
+          <p role="alert">
+            <Mascot
+              expression="shocked"
+              variant="face"
+              className="mr-2 inline-block h-8 w-8 align-middle"
+            />
+            {error}
+          </p>
+        )}
         {message && <p role="status">{message}</p>}
         <ChunkyButton disabled={busy}>
           {busy ? "Please wait…" : signup ? "Create account" : "Sign in"}

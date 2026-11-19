@@ -1,6 +1,8 @@
 import { useAIAction } from "./use-ai-action";
 import type { AIResult } from "@/lib/ai/types";
 import type { Output } from "@/lib/ai/schemas";
+import { MascotFeedback } from "./mascot-feedback";
+import { helperMascot } from "@/lib/domain/mascot";
 export function AIExplanation({
   kind,
   id,
@@ -29,6 +31,13 @@ export function AIExplanation({
   const output = state.value?.result;
   return (
     <section className="my-3">
+      {(state.pending || state.error || output) && (
+        <MascotFeedback
+          state={helperMascot(state.pending, state.error, !!output)}
+          compact
+          label="Helper encouragement"
+        />
+      )}
       <button
         className="min-h-11 rounded-xl border-2 border-border bg-card px-3 font-bold"
         disabled={state.pending}
