@@ -1,3 +1,4 @@
+import { ChoiceField } from "@/components/selection-screen";
 import { units, ML_PER_FL_OZ, volumeLabel } from "@/lib/domain/units";
 import { MacroTiles, NutritionMascot } from "@/features/quest-ui";
 import { Mascot } from "@/components/mascot";
@@ -208,10 +209,16 @@ function FoodPage() {
       </div>
 
       <Link
+        to="/saved-meals"
+        className="press my-3 flex min-h-14 items-center justify-between rounded-2xl border-2 border-b-4 border-[#E3CBB5] bg-[#FAF3EC] p-4 font-black"
+      >
+        Saved meals <span aria-hidden="true">›</span>
+      </Link>
+      <Link
         to="/food-library"
         className="my-4 inline-flex min-h-11 items-center font-bold underline"
       >
-        Saved meals, custom foods and prices →
+        Custom foods and prices ›
       </Link>
       <Dialog.Root
         open={!!sheetMealId}
@@ -345,7 +352,7 @@ function FoodPage() {
                 {density !== null && (
                   <label className="mt-3 block font-bold">
                     Measure
-                    <select
+                    <ChoiceField
                       aria-label="Measure"
                       className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
                       value={amountUnit}
@@ -354,7 +361,7 @@ function FoodPage() {
                       <option value="g">Grams</option>
                       <option value="ml">Millilitres</option>
                       <option value="fl_oz">US fluid ounces</option>
-                    </select>
+                    </ChoiceField>
                   </label>
                 )}
                 <label className="mt-3 block font-bold">
@@ -438,7 +445,7 @@ function FoodPage() {
                 </div>
                 <label className="mt-3 block font-bold">
                   Meal
-                  <select
+                  <ChoiceField
                     className="mt-1 min-h-11 w-full rounded-xl border-2 border-border p-3"
                     aria-label="Meal"
                     value={sheetMealId ?? "lunch"}
@@ -449,7 +456,7 @@ function FoodPage() {
                         {m.title}
                       </option>
                     ))}
-                  </select>
+                  </ChoiceField>
                 </label>
                 <ChunkyButton
                   full

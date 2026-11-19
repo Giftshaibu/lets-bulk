@@ -1,3 +1,4 @@
+import { SignOut } from "./sign-out";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Session } from "@supabase/supabase-js";
@@ -194,12 +195,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
         <Mascot expression="shocked" className="mx-auto h-24 w-24" />
         <p role="alert">{query.error.message}</p>
         <ChunkyButton onClick={() => void query.refetch()}>Try again</ChunkyButton>
-        <button onClick={() => void browserDb().auth.signOut()}>Sign out</button>
+        <SignOut />
       </Gate>
     );
   if (query.data.needsOnboarding)
     return (
-      <Gate showIdentity={false}>
+      <main className="mx-auto h-dvh max-w-2xl bg-background">
         {error && (
           <p role="alert">
             <Mascot
@@ -211,7 +212,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           </p>
         )}
         <SetupForm save={act} pending={pending} />
-      </Gate>
+      </main>
     );
   return (
     <AppData.Provider value={{ data: query.data, act, pending, operation, checkpoint }}>

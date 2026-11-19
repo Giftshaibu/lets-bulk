@@ -1,138 +1,112 @@
-import { units, massFromKg, massToKg, massLabel, massText } from "@/lib/domain/units";
-import { ExerciseGuide } from "@/features/exercise-guide";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Trophy } from "lucide-react";
+import { Dumbbell, ChevronRight, CalendarDays, SlidersHorizontal } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
-import { TrainingChanges } from "@/features/training-changes";
+import { Card, ChunkyButton, Pill } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
-import { LoadOptions, InitialLoads } from "@/features/tracking-forms";
 import { WorkoutMascot } from "@/features/mascot-feedback";
-
-export const Route = createFileRoute("/train/")({
-  head: () => ({
-    meta: [
-      { title: "Train — Chiuli Training Companion" },
-      {
-        name: "description",
-        content:
-          "See today's workout, your week schedule and recent strength gains, then start training.",
-      },
-      { property: "og:title", content: "Train — Chiuli Training Companion" },
-      {
-        property: "og:description",
-        content: "Today's session, week plan and recent lift progress.",
-      },
-    ],
-  }),
-  component: TrainPage,
-});
-
+export const Route = createFileRoute("/train/")({ component: TrainPage });
 function TrainPage() {
-  const { data } = useAppData();
-  const mass = units(data.preferences).mass;
-  const { workout, schedule, lifts } = data;
-
+  const { data } = useAppData(),
+    { workout } = data;
+  const library = data.workoutLibrary ?? [],
+    day = new Date(`${data.date}T12:00:00Z`).getUTCDay();
+  const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const next = [...library]
+    .filter((w) => w.current)
+    .sort((a, b) => ((a.dayOfWeek - day + 7) % 7 || 7) - ((b.dayOfWeek - day + 7) % 7 || 7))[0];
+  const missing = data.trainingStatus === "missing_program" && !workout.id;
   return (
-    <AppShell title="Train" subtitle={workout.dayLabel}>
-      <div className="flex flex-col gap-4">
+    <AppShell
+      title="Train"
+      subtitle={`${data.date} · ${data.rawProfile?.timezone ?? "Africa/Blantyre"}`}
+    >
+      <div className="grid gap-4">
         <Card tone="primary">
-          <SectionTitle>Today's session</SectionTitle>
+          <p className="mb-2 text-xs font-black uppercase tracking-wide">Today</p>
           <WorkoutMascot />
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[24px] leading-tight font-extrabold">{workout.title}</div>
-              <div className="text-[14px] font-bold text-ink-soft">{workout.focus}</div>
-            </div>
-            <Pill tone="primary">{workout.estimatedMinutes} min</Pill>
+            <h2 className="min-w-0 text-2xl font-black">
+              {missing ? "Your training plan needs attention" : workout.title}
+            </h2>
+            {!missing && <Pill>{workout.estimatedMinutes} min</Pill>}
           </div>
-
-          <ul className="mt-4 flex flex-col gap-2">
-            {workout.exercises.map((e) => (
-              <li
-                key={e.id}
-                className="rounded-2xl border-2 border-b-4 border-border bg-card px-3 py-3"
-              >
-                <ExerciseGuide id={e.id} row />
-                <p className="text-sm font-bold">
-                  {e.targetSets} × {e.targetReps}
-                </p>
-                <div className="mt-0.5 text-[12px] font-bold text-muted-foreground">
-                  Last time: {massText(e.lastTime, mass)} · rest {e.restSeconds}s
-                </div>
-                <p className="mt-2 text-sm font-bold">{massText(e.nextTarget, mass)}</p>
-              </li>
-            ))}
-          </ul>
-
-          {workout.exercises.length > 0 && data.session?.status !== "completed" && (
-            <Link to="/train/active" className="mt-4 block">
+          <p className="my-3 text-sm font-bold">
+            {missing
+              ? "We couldn’t find a current workout plan. Review your training settings to repair your schedule."
+              : data.session?.status === "in_progress"
+                ? "Your saved session is ready to resume."
+                : !workout.id
+                  ? `No workout is scheduled for ${names[day]}. Recover today, or choose a one-off session below. Your weekly plan stays the same.`
+                  : data.session?.status === "completed"
+                    ? "Today’s session is complete. Your sets are saved."
+                    : "Your saved training plan for today."}
+          </p>
+          {missing ? (
+            <Link to="/settings">
+              <ChunkyButton full>Review training settings</ChunkyButton>
+            </Link>
+          ) : workout.id ? (
+            <Link to="/workout/$workoutId" params={{ workoutId: workout.id }}>
               <ChunkyButton full>
-                {data.session?.status === "in_progress"
-                  ? "Resume workout"
-                  : "Start session · earn 100 XP on completion"}
+                {data.session?.status === "in_progress" ? "Resume workout" : "View workout"}
+                <ChevronRight className="h-5 w-5" />
               </ChunkyButton>
             </Link>
-          )}
-          {data.session?.status === "completed" && (
-            <p className="mt-3 font-bold">Workout completed and saved.</p>
-          )}
-          <InitialLoads />
-          <LoadOptions />
+          ) : null}
         </Card>
-
-        <TrainingChanges />
-        <Card>
-          <SectionTitle>This week</SectionTitle>
-          <div className="grid grid-cols-7 gap-1.5">
-            {schedule.map((d) => (
-              <div
-                key={d.day}
-                className={`flex flex-col items-center gap-1 rounded-xl border-2 border-b-4 px-1 py-2 text-center ${
-                  d.state === "done"
-                    ? "border-success bg-success-soft"
-                    : d.state === "today"
-                      ? "border-primary bg-primary-soft"
-                      : d.state === "rest"
-                        ? "border-border bg-muted"
-                        : "border-border bg-card"
-                }`}
+        {next && (
+          <Card>
+            <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase text-muted-foreground">
+              <CalendarDays className="h-4 w-4" />
+              Next scheduled session
+            </p>
+            <Link
+              to="/workout/$workoutId"
+              params={{ workoutId: next.id }}
+              className="flex min-h-12 items-center justify-between gap-3 font-black"
+            >
+              <span>
+                {next.title} · {names[next.dayOfWeek]}
+              </span>
+              <ChevronRight className="h-5 w-5 shrink-0 text-primary" />
+            </Link>
+          </Card>
+        )}
+        <section aria-label="Your workouts">
+          <h2 className="mb-3 text-xl font-black">Your workouts</h2>
+          <div className="grid gap-3">
+            {library.map((w) => (
+              <Link
+                key={w.id}
+                to="/workout/$workoutId"
+                params={{ workoutId: w.id }}
+                className="press flex min-h-24 items-center gap-3 rounded-3xl border-2 border-b-4 border-[#FFD699] bg-[#FFF6E8] p-4"
               >
-                <span className="text-[10px] font-extrabold text-muted-foreground">{d.day}</span>
-                <span className="text-[10px] leading-tight font-extrabold">{d.label}</span>
-              </div>
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-white">
+                  <Dumbbell className="h-6 w-6" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-lg font-black">{w.title}</span>
+                  <span className="block text-sm font-bold">
+                    {names[w.dayOfWeek]} · {w.exercises.length} exercises · {w.estimatedMinutes} min
+                  </span>
+                  <span className="text-xs font-bold text-primary">
+                    View demonstrations and session
+                  </span>
+                </span>
+                <ChevronRight className="h-5 w-5 shrink-0" />
+              </Link>
             ))}
           </div>
-        </Card>
-
-        <Card>
-          <SectionTitle>Recent strength</SectionTitle>
-          <div className="flex flex-col gap-2">
-            {lifts.map((l) => (
-              <div
-                key={l.id}
-                className={`flex items-center justify-between rounded-2xl border-2 border-b-4 px-4 py-3 ${
-                  l.pr ? "border-special bg-special-soft" : "border-border bg-card"
-                }`}
-              >
-                <div>
-                  <div className="text-[15px] font-extrabold">{l.name}</div>
-                  <div className="text-[12px] font-bold text-muted-foreground">
-                    +{massLabel(l.currentKg - l.startKg, mass)} since week 1
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {l.pr && <Trophy className="h-5 w-5 text-special-ink" strokeWidth={2.6} />}
-                  <BigStat
-                    value={Number(massFromKg(l.currentKg, mass).toFixed(1))}
-                    suffix={mass}
-                    label="Top set"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        </section>
+        <Link
+          to="/train/adjust"
+          className="press flex min-h-16 items-center gap-3 rounded-2xl border-2 border-b-4 border-[#E3CBB5] bg-[#FAF3EC] p-4 font-black"
+        >
+          <SlidersHorizontal className="h-6 w-6 shrink-0" />
+          <span className="flex-1">Adjust plan & gym loads</span>
+          <ChevronRight className="h-5 w-5" />
+        </Link>
       </div>
     </AppShell>
   );

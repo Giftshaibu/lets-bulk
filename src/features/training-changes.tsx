@@ -1,3 +1,4 @@
+import { ChoiceField } from "@/components/selection-screen";
 import { InfoCard } from "@/components/bottom-sheet";
 import { useState } from "react";
 import { Card, ChunkyButton, SectionTitle } from "@/components/kit";
@@ -6,6 +7,8 @@ import { inputClass } from "./setup";
 export function TrainingChanges() {
   const { data, act, pending } = useAppData();
   const [message, setMessage] = useState("");
+  const workoutNames = [...new Set(data.programExercises.map((p) => p.workoutName))];
+  const [selectedWorkout, setSelectedWorkout] = useState(workoutNames[0] ?? "");
   async function propose(value: Record<string, unknown>) {
     if (
       await act("/api/training/recommendations", {
@@ -56,80 +59,92 @@ export function TrainingChanges() {
           Request 7-day deload
         </ChunkyButton>
       )}
-      {data.programExercises.map((p) => {
-        const option = data.exerciseOptions.find((o) => o.planId === p.id);
-        return (
-          <InfoCard
-            title={
-              <>
-                {p.workoutName} · {option?.name}
-                {option && !option.equipmentAvailable ? " — equipment unavailable" : ""}
-              </>
-            }
-          >
-            <p className="text-sm">
-              Current prescription: {p.sets} sets, {p.rep_min}–{p.rep_max} reps.
-            </p>
-            {data.activeProgram?.phase !== "deload" && (
-              <div className="my-3 flex flex-wrap gap-2">
-                <ChunkyButton
-                  size="sm"
-                  disabled={pending || p.sets >= 10}
-                  onClick={() =>
-                    void propose({
-                      type: "volume",
-                      planId: p.id,
-                      direction: 1,
-                    })
-                  }
-                >
-                  Propose one extra set
-                </ChunkyButton>
-                <ChunkyButton
-                  size="sm"
-                  tone="neutral"
-                  disabled={pending || p.sets <= 1}
-                  onClick={() =>
-                    void propose({
-                      type: "volume",
-                      planId: p.id,
-                      direction: -1,
-                    })
-                  }
-                >
-                  Propose one fewer set
-                </ChunkyButton>
-              </div>
-            )}
-            <form
-              className="grid gap-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void propose({
-                  type: "substitution",
-                  planId: p.id,
-                  replacementId: String(new FormData(e.currentTarget).get("replacement")),
-                });
-              }}
+      <ChoiceField
+        aria-label="Workout to adjust"
+        value={selectedWorkout}
+        onChange={(e) => setSelectedWorkout(e.target.value)}
+      >
+        {workoutNames.map((n) => (
+          <option key={n}>{n}</option>
+        ))}
+      </ChoiceField>
+      {data.programExercises
+        .filter((p) => p.workoutName === selectedWorkout)
+        .map((p) => {
+          const option = data.exerciseOptions.find((o) => o.planId === p.id);
+          return (
+            <InfoCard
+              key={p.id}
+              title={
+                <>
+                  {p.workoutName} · {option?.name}
+                  {option && !option.equipmentAvailable ? " — equipment unavailable" : ""}
+                </>
+              }
             >
-              <label className="font-bold">
-                Compatible replacement
-                <select className={inputClass} name="replacement" required>
-                  <option value="">Choose an exercise</option>
-                  {option?.substitutes.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name} ({e.equipment})
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <ChunkyButton size="sm" disabled={pending || !option?.substitutes.length}>
-                Propose exercise swap
-              </ChunkyButton>
-            </form>
-          </InfoCard>
-        );
-      })}
+              <p className="text-sm">
+                Current prescription: {p.sets} sets, {p.rep_min}–{p.rep_max} reps.
+              </p>
+              {data.activeProgram?.phase !== "deload" && (
+                <div className="my-3 flex flex-wrap gap-2">
+                  <ChunkyButton
+                    size="sm"
+                    disabled={pending || p.sets >= 10}
+                    onClick={() =>
+                      void propose({
+                        type: "volume",
+                        planId: p.id,
+                        direction: 1,
+                      })
+                    }
+                  >
+                    Propose one extra set
+                  </ChunkyButton>
+                  <ChunkyButton
+                    size="sm"
+                    tone="neutral"
+                    disabled={pending || p.sets <= 1}
+                    onClick={() =>
+                      void propose({
+                        type: "volume",
+                        planId: p.id,
+                        direction: -1,
+                      })
+                    }
+                  >
+                    Propose one fewer set
+                  </ChunkyButton>
+                </div>
+              )}
+              <form
+                className="grid gap-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void propose({
+                    type: "substitution",
+                    planId: p.id,
+                    replacementId: String(new FormData(e.currentTarget).get("replacement")),
+                  });
+                }}
+              >
+                <label className="font-bold">
+                  Compatible replacement
+                  <ChoiceField className={inputClass} name="replacement" required>
+                    <option value="">Choose an exercise</option>
+                    {option?.substitutes.map((e) => (
+                      <option key={e.id} value={e.id}>
+                        {e.name} ({e.equipment})
+                      </option>
+                    ))}
+                  </ChoiceField>
+                </label>
+                <ChunkyButton size="sm" disabled={pending || !option?.substitutes.length}>
+                  Propose exercise swap
+                </ChunkyButton>
+              </form>
+            </InfoCard>
+          );
+        })}
       {message && (
         <p role="status" className="mt-3 font-bold">
           {message}

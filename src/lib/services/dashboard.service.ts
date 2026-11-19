@@ -93,84 +93,32 @@ export function aggregate(s: Snapshot, today: string) {
   const templates = s.templates.filter((t) => weekIds.includes(t.program_week_id));
   const day = new Date(`${today}T12:00:00Z`).getUTCDay();
   const running = s.sessions.find((ss) => ss.status === "in_progress");
+  const completedToday = s.sessions
+    .filter((ss) => ss.session_date === today && ss.status === "completed")
+    .sort((a, b) =>
+      (b.completed_at ?? b.started_at ?? "").localeCompare(a.completed_at ?? a.started_at ?? ""),
+    )[0];
   const template =
     (running ? s.templates.find((t) => t.id === running.workout_template_id) : null) ??
+    (completedToday
+      ? s.templates.find((t) => t.id === completedToday.workout_template_id)
+      : undefined) ??
     templates.find((t) => t.day_of_week === day);
   const session =
     running ??
     s.sessions.find((ss) => ss.workout_template_id === template?.id && ss.session_date === today);
-  const planned = s.planned.filter((p) => p.workout_template_id === template?.id);
-  const workout: Workout = {
-    id: template?.id ?? "",
-    title: template?.name ?? "Rest day",
-    focus: template ? "Your saved training plan" : "Recover and log your daily habits",
-    dayLabel: today,
-    estimatedMinutes: template?.estimated_minutes ?? 0,
-    exercises: planned.map((p) => {
-      const ex = s.exercises.find((e) => e.id === p.exercise_id)!;
-      const previousSession = [...s.sessions]
-        .reverse()
-        .find(
-          (ss) =>
-            ss.status === "completed" &&
-            ss.id !== session?.id &&
-            s.sets.some(
-              (es) => es.workout_session_id === ss.id && es.exercise_id === p.exercise_id,
-            ),
-        );
-      const previous = s.sets.filter(
-        (es) =>
-          es.workout_session_id === previousSession?.id &&
-          es.exercise_id === p.exercise_id &&
-          es.is_completed,
-      );
-      const last = previous[0];
-      return {
-        id: p.exercise_id,
-        name: ex.name,
-        muscle: ex.primary_muscle,
-        targetSets: p.sets,
-        targetReps: `${p.rep_min}-${p.rep_max}`,
-        lastTime: last ? `${last.weight_kg}kg × ${last.reps}` : "No previous session",
-        nextTarget: nextSessionTarget(
-          exerciseHistory(s, p, today, session?.id),
-          { ...p, progression_increment_kg: exerciseLoadConfig(s, ex).increment },
-          exerciseLoadConfig(s, ex).options,
-        ),
-        restSeconds: p.rest_seconds ?? 120,
-        sets: Array.from({ length: p.sets }, (_, i) => {
-          const actual = s.sets.find(
-            (es) =>
-              es.workout_session_id === session?.id &&
-              es.exercise_id === p.exercise_id &&
-              es.set_number === i + 1,
-          );
-          return {
-            id: actual?.id ?? `${p.exercise_id}:${i + 1}`,
-            weight: actual?.weight_kg ?? p.planned_weight_kg,
-            reps: actual?.reps ?? p.rep_min,
-            rir: actual?.rir ?? p.target_rir ?? 2,
-            done: actual?.is_completed ?? false,
-          };
-        }),
-      };
-    }),
-  };
+  const workout = buildWorkout(s, today, template, session);
   const week = getCurrentWeekRange(today);
   const schedule: DaySchedule[] = Array.from({ length: 7 }, (_, i) => {
     const d = addDays(week.start, i),
       dow = (i + 1) % 7;
     const t = templates.find((t) => t.day_of_week === dow);
+    const completed = s.sessions.find((ss) => ss.session_date === d && ss.status === "completed");
     return {
       day: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"][i]!,
-      label: t?.name ?? "Rest",
-      state: !t
-        ? "rest"
-        : s.sessions.some((ss) => ss.session_date === d && ss.status === "completed")
-          ? "done"
-          : d === today
-            ? "today"
-            : "upcoming",
+      label:
+        t?.name ?? s.templates.find((t) => t.id === completed?.workout_template_id)?.name ?? "Rest",
+      state: completed ? "done" : !t ? "rest" : d === today ? "today" : "upcoming",
     };
   });
   const recoveryLog = s.recovery.find((r) => r.date === today);
@@ -346,6 +294,13 @@ export function aggregate(s: Snapshot, today: string) {
       items: s.mealItems.filter((i) => i.meal_id === m.id),
     })),
     workout,
+    workoutLibrary: workoutLibrary(s, today),
+    trainingStatus:
+      !activeProgram || !templates.length
+        ? "missing_program"
+        : !templates.some((t) => t.day_of_week === day)
+          ? "rest"
+          : "scheduled",
     session,
     sessionSummary: session
       ? {
@@ -428,7 +383,102 @@ export function aggregate(s: Snapshot, today: string) {
     equipment: s.equipment,
     loadOptions: s.loads,
     trainingDays: templates.map((t) => t.day_of_week),
-    plannedExercises: planned,
+    plannedExercises: s.planned.filter((p) => p.workout_template_id === template?.id),
   };
 }
 export type Dashboard = ReturnType<typeof aggregate>;
+
+export function buildWorkout(
+  s: Snapshot,
+  today: string,
+  template: Snapshot["templates"][number] | undefined,
+  session: Snapshot["sessions"][number] | undefined,
+): Workout {
+  const planned = s.planned.filter((p) => p.workout_template_id === template?.id);
+  return {
+    id: template?.id ?? "",
+    title: template?.name ?? "Rest day",
+    focus: template ? "Your saved training plan" : "Recover and log your daily habits",
+    dayLabel: today,
+    estimatedMinutes: template?.estimated_minutes ?? 0,
+    exercises: planned.map((p) => {
+      const ex = s.exercises.find((e) => e.id === p.exercise_id)!;
+      const previousSession = [...s.sessions]
+        .reverse()
+        .find(
+          (ss) =>
+            ss.status === "completed" &&
+            ss.id !== session?.id &&
+            s.sets.some(
+              (es) => es.workout_session_id === ss.id && es.exercise_id === p.exercise_id,
+            ),
+        );
+      const previous = s.sets.filter(
+        (es) =>
+          es.workout_session_id === previousSession?.id &&
+          es.exercise_id === p.exercise_id &&
+          es.is_completed,
+      );
+      const last = previous[0];
+      return {
+        id: p.exercise_id,
+        name: ex.name,
+        muscle: ex.primary_muscle,
+        targetSets: p.sets,
+        targetReps: `${p.rep_min}-${p.rep_max}`,
+        lastTime: last ? `${last.weight_kg}kg × ${last.reps}` : "No previous session",
+        nextTarget: nextSessionTarget(
+          exerciseHistory(s, p, today, session?.id),
+          { ...p, progression_increment_kg: exerciseLoadConfig(s, ex).increment },
+          exerciseLoadConfig(s, ex).options,
+        ),
+        restSeconds: p.rest_seconds ?? 120,
+        sets: Array.from({ length: p.sets }, (_, i) => {
+          const actual = s.sets.find(
+            (es) =>
+              es.workout_session_id === session?.id &&
+              es.exercise_id === p.exercise_id &&
+              es.set_number === i + 1,
+          );
+          return {
+            id: actual?.id ?? `${p.exercise_id}:${i + 1}`,
+            weight: actual?.weight_kg ?? p.planned_weight_kg,
+            reps: actual?.reps ?? p.rep_min,
+            rir: actual?.rir ?? p.target_rir ?? 2,
+            done: actual?.is_completed ?? false,
+          };
+        }),
+      };
+    }),
+  };
+}
+export function workoutLibrary(s: Snapshot, today: string) {
+  const program = [...s.programs]
+    .reverse()
+    .find((p) => p.effective_from <= today && (!p.effective_to || p.effective_to >= today));
+  const weeks = s.weeks.filter((w) => w.training_program_id === program?.id).map((w) => w.id);
+  const running = s.sessions.find((ss) => ss.status === "in_progress");
+  const equipment = new Set(s.equipment.filter((e) => e.is_available).map((e) => e.equipment_type));
+  return s.templates
+    .filter((t) => weeks.includes(t.program_week_id) || t.id === running?.workout_template_id)
+    .map((t) => {
+      const session = s.sessions.find(
+        (ss) =>
+          ss.workout_template_id === t.id &&
+          (ss.status === "in_progress" || ss.session_date === today),
+      );
+      return {
+        ...buildWorkout(s, today, t, session),
+        dayOfWeek: t.day_of_week,
+        current: weeks.includes(t.program_week_id),
+        sessionId: session?.id ?? null,
+        sessionStatus: session?.status ?? null,
+        equipmentAvailable: s.planned
+          .filter((p) => p.workout_template_id === t.id)
+          .every((p) => {
+            const ex = s.exercises.find((e) => e.id === p.exercise_id);
+            return !!ex && hasEquipment(ex, equipment);
+          }),
+      };
+    });
+}

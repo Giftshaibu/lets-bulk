@@ -30,6 +30,7 @@ vi.mock("../src/lib/db/client", () => ({
       const query = {
         select: () => query,
         eq: () => query,
+        maybeSingle: async () => ({ data: { timezone: "Africa/Blantyre" }, error: null }),
         single: async () =>
           state.user === "owner"
             ? { data: { period_end: "2026-11-15" }, error: null }

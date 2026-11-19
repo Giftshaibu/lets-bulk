@@ -9,7 +9,7 @@ import { AppRepository } from "../repositories/app.repository";
 import { getLocalDate, addDays } from "../domain/dates";
 import { calculateRecoveryScore } from "../domain/engines";
 import { createRequestedChange } from "./recommendation.service";
-import { aggregate } from "./dashboard.service";
+import { aggregate, workoutLibrary } from "./dashboard.service";
 import { budgetSuggestions, budgetSummary, saveReview, substitutions } from "./review.service";
 import { AppError, result } from "./errors";
 import * as schema from "../validation/schemas";
@@ -29,7 +29,11 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
       url = new URL(request.url),
       path = url.pathname.replace(/\/$/, ""),
       method = request.method,
-      today = getLocalDate();
+      today = getLocalDate(
+        new Date(),
+        (await result(db.from("profiles").select("timezone").eq("user_id", userId).maybeSingle()))
+          ?.timezone ?? "Africa/Blantyre",
+      );
     const read = (end = today) => repo.snapshot(addDays(end, -28), end);
     const body = async () => {
       if (Number(request.headers.get("content-length") ?? 0) > 100000)
@@ -92,7 +96,12 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
       else if (path === "/api/progress/strength") data = aggregate(s, today).lifts;
       else if (path === "/api/nutrition/today") data = aggregate(s, today).meals;
       else if (path === "/api/workouts/today") data = aggregate(s, today).workout;
-      else if (path.match(/^\/api\/photos\/[^/]+\/url$/)) {
+      else if (path === "/api/workouts") data = workoutLibrary(s, today);
+      else if (/^\/api\/workouts\/[^/]+$/.test(path)) {
+        const id = schema.id.parse(path.split("/")[3]);
+        data = workoutLibrary(s, today).find((w) => w.id === id);
+        if (!data) throw new AppError("NOT_FOUND", "Workout not found in your current plan.", 404);
+      } else if (path.match(/^\/api\/photos\/[^/]+\/url$/)) {
         const photo = s.photos.find((p) => p.id === schema.id.parse(path.split("/")[3]));
         if (!photo) throw new AppError("NOT_FOUND", "Photo not found.", 404);
         data = await result(
@@ -319,8 +328,18 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
             .select(),
         );
       } else if (path === "/api/workout-sessions" && method === "POST") {
-        const v = z.object({ templateId: schema.id }).parse(await body());
-        const sessionId = await result(db.rpc("start_workout", { p_template: v.templateId }));
+        const v = z
+          .object({
+            templateId: schema.id,
+            allowUnscheduled: z.boolean().optional().default(false),
+          })
+          .parse(await body());
+        const sessionId = await result(
+          db.rpc("start_workout", {
+            p_template: v.templateId,
+            p_allow_unscheduled: v.allowUnscheduled,
+          }),
+        );
         data = await result(db.from("workout_sessions").select("*").eq("id", sessionId).single());
       } else if (path === "/api/sets" && (method === "POST" || method === "PATCH")) {
         const v = schema.setEntry.parse(await body());
@@ -377,7 +396,7 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
         data = await result(
           db.rpc("save_meal", {
             p_id:
-              method === "PATCH"
+              method === "PATCH" || (raw as { id?: unknown }).id
                 ? schema.id.parse((raw as { id: unknown }).id)
                 : crypto.randomUUID(),
             p_name: v.name,

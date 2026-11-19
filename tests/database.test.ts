@@ -1108,3 +1108,97 @@ describe("confirmed Settings and push queue", () => {
     await asUser(uid);
   });
 });
+
+describe("explicit one-off workout starts", () => {
+  const uid = "00000000-0000-4000-8000-000000000992";
+  let first: string, second: string, day: number;
+  beforeAll(async () => {
+    await db.exec("reset role");
+    await db.query("insert into auth.users(id) values($1)", [uid]);
+    await asUser(uid);
+    await db.query("select public.initialize_profile($1,$2,$3)", [
+      JSON.stringify({ name: "One-off fixture", height: 170, weight: 60, goal: 65 }),
+      JSON.stringify({ kcal: 2400, protein: 110, carbs: 320, fat: 65 }),
+      JSON.stringify([
+        "bodyweight",
+        "barbell",
+        "dumbbell",
+        "cable",
+        "machine",
+        "pullup_bar",
+        "bench",
+        "incline_bench",
+        "squat_rack",
+        "lat_pulldown",
+        "seated_row",
+        "leg_press",
+        "leg_extension",
+        "leg_curl",
+        "chest_press",
+      ]),
+    ]);
+    const ids = (
+      await db.query<{ id: string }>("select id from public.workout_templates order by sort_order")
+    ).rows;
+    first = ids[0]!.id;
+    second = ids[1]!.id;
+    day = Number(
+      await scalar("select (extract(dow from now() at time zone 'Africa/Blantyre')::integer+1)%7"),
+    );
+    await db.query("update public.workout_templates set day_of_week=$1 where id=$2", [day, first]);
+  });
+  it("requires explicit consent and preserves the schedule and start id on retries", async () => {
+    await expect(db.query("select public.start_workout($1)", [first])).rejects.toThrow("CONFLICT");
+    const id = await scalar("select public.start_workout($1,true)", [first]);
+    expect(await scalar("select public.start_workout($1,true)", [first])).toBe(id);
+    expect(await scalar("select public.start_workout($1,true)", [second])).toBe(id);
+    expect(
+      Number(await scalar("select day_of_week from public.workout_templates where id=$1", [first])),
+    ).toBe(day);
+    expect(
+      Number(
+        await scalar("select count(*) from public.workout_sessions where status='in_progress'"),
+      ),
+    ).toBe(1);
+  });
+  it("uses the profile timezone and retains completed sessions", async () => {
+    const id = await scalar("select id from public.workout_sessions where workout_template_id=$1", [
+      first,
+    ]);
+    await db.query("update public.workout_sessions set status='completed' where id=$1", [id]);
+    expect(await scalar("select public.start_workout($1,true)", [first])).toBe(id);
+    expect(await scalar("select status from public.workout_sessions where id=$1", [id])).toBe(
+      "completed",
+    );
+    const otherId = await scalar("select public.start_workout($1,true)", [second]);
+    expect(
+      await scalar("select session_date::text from public.workout_sessions where id=$1", [otherId]),
+    ).toBe(await scalar("select (now() at time zone 'Africa/Blantyre')::date::text"));
+  });
+  it("denies another owner and unavailable equipment", async () => {
+    await asUser(other);
+    await expect(db.query("select public.start_workout($1,true)", [first])).rejects.toThrow();
+    await asUser(uid);
+    await db.exec(
+      "update public.workout_sessions set status='abandoned' where status='in_progress';update public.available_equipment set is_available=false where equipment_type<>'bodyweight';",
+    );
+    await expect(db.query("select public.start_workout($1,true)", [first])).rejects.toThrow(
+      "EQUIPMENT_UNAVAILABLE",
+    );
+  });
+  it("rejects an older overlapping program version", async () => {
+    await asUser(uid);
+    await db.query(
+      "update public.training_programs set effective_to=(now() at time zone 'Africa/Blantyre')::date where effective_to is null",
+    );
+    await db.query(
+      "insert into public.training_programs(user_id,version,name,effective_from) select user_id,version+1,'New current plan',(now() at time zone 'Africa/Blantyre')::date from public.training_programs order by version desc limit 1",
+    );
+    await expect(db.query("select public.start_workout($1,true)", [first])).rejects.toThrow(
+      "CONFLICT",
+    );
+  });
+  afterAll(async () => {
+    await asUser(owner);
+  });
+});

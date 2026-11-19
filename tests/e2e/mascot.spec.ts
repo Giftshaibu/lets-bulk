@@ -115,12 +115,8 @@ test("mascot reactions remain local, header priorities clean up, and identity st
   await expect(page.getByRole("dialog")).toContainText("after 8 PM");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Chiuli status", exact: true })).toBeFocused();
-  await page.goto(`${base}/food`);
-  await expect(header).toHaveAttribute("data-mascot", "shocked");
-  await page.getByRole("button", { name: "Suggest a meal", exact: true }).click();
-  const helper = page.locator('[aria-label="Food helper encouragement"] img');
-  await expect(helper).toHaveAttribute("data-mascot", "neutral");
-  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await page.goto(`${base}/food-helper?mode=parse`);
+  const helper = page.locator('[aria-label="Chiuli food chat"] header img');
   let releaseParse: (() => void) | undefined;
   await page.route("**/api/ai/parse-food-log", async (route) => {
     await new Promise<void>((resolve) => {
@@ -140,15 +136,12 @@ test("mascot reactions remain local, header priorities clean up, and identity st
       },
     });
   });
-  await page.getByRole("button", { name: "Describe what you ate", exact: true }).click();
-  await page.getByLabel("Food description", { exact: true }).fill("two eggs");
-  await page.getByRole("button", { name: "Interpret food description", exact: true }).click();
+  await page.getByRole("textbox", { name: "Food description", exact: true }).fill("two eggs");
+  await page.getByRole("button", { name: "Send food description", exact: true }).click();
   await expect(helper).toHaveAttribute("data-mascot", "thinking");
-  await expect(header).toHaveAttribute("data-mascot", "thinking");
   releaseParse!();
   await expect(helper).toHaveAttribute("data-mascot", "confident");
-  await page.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(header).toHaveAttribute("data-mascot", "shocked");
+  await expect(page.getByText("Use manual search.", { exact: true })).toBeVisible();
   await page.goto(`${base}/journey`);
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });

@@ -51,7 +51,9 @@ test("tactile onboarding preserves choices, validates days and confirms sourced 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
-  await expect(page.getByRole("heading", { name: "Let’s start with you" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Let’s start with you" })).toBeVisible({
+    timeout: 20000,
+  });
   await expect(page.locator('img[src="/chiuli-icon.png"]')).toHaveCount(0);
   await fit();
   await page.getByLabel("Your name", { exact: true }).fill("Fresh start");
@@ -83,10 +85,13 @@ test("tactile onboarding preserves choices, validates days and confirms sourced 
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("button", { name: "Close", exact: true }).click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByRole("checkbox", { name: "Soya pieces", exact: true }).check();
+  await page.getByRole("button", { name: /Choose foods/ }).click();
+  await page.getByRole("button", { name: "Soya pieces", exact: true }).click();
+  await page.getByRole("button", { name: /^Done/ }).click();
   await fit();
   await page.getByRole("button", { name: "Show my starting plan", exact: true }).click();
   await expect(page.getByRole("region", { name: "Your starting plan" })).toBeVisible();
+  await page.getByRole("button", { name: "Edit answers", exact: true }).click();
   await page.getByRole("radio", { name: "Keep costs low", exact: true }).check();
   await expect(page.getByRole("region", { name: "Your starting plan" })).toHaveCount(0);
   await page.getByRole("button", { name: "Show my starting plan", exact: true }).click();

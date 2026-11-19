@@ -186,7 +186,11 @@ function TodayPage() {
           <SectionTitle>Today's training</SectionTitle>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-[20px] font-extrabold">{workout.title}</div>
+              <div className="text-[20px] font-extrabold">
+                {data.trainingStatus === "missing_program"
+                  ? "Review your training plan"
+                  : workout.title}
+              </div>
               <div className="text-[14px] font-bold text-muted-foreground">{workout.focus}</div>
             </div>
             <Pill tone="primary">{workout.estimatedMinutes} min</Pill>
@@ -204,11 +208,15 @@ function TodayPage() {
               </li>
             ))}
           </ul>
-          {workout.exercises.length > 0 && data.session?.status !== "completed" && (
-            <Link to="/train/active" className="mt-4 block">
-              <ChunkyButton full>Start session · earn 100 XP on completion</ChunkyButton>
-            </Link>
-          )}
+          <Link to="/train" className="mt-4 block">
+            <ChunkyButton full>
+              {data.session?.status === "in_progress"
+                ? "Resume workout"
+                : workout.id
+                  ? "View workout"
+                  : "Browse workouts"}
+            </ChunkyButton>
+          </Link>
         </Card>
 
         <DailyForms />

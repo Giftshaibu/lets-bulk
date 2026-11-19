@@ -70,24 +70,12 @@ test("mobile refinement sheets, shared identity and editable steppers", async ({
     dashboard.activeTarget.calories_target + 50,
   );
   await page.screenshot({ path: "work/refinement-settings.png", fullPage: true });
-  dashboard.workout.exercises = [
-    {
-      id: dashboard.exerciseLibrary[0].id,
-      targetSets: 3,
-      targetReps: "8–12",
-      restSeconds: 90,
-      lastTime: "No previous sets",
-      nextTarget: "Start light",
-    },
-  ];
-  await page.goto(`${base}/train`);
-  await page.getByRole("button", { name: "Bodyweight Squat", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("Start/end positions");
+  await page.goto(`${base}/exercise/${dashboard.exerciseLibrary[0].id}`);
+  await expect(page.getByText("Start/end positions", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Still positions · reduced motion", exact: true }),
   ).toBeDisabled();
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.getByRole("button", { name: "Pause positions", exact: true }).click();
   await expect(page.getByRole("button", { name: "Play positions", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Close", exact: true }).click();
 });

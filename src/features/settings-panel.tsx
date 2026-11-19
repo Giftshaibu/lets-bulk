@@ -1,3 +1,4 @@
+import { ChoiceField } from "@/components/selection-screen";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { NumberStepper, DateStepper } from "@/components/stepper";
 import { Mascot } from "@/components/mascot";
@@ -306,7 +307,7 @@ export function SettingsPanel() {
           <div className="grid gap-4">
             <label className="font-bold">
               Training experience
-              <select
+              <ChoiceField
                 name="experience"
                 className={inputClass}
                 defaultValue={data.rawProfile?.training_experience ?? "beginner"}
@@ -314,11 +315,11 @@ export function SettingsPanel() {
                 {["beginner", "intermediate", "advanced"].map((v) => (
                   <option key={v}>{v}</option>
                 ))}
-              </select>
+              </ChoiceField>
             </label>
             <label className="font-bold">
               Diet
-              <select
+              <ChoiceField
                 name="diet"
                 className={inputClass}
                 defaultValue={data.preferences?.diet_type ?? "omnivore"}
@@ -326,11 +327,11 @@ export function SettingsPanel() {
                 {["omnivore", "vegetarian", "vegan"].map((v) => (
                   <option key={v}>{v}</option>
                 ))}
-              </select>
+              </ChoiceField>
             </label>
             <label className="font-bold">
               Budget preference
-              <select
+              <ChoiceField
                 name="budget"
                 className={inputClass}
                 defaultValue={data.preferences?.budget_mode ?? "balanced"}
@@ -338,7 +339,7 @@ export function SettingsPanel() {
                 {["balanced", "budget"].map((v) => (
                   <option key={v}>{v}</option>
                 ))}
-              </select>
+              </ChoiceField>
             </label>
             <fieldset>
               <legend className="font-bold">Training days ({days.length} per week)</legend>
@@ -484,7 +485,7 @@ export function LoadOptions() {
       >
         <label className="col-span-2 font-bold">
           Equipment
-          <select
+          <ChoiceField
             className={inputClass}
             name="equipment"
             value={selectedEquipment}
@@ -495,11 +496,11 @@ export function LoadOptions() {
               .map((e) => (
                 <option key={e.id}>{e.equipment_type}</option>
               ))}
-          </select>
+          </ChoiceField>
         </label>
         <label className="col-span-2 font-bold">
           Apply to exercise
-          <select
+          <ChoiceField
             className={inputClass}
             name="exercise"
             onChange={(e) => {
@@ -517,7 +518,7 @@ export function LoadOptions() {
                   {e.name}
                 </option>
               ))}
-          </select>
+          </ChoiceField>
         </label>
         <NumberField name="increment" label={`Increment (${mass})`} min={0.1} />
         <NumberField name="min" label={`Minimum (${mass})`} />

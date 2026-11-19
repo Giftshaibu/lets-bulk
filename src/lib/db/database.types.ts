@@ -1269,7 +1269,12 @@ export type Database = {
         Returns: string;
       };
       save_settings: { Args: { p_settings: Json }; Returns: undefined };
-      start_workout: { Args: { p_template: string }; Returns: string };
+      start_workout:
+        | { Args: { p_template: string }; Returns: string }
+        | {
+            Args: { p_allow_unscheduled: boolean; p_template: string };
+            Returns: string;
+          };
     };
     Enums: {
       [_ in never]: never;

@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { ChoiceField } from "@/components/selection-screen";
 import { FoodActions } from "./food-actions";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,8 +16,7 @@ const num = (f: FormData, key: string) => Number(f.get(key));
 export function FoodTools() {
   const { data, act, pending } = useAppData();
   const [view, setView] = useState("meals");
-  const [selected, setSelected] = useState(""),
-    [templateId, setTemplateId] = useState("");
+  const [selected, setSelected] = useState("");
   const budget = useQuery({
     queryKey: ["budget", data.prices.length, data.foodLibrary.length],
     queryFn: () =>
@@ -30,7 +31,6 @@ export function FoodTools() {
       api<ReturnType<typeof substitutions>>(`/api/substitutions?foodId=${selected}&grams=100`),
     enabled: !!selected,
   });
-  const template = data.mealTemplates.find((m) => m.id === templateId);
   return (
     <Card>
       <SectionTitle>Saved meals and food preferences</SectionTitle>
@@ -99,7 +99,7 @@ export function FoodTools() {
             </label>
             <label>
               Category
-              <select className={inputClass} name="category">
+              <ChoiceField className={inputClass} name="category">
                 {[
                   "staple",
                   "legume",
@@ -114,7 +114,7 @@ export function FoodTools() {
                 ].map((c) => (
                   <option key={c}>{c}</option>
                 ))}
-              </select>
+              </ChoiceField>
             </label>
             <label>
               Preparation
@@ -133,44 +133,15 @@ export function FoodTools() {
         </section>
       )}
       {view === "meals" && (
-        <section aria-label="Save or edit a reusable meal">
-          <h3 className="my-3 font-bold">Save or edit a reusable meal</h3>
-          <label>
-            Saved meal
-            <select
-              className={inputClass}
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value)}
-            >
-              <option value="">New meal</option>
-              {data.mealTemplates.map((m) => (
-                <option value={m.id} key={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <MealEditor key={templateId} template={template} />
-          {data.mealTemplates.map((m) => (
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2" key={m.id}>
-              <span>{m.name}</span>
-              <ChunkyButton
-                size="sm"
-                disabled={pending}
-                onClick={() => {
-                  void act("/api/meals/log", {
-                    id: crypto.randomUUID(),
-                    mealId: m.id,
-                    date: data.date,
-                    slot: m.meal_type,
-                  });
-                }}
-              >
-                Log meal
-              </ChunkyButton>
-            </div>
-          ))}
-        </section>
+        <div className="grid gap-3">
+          <p className="text-sm">Your reusable meals now have their own space.</p>
+          <Link
+            to="/saved-meals"
+            className="press rounded-2xl border-2 border-b-4 border-primary-shadow bg-primary p-4 text-center font-black text-white"
+          >
+            Open saved meals
+          </Link>
+        </div>
       )}
       {view === "costs" && (
         <section aria-label="Compare costs & substitutions">
@@ -211,7 +182,7 @@ export function FoodTools() {
           ))}
           <label>
             Find a protein-aware replacement for 100 g
-            <select
+            <ChoiceField
               className={inputClass}
               value={selected}
               onChange={(e) => setSelected(e.target.value)}
@@ -222,7 +193,7 @@ export function FoodTools() {
                   {f.name}
                 </option>
               ))}
-            </select>
+            </ChoiceField>
           </label>
           {subs.isFetching && <p role="status">Finding substitutes…</p>}
           {selected && subs.data?.length === 0 && (
@@ -244,122 +215,14 @@ function FoodSelect({ name }: { name: string }) {
   return (
     <label>
       Food
-      <select className={inputClass} name={name} required>
+      <ChoiceField className={inputClass} name={name} required>
         <option value="">Choose food</option>
         {data.foods.map((f) => (
           <option key={f.id} value={f.id}>
             {f.name}
           </option>
         ))}
-      </select>
+      </ChoiceField>
     </label>
-  );
-}
-function MealEditor({
-  template,
-}: {
-  template: ReturnType<typeof useAppData>["data"]["mealTemplates"][number] | undefined;
-}) {
-  const { act, pending } = useAppData();
-  const [count, setCount] = useState(template?.items.length ?? 1);
-  return (
-    <form
-      className="mt-3 grid gap-3"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const f = new FormData(e.currentTarget),
-          items = Array.from({ length: count }, (_, i) => ({
-            food_id: String(f.get(`food-${i}`)),
-            grams: num(f, `grams-${i}`),
-          }));
-        void act(
-          "/api/meals",
-          {
-            ...(template ? { id: template.id } : {}),
-            name: String(f.get("name")),
-            meal_type: String(f.get("slot")),
-            items,
-          },
-          template ? "PATCH" : "POST",
-        );
-      }}
-    >
-      <label>
-        Meal name
-        <input
-          className={inputClass}
-          name="name"
-          defaultValue={template?.name}
-          maxLength={100}
-          required
-        />
-      </label>
-      <label>
-        Meal slot
-        <select
-          className={inputClass}
-          name="slot"
-          defaultValue={template?.meal_type ?? "breakfast"}
-        >
-          {["breakfast", "lunch", "snack", "dinner"].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      {Array.from({ length: count }, (_, i) => (
-        <MealItem
-          key={i}
-          index={i}
-          foodId={template?.items[i]?.food_id}
-          grams={template?.items[i]?.grams}
-        />
-      ))}
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className="min-h-11 underline"
-          disabled={count >= 30}
-          onClick={() => setCount((n) => n + 1)}
-        >
-          Add ingredient
-        </button>
-        <button
-          type="button"
-          disabled={count <= 1}
-          className="min-h-11 underline"
-          onClick={() => setCount((n) => n - 1)}
-        >
-          Remove last
-        </button>
-        <ChunkyButton disabled={pending}>Save meal</ChunkyButton>
-      </div>
-    </form>
-  );
-}
-function MealItem({
-  index,
-  foodId,
-  grams,
-}: {
-  index: number;
-  foodId: string | undefined;
-  grams: number | undefined;
-}) {
-  const { data } = useAppData();
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <label>
-        Ingredient {index + 1}
-        <select className={inputClass} name={`food-${index}`} defaultValue={foodId ?? ""} required>
-          <option value="">Choose food</option>
-          {data.foods.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <NumberField name={`grams-${index}`} label="Grams" value={grams ?? 100} min={1} />
-    </div>
   );
 }

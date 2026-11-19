@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronRight, Pause, Play } from "lucide-react";
-import { BottomSheet } from "@/components/bottom-sheet";
+import { BottomSheet, InfoCard } from "@/components/bottom-sheet";
 import { Mascot } from "@/components/mascot";
 import { AIExplanation } from "./ai-actions";
 import guidance from "@/lib/data/exercise-guidance.json";
@@ -40,7 +40,7 @@ export function ExerciseGuide({ id, row = false }: { id: string; row?: boolean }
     </BottomSheet>
   );
 }
-function ExerciseDemonstration({
+export function ExerciseDemonstration({
   exercise,
   guide,
 }: {
@@ -134,34 +134,62 @@ function ExerciseDemonstration({
           : exercise.equipment}
         .
       </p>
-      <ol className="my-3 list-decimal space-y-2 pl-5">
-        {instructions.map((s, i) => (
-          <li key={i}>{s}</li>
-        ))}
-      </ol>
-      {guide && (
-        <>
-          <h3 className="mt-4 font-bold">Common mistakes</h3>
-          <ul className="list-disc space-y-2 pl-5">
-            {guide.mistakes.map((m) => (
-              <li key={m}>{m}</li>
-            ))}
-          </ul>
-          <p className="mt-4 text-xs">
-            {guide.author} · {guide.license} · {guide.style}
-            {guide.source.startsWith("https://") && (
-              <>
-                {" "}
-                ·{" "}
-                <a href={guide.source} target="_blank" rel="noreferrer" className="underline">
-                  Image source
-                </a>
-              </>
-            )}
-          </p>
-        </>
-      )}
+      <InfoCard title="Full instructions & image credits">
+        <ol className="my-3 list-decimal space-y-2 pl-5">
+          {instructions.map((s, i) => (
+            <li key={i}>{s}</li>
+          ))}
+        </ol>
+        {guide && (
+          <>
+            <h3 className="mt-4 font-bold">Common mistakes</h3>
+            <ul className="list-disc space-y-2 pl-5">
+              {guide.mistakes.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+            <p className="mt-4 text-xs">
+              {guide.author} · {guide.license} · {guide.style}
+              {guide.source.startsWith("https://") && (
+                <>
+                  {" "}
+                  ·{" "}
+                  <a href={guide.source} target="_blank" rel="noreferrer" className="underline">
+                    Image source
+                  </a>
+                </>
+              )}
+            </p>
+          </>
+        )}
+      </InfoCard>
       <AIExplanation kind="exercise" id={exercise.id} />
     </section>
+  );
+}
+
+export function ExerciseContent({ id }: { id: string }) {
+  const { data } = useAppData();
+  const exercise = data.exerciseLibrary.find((e) => e.id === id);
+  if (!exercise) return <p>Exercise unavailable.</p>;
+  return (
+    <ExerciseDemonstration
+      key={id}
+      exercise={exercise}
+      guide={guidance[exercise.slug as keyof typeof guidance]}
+    />
+  );
+}
+export function ExerciseThumbnail({ slug, name }: { slug: string; name: string }) {
+  const source = guidance[slug as keyof typeof guidance]?.images[0];
+  return source ? (
+    <img
+      src={source}
+      alt={`${name} demonstration`}
+      loading="lazy"
+      className="h-24 w-24 shrink-0 rounded-2xl bg-white object-contain"
+    />
+  ) : (
+    <Mascot expression="running" className="h-24 w-24 shrink-0" />
   );
 }

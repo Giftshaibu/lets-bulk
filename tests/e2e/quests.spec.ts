@@ -119,25 +119,16 @@ test("loading, aligned nutrition, mobile quests, dropdowns, XP and reduced motio
       .first()
       .evaluate((e) => getComputedStyle(e).animationName),
   ).toBe("none");
-  await page.goto(`${base}/food`);
-  await page.getByRole("button", { name: "Describe what you ate", exact: true }).click();
-  const dialog = page.getByRole("dialog"),
-    close = page.getByRole("button", { name: "Close", exact: true });
-  const title = await dialog.getByRole("heading").boundingBox(),
-    x = await close.boundingBox();
-  expect(x!.x).toBeGreaterThan(title!.x);
-  expect(Math.abs(x!.y - title!.y)).toBeLessThan(3);
-  const date = dialog.getByLabel("Date", { exact: true }),
-    meal = dialog.getByLabel("Helper meal", { exact: true });
-  const a = await date.boundingBox(),
-    b = await meal.boundingBox();
-  expect(Math.abs(a!.width - b!.width)).toBeLessThan(1);
-  expect(a!.height).toBeGreaterThanOrEqual(48);
-  expect(b!.height).toBeGreaterThanOrEqual(48);
+  await page.goto(`${base}/food-helper?mode=parse`);
   await page.setViewportSize({ width: 320, height: 560 });
-  await dialog.getByLabel("Food description").focus();
-  expect(await dialog.evaluate((e) => e.clientHeight <= innerHeight - 24)).toBe(true);
-  await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
+  const send = page.getByRole("button", { name: "Send food description", exact: true });
+  await page.getByRole("textbox", { name: "Food description" }).focus();
+  const box = await send.boundingBox();
+  expect(box!.y + box!.height).toBeLessThanOrEqual(560);
+  expect(await page.locator('select,input[type="date"]').count()).toBe(0);
+  await page.getByRole("button", { name: "Food date", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(errors).toEqual([]);
 });

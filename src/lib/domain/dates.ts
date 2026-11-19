@@ -1,7 +1,7 @@
 export const TIMEZONE = "Africa/Blantyre";
-export function getLocalDate(now = new Date()): string {
+export function getLocalDate(now = new Date(), timeZone = TIMEZONE): string {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: TIMEZONE,
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

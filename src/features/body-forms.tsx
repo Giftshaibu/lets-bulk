@@ -1,3 +1,5 @@
+import { ChoiceField } from "@/components/selection-screen";
+import { DateField } from "@/components/date-field";
 import { useRef, useState } from "react";
 import { DateStepper, NumberStepper } from "@/components/stepper";
 import { units, massFromKg, massToKg } from "@/lib/domain/units";
@@ -46,9 +48,8 @@ export function BodyForms({
             >
               <label className="col-span-2">
                 Date
-                <input
+                <DateField
                   className={inputClass}
-                  type="date"
                   name="date"
                   defaultValue={data.date}
                   max={data.date}
@@ -252,8 +253,7 @@ function PhotoForm() {
       >
         <label>
           Date
-          <input
-            type="date"
+          <DateField
             name="date"
             className={inputClass}
             defaultValue={data.date}
@@ -263,11 +263,11 @@ function PhotoForm() {
         </label>
         <label>
           View
-          <select name="view" className={inputClass}>
+          <ChoiceField name="view" className={inputClass}>
             <option>front</option>
             <option>side</option>
             <option>back</option>
-          </select>
+          </ChoiceField>
         </label>
         <label>
           Photo

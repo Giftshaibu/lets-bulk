@@ -11,13 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FoodRouteImport } from './routes/food'
+import { Route as FoodHelperRouteImport } from './routes/food-helper'
 import { Route as FoodLibraryRouteImport } from './routes/food-library'
 import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ProgressDetailsRouteImport } from './routes/progress-details'
+import { Route as SavedMealsRouteImport } from './routes/saved-meals'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ExerciseExerciseIdRouteImport } from './routes/exercise.$exerciseId'
 import { Route as TrainIndexRouteImport } from './routes/train.index'
 import { Route as TrainActiveRouteImport } from './routes/train.active'
+import { Route as TrainAdjustRouteImport } from './routes/train.adjust'
+import { Route as WorkoutWorkoutIdRouteImport } from './routes/workout.$workoutId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const FoodRoute = FoodRouteImport.update({
   id: '/food',
   path: '/food',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FoodHelperRoute = FoodHelperRouteImport.update({
+  id: '/food-helper',
+  path: '/food-helper',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FoodLibraryRoute = FoodLibraryRouteImport.update({
@@ -49,9 +59,19 @@ const ProgressDetailsRoute = ProgressDetailsRouteImport.update({
   path: '/progress-details',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SavedMealsRoute = SavedMealsRouteImport.update({
+  id: '/saved-meals',
+  path: '/saved-meals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExerciseExerciseIdRoute = ExerciseExerciseIdRouteImport.update({
+  id: '/exercise/$exerciseId',
+  path: '/exercise/$exerciseId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrainIndexRoute = TrainIndexRouteImport.update({
@@ -64,39 +84,64 @@ const TrainActiveRoute = TrainActiveRouteImport.update({
   path: '/train/active',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrainAdjustRoute = TrainAdjustRouteImport.update({
+  id: '/train/adjust',
+  path: '/train/adjust',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkoutWorkoutIdRoute = WorkoutWorkoutIdRouteImport.update({
+  id: '/workout/$workoutId',
+  path: '/workout/$workoutId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-helper': typeof FoodHelperRoute
   '/food-library': typeof FoodLibraryRoute
   '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
+  '/saved-meals': typeof SavedMealsRoute
   '/settings': typeof SettingsRoute
+  '/exercise/$exerciseId': typeof ExerciseExerciseIdRoute
   '/train/active': typeof TrainActiveRoute
+  '/train/adjust': typeof TrainAdjustRoute
+  '/workout/$workoutId': typeof WorkoutWorkoutIdRoute
   '/train/': typeof TrainIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-helper': typeof FoodHelperRoute
   '/food-library': typeof FoodLibraryRoute
   '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
+  '/saved-meals': typeof SavedMealsRoute
   '/settings': typeof SettingsRoute
+  '/exercise/$exerciseId': typeof ExerciseExerciseIdRoute
   '/train/active': typeof TrainActiveRoute
+  '/train/adjust': typeof TrainAdjustRoute
+  '/workout/$workoutId': typeof WorkoutWorkoutIdRoute
   '/train': typeof TrainIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/food': typeof FoodRoute
+  '/food-helper': typeof FoodHelperRoute
   '/food-library': typeof FoodLibraryRoute
   '/journey': typeof JourneyRoute
   '/progress': typeof ProgressRoute
   '/progress-details': typeof ProgressDetailsRoute
+  '/saved-meals': typeof SavedMealsRoute
   '/settings': typeof SettingsRoute
+  '/exercise/$exerciseId': typeof ExerciseExerciseIdRoute
   '/train/active': typeof TrainActiveRoute
+  '/train/adjust': typeof TrainAdjustRoute
+  '/workout/$workoutId': typeof WorkoutWorkoutIdRoute
   '/train/': typeof TrainIndexRoute
 }
 export interface FileRouteTypes {
@@ -104,46 +149,66 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/food'
+    | '/food-helper'
     | '/food-library'
     | '/journey'
     | '/progress'
     | '/progress-details'
+    | '/saved-meals'
     | '/settings'
+    | '/exercise/$exerciseId'
     | '/train/active'
+    | '/train/adjust'
+    | '/workout/$workoutId'
     | '/train/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/food'
+    | '/food-helper'
     | '/food-library'
     | '/journey'
     | '/progress'
     | '/progress-details'
+    | '/saved-meals'
     | '/settings'
+    | '/exercise/$exerciseId'
     | '/train/active'
+    | '/train/adjust'
+    | '/workout/$workoutId'
     | '/train'
   id:
     | '__root__'
     | '/'
     | '/food'
+    | '/food-helper'
     | '/food-library'
     | '/journey'
     | '/progress'
     | '/progress-details'
+    | '/saved-meals'
     | '/settings'
+    | '/exercise/$exerciseId'
     | '/train/active'
+    | '/train/adjust'
+    | '/workout/$workoutId'
     | '/train/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FoodRoute: typeof FoodRoute
+  FoodHelperRoute: typeof FoodHelperRoute
   FoodLibraryRoute: typeof FoodLibraryRoute
   JourneyRoute: typeof JourneyRoute
   ProgressRoute: typeof ProgressRoute
   ProgressDetailsRoute: typeof ProgressDetailsRoute
+  SavedMealsRoute: typeof SavedMealsRoute
   SettingsRoute: typeof SettingsRoute
+  ExerciseExerciseIdRoute: typeof ExerciseExerciseIdRoute
   TrainActiveRoute: typeof TrainActiveRoute
+  TrainAdjustRoute: typeof TrainAdjustRoute
+  WorkoutWorkoutIdRoute: typeof WorkoutWorkoutIdRoute
   TrainIndexRoute: typeof TrainIndexRoute
 }
 
@@ -161,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/food'
       fullPath: '/food'
       preLoaderRoute: typeof FoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/food-helper': {
+      id: '/food-helper'
+      path: '/food-helper'
+      fullPath: '/food-helper'
+      preLoaderRoute: typeof FoodHelperRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/food-library': {
@@ -191,11 +263,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgressDetailsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved-meals': {
+      id: '/saved-meals'
+      path: '/saved-meals'
+      fullPath: '/saved-meals'
+      preLoaderRoute: typeof SavedMealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exercise/$exerciseId': {
+      id: '/exercise/$exerciseId'
+      path: '/exercise/$exerciseId'
+      fullPath: '/exercise/$exerciseId'
+      preLoaderRoute: typeof ExerciseExerciseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/train/': {
@@ -212,18 +298,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrainActiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/train/adjust': {
+      id: '/train/adjust'
+      path: '/train/adjust'
+      fullPath: '/train/adjust'
+      preLoaderRoute: typeof TrainAdjustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workout/$workoutId': {
+      id: '/workout/$workoutId'
+      path: '/workout/$workoutId'
+      fullPath: '/workout/$workoutId'
+      preLoaderRoute: typeof WorkoutWorkoutIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FoodRoute: FoodRoute,
+  FoodHelperRoute: FoodHelperRoute,
   FoodLibraryRoute: FoodLibraryRoute,
   JourneyRoute: JourneyRoute,
   ProgressRoute: ProgressRoute,
   ProgressDetailsRoute: ProgressDetailsRoute,
+  SavedMealsRoute: SavedMealsRoute,
   SettingsRoute: SettingsRoute,
+  ExerciseExerciseIdRoute: ExerciseExerciseIdRoute,
   TrainActiveRoute: TrainActiveRoute,
+  TrainAdjustRoute: TrainAdjustRoute,
+  WorkoutWorkoutIdRoute: WorkoutWorkoutIdRoute,
   TrainIndexRoute: TrainIndexRoute,
 }
 export const routeTree = rootRouteImport

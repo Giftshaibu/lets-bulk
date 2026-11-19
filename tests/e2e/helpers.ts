@@ -20,7 +20,9 @@ export async function setup(page: Page) {
       .check();
   }
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByLabel("Beans", { exact: true }).check();
+  await page.getByRole("button", { name: /Choose foods/ }).click();
+  await page.getByRole("button", { name: "Beans", exact: true }).click();
+  await page.getByRole("button", { name: /^Done/ }).click();
   await page.getByRole("button", { name: "Show my starting plan", exact: true }).click();
   await expect(page.getByRole("region", { name: "Your starting plan" })).toContainText("g protein");
   await page.getByRole("button", { name: "Save my plan", exact: true }).click();
