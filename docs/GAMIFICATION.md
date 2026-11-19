@@ -83,3 +83,10 @@ layout, enlarged labels, aligned macros, dialog controls, persistent totals,
 non-replayed notifications, tap encouragement and reduced motion. A hosted
 rollback-only fixture verified 50 XP on first weight save and no new grants on
 retry, then confirmed no fixture account or reward records remained.
+
+Verified deployment on 2026-11-19: 129 unit/API/database tests passed, both mascot
+and quest browser suites passed locally and on the deployed app, typecheck passed,
+and lint had zero errors (eight existing Fast Refresh warnings). Build and Wrangler
+dry run passed. Migration `20261119113656_persistent_rewards` is applied. Worker
+version `a305a106-3bf6-49d8-842f-a7659e6be6c0` receives 100% of traffic. Existing
+identity assets and both disabled AI inference flags were verified unchanged.
