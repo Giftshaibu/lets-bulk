@@ -29,6 +29,167 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.close();
 });
+describe("persistent XP ledger", () => {
+  afterAll(async () => {
+    await asUser(owner);
+  });
+  const rewardOwner = "00000000-0000-4000-8000-000000000333";
+  const sync = async () =>
+    JSON.parse(
+      JSON.stringify(await scalar<Record<string, unknown>>("select public.reconcile_rewards()")),
+    ) as { totalXp: number; todayXp: number; grants: { kind: string; points: number }[] };
+  it("starts at rollout and awards saved facts once, including retries and edits", async () => {
+    await db.exec("reset role");
+    await db.query("insert into auth.users(id) values($1)", [rewardOwner]);
+    await asUser(rewardOwner);
+    await db.query("select public.initialize_profile($1,$2,$3)", [
+      JSON.stringify({ name: "Reward fixture", height: 175, weight: 60, goal: 68 }),
+      JSON.stringify({ kcal: 2500, protein: 120, carbs: 330, fat: 65 }),
+      JSON.stringify(["bodyweight"]),
+    ]);
+    await db.query("update public.user_preferences set completion_policy=$1 where user_id=$2", [
+      JSON.stringify({
+        weight: true,
+        nutrition: true,
+        workout: false,
+        recovery: true,
+        water: true,
+      }),
+      rewardOwner,
+    ]);
+    await db.query(
+      "insert into public.weight_logs(user_id,date,weight_kg) values($1,'2026-11-18',60),($1,current_date,61)",
+      [rewardOwner],
+    );
+    expect((await sync()).totalXp).toBe(50);
+    expect((await sync()).grants).toEqual([]);
+    await db.query(
+      "update public.weight_logs set weight_kg=62 where user_id=$1 and date=current_date",
+      [rewardOwner],
+    );
+    await db.query(
+      "insert into public.water_logs(user_id,date,amount_ml) values($1,current_date,250)",
+      [rewardOwner],
+    );
+    const r = await sync();
+    expect(r.totalXp).toBe(65);
+    expect(r.grants).toEqual([expect.objectContaining({ kind: "water", points: 15 })]);
+    await db.query("delete from public.weight_logs where user_id=$1 and date=current_date", [
+      rewardOwner,
+    ]);
+    await db.query(
+      "insert into public.weight_logs(user_id,date,weight_kg) values($1,current_date,63)",
+      [rewardOwner],
+    );
+    expect((await sync()).totalXp).toBe(65);
+  });
+  it("rejects fabricated, future, foreign and mutable rewards", async () => {
+    await asUser(rewardOwner);
+    await expect(
+      db.query(
+        "insert into app_private.reward_ledger(user_id,reward_date,kind,slot) values($1,current_date,'meal','lunch')",
+        [rewardOwner],
+      ),
+    ).rejects.toThrow();
+    await expect(
+      db.query(
+        "insert into app_private.reward_ledger(user_id,reward_date,kind) values($1,current_date+1,'weight')",
+        [rewardOwner],
+      ),
+    ).rejects.toThrow();
+    await expect(
+      db.query(
+        "insert into app_private.reward_ledger(user_id,reward_date,kind) values($1,current_date,'water')",
+        [owner],
+      ),
+    ).rejects.toThrow();
+    await expect(
+      db.query("update app_private.reward_ledger set kind='quests' where user_id=$1", [
+        rewardOwner,
+      ]),
+    ).rejects.toThrow();
+    await expect(
+      db.query("delete from app_private.reward_ledger where user_id=$1", [rewardOwner]),
+    ).rejects.toThrow();
+    await expect(
+      db.query(
+        "insert into app_private.reward_ledger(user_id,reward_date,kind,points) values($1,current_date,'quests',9999)",
+        [rewardOwner],
+      ),
+    ).rejects.toThrow();
+    await asUser(other);
+    expect(Number(await scalar("select count(*) from app_private.reward_ledger"))).toBe(0);
+    await asUser(rewardOwner);
+  });
+  it("awards per-slot food and completion bonuses from actual targets and requirements", async () => {
+    await asUser(rewardOwner);
+    const food = await scalar(
+      "select id from public.foods where is_active and calories_per_100g>0 limit 1",
+    );
+    for (const slot of ["breakfast", "lunch", "snack", "dinner"]) {
+      const nid = await scalar(
+        "insert into public.nutrition_logs(user_id,date,meal_type) values($1,current_date,$2) returning id",
+        [rewardOwner, slot],
+      );
+      await db.query(
+        "insert into public.nutrition_log_items(user_id,nutrition_log_id,food_id,grams,name,calories,protein_g,carbs_g,fat_g) values($1,$2,$3,100,'Fixture',625,10,100,20)",
+        [rewardOwner, nid, food],
+      );
+    }
+    expect((await sync()).totalXp).toBe(165); // 65 + 4x15 + 40; quests are not yet complete.
+    await db.query(
+      "insert into public.water_logs(user_id,date,amount_ml) values($1,current_date,2250)",
+      [rewardOwner],
+    );
+    await db.query(
+      "insert into public.recovery_logs(user_id,date,sleep_hours,energy,soreness,stress,recovery_score,status) values($1,current_date,8,3,2,2,80,'good')",
+      [rewardOwner],
+    );
+    const r = await sync();
+    expect(r.totalXp).toBe(280);
+    expect(r.grants).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "recovery", points: 15 }),
+        expect.objectContaining({ kind: "quests", points: 100 }),
+      ]),
+    );
+    expect((await sync()).grants).toEqual([]);
+  });
+  it("does not reward a zero-requirement day or a merely started workout", async () => {
+    await asUser(rewardOwner);
+    const tid = await scalar("select id from public.workout_templates limit 1");
+    await db.query(
+      "update public.workout_templates set day_of_week=extract(dow from current_date)::integer where id=$1",
+      [tid],
+    );
+    const sid = await scalar("select public.start_workout($1)", [tid]);
+    expect((await sync()).grants).toEqual([]);
+    const plans = await db.query<{ exercise_id: string; sets: number }>(
+      "select exercise_id,sets from public.workout_template_exercises where workout_template_id=$1",
+      [tid],
+    );
+    for (const p of plans.rows)
+      for (let n = 1; n <= p.sets; n++)
+        await db.query("select public.save_set($1,$2,$3,0,10,2,true)", [sid, p.exercise_id, n]);
+    await db.query("select public.complete_workout($1)", [sid]);
+    expect((await sync()).grants).toEqual([
+      expect.objectContaining({ kind: "workout", points: 100 }),
+    ]);
+    await expect(
+      db.query("update public.user_preferences set completion_policy=$1 where user_id=$2", [
+        JSON.stringify({
+          weight: false,
+          nutrition: false,
+          workout: false,
+          recovery: false,
+          water: false,
+        }),
+        rewardOwner,
+      ]),
+    ).rejects.toThrow();
+    expect((await sync()).totalXp).toBe(380);
+  });
+});
 describe("database policies and complete workflows", () => {
   it("creates an equipment-aware program and makes setup idempotent", async () => {
     expect(Number(await scalar("select count(*) from public.profiles"))).toBe(1);

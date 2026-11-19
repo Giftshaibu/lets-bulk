@@ -69,7 +69,9 @@ function TrainPage() {
           {workout.exercises.length > 0 && data.session?.status !== "completed" && (
             <Link to="/train/active" className="mt-4 block">
               <ChunkyButton full>
-                {data.session?.status === "in_progress" ? "Resume workout" : "Start workout"}
+                {data.session?.status === "in_progress"
+                  ? "Resume workout"
+                  : "Start session · earn 100 XP on completion"}
               </ChunkyButton>
             </Link>
           )}

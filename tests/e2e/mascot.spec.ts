@@ -149,13 +149,10 @@ test("mascot reactions remain local, header priorities clean up, and identity st
     );
     await expect(page.getByRole("link", { name: "Settings", exact: true })).toBeVisible();
   }
-  await expect(page.locator('[aria-current="step"] img')).toHaveAttribute(
-    "src",
-    "/chiuli-icon.png",
-  );
+  await expect(page.locator('[aria-current="step"] img')).toHaveAttribute("data-mascot", "happy");
   for (const [status, expression] of [
     ["in_progress", "running"],
-    ["completed", "running"],
+    ["completed", "happy"],
     ["abandoned", "grumpy"],
     [null, "neutral"],
   ] as const) {

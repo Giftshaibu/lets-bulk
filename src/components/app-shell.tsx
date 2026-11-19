@@ -25,6 +25,7 @@ export function AppShell({
 }) {
   const {
     data: { profile },
+    checkpoint,
   } = useAppData();
 
   return (
@@ -76,12 +77,16 @@ export function AppShell({
                 <p className="text-[14px] font-bold text-muted-foreground">{subtitle}</p>
               ) : null}
             </div>
-            <div className="flex items-center gap-1.5 rounded-full border-2 border-b-4 border-reward bg-reward-soft px-3 py-1.5">
+            <Link
+              to="/progress"
+              aria-label={`${profile.streakDays} day logging streak. Open progress`}
+              className="streak-pill flex items-center gap-1.5 rounded-full border-2 border-b-4 border-reward bg-reward-soft px-3 py-1.5"
+            >
               <Flame className="h-5 w-5 text-reward-ink" strokeWidth={2.6} />
               <span className="text-[16px] font-extrabold text-reward-ink">
                 {profile.streakDays}
               </span>
-            </div>
+            </Link>
           </header>
           {children}
         </main>
@@ -103,7 +108,7 @@ export function AppShell({
               {({ isActive }) => (
                 <>
                   {t.to === "/progress" ? (
-                    <ChiuliIcon className="h-7 w-7" />
+                    <ChiuliIcon className={cn("h-7 w-7", checkpoint && "checkpoint-pop")} />
                   ) : (
                     <t.icon
                       className={cn("h-6 w-6", isActive && "scale-110")}

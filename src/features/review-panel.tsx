@@ -1,3 +1,4 @@
+import { Mascot } from "@/components/mascot";
 import { AIExplanation } from "./ai-actions";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,10 +16,12 @@ export function ReviewPanel() {
   const { data, act, pending } = useAppData();
   return (
     <Card tone="special">
-      <SectionTitle>Weekly review</SectionTitle>
-      <p className="text-sm font-bold">
-        Review the last completed week. Changes remain suggestions until you apply them.
-      </p>
+      <SectionTitle
+        action={<Mascot expression="thinking" variant="face" className="h-8 w-8" interactive />}
+      >
+        Weekly review
+      </SectionTitle>
+      <p className="text-sm font-bold">Coach Chiuli checked your week. You decide what sticks.</p>
       <ChunkyButton
         className="my-3"
         disabled={pending}
@@ -27,11 +30,15 @@ export function ReviewPanel() {
         Run weekly check-in
       </ChunkyButton>
       {data.reviews[0] && (
-        <p className="mb-3 text-sm">
-          {data.reviews[0].period_start}–{data.reviews[0].period_end} · data{" "}
-          {Math.round(data.reviews[0].data_completeness * 100)}% · confidence{" "}
-          {Math.round(data.reviews[0].confidence * 100)}%
-        </p>
+        <details className="mb-3 text-sm">
+          <summary className="min-h-11 cursor-pointer font-bold">Review evidence</summary>
+          <p>
+            {data.reviews[0].period_start}–{data.reviews[0].period_end} · data{" "}
+            {Math.round(data.reviews[0].data_completeness * 100)}% · confidence{" "}
+            {Math.round(data.reviews[0].confidence * 100)}%
+          </p>
+          <ReviewExplanation analysis={data.reviews[0].raw_analysis} />
+        </details>
       )}
       {data.reviews[0] && (
         <AIExplanation
@@ -40,11 +47,13 @@ export function ReviewPanel() {
           id={data.reviews[0].id}
         />
       )}
-      {data.reviews[0] && <ReviewExplanation analysis={data.reviews[0].raw_analysis} />}
       <div className="grid gap-3">
         {data.recommendations.map((r) => (
           <div key={r.id} className="rounded-xl border-2 border-border bg-card p-3">
-            <h3 className="font-extrabold">{r.title}</h3>
+            <div className="flex items-center gap-2">
+              <Mascot expression="thinking" variant="face" className="h-8 w-8" interactive />
+              <h3 className="min-w-0 font-extrabold">{r.title}</h3>
+            </div>
             <p className="text-sm">{r.reason}</p>
             {r.description && <p className="mt-2 text-sm">{r.description}</p>}
             {r.current_value !== null && r.recommended_value !== null && (
@@ -60,7 +69,9 @@ export function ReviewPanel() {
             />
             <p className="my-2 text-xs font-bold uppercase">
               {r.status} ·{" "}
-              {r.request_id ? "Your request" : `confidence ${Math.round(r.confidence * 100)}%`}
+              {r.request_id
+                ? "Your request"
+                : `confidence ${Math.round((r.confidence ?? 0) * 100)}%`}
             </p>
             {r.status === "pending" && (
               <div className="flex flex-wrap gap-2">

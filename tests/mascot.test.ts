@@ -94,12 +94,12 @@ describe("independent state and header priorities", () => {
   it("does not infer a skipped workout from no session or a rest day", () => {
     expect(workoutMascot(null).expression).toBe("neutral");
     expect(workoutMascot("in_progress").expression).toBe("running");
-    expect(workoutMascot("completed").expression).toBe("running");
+    expect(workoutMascot("completed").expression).toBe("happy");
     expect(workoutMascot("abandoned").expression).toBe("grumpy");
   });
   it("provides all eight poses and uses the five close-up faces where supplied", () => {
     expect(Object.keys(mascotAssets)).toHaveLength(8);
     expect(mascotAssets.shocked.face).toBe("/mascots/face-shocked.webp");
-    expect(mascotAssets.happy.face).toBe(mascotAssets.happy.pose);
+    expect(mascotAssets.happy.face).toBe("/chiuli-icon.png");
   });
 });

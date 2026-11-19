@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowDown, Check, Flag, LockKeyhole, Mountain, Trophy, X } from "lucide-react";
+import { Mascot } from "@/components/mascot";
 import { Brand, ChiuliIcon } from "@/components/brand";
 import { SettingsLink } from "@/components/settings-link";
 import { MascotStatus } from "@/features/mascot-feedback";
@@ -67,8 +68,7 @@ function Journey() {
           </p>
           <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Your journey</h1>
           <p className="mx-auto mt-3 max-w-md text-sm font-bold text-muted-foreground">
-            Every week is part of your story. Explore your landmarks and the progress you’ve
-            actually logged.
+            Week by week, step by step. Keep climbing.
           </p>
           <div
             className="mt-5 flex flex-wrap justify-center gap-4 text-xs font-bold text-muted-foreground"
@@ -98,7 +98,7 @@ function Journey() {
               })
             }
           >
-            Find my current week
+            Jump to current week
             <ArrowDown className="h-4 w-4" aria-hidden="true" />
           </button>
         </section>
@@ -154,7 +154,12 @@ function Journey() {
                     className={`relative mt-3 flex h-24 w-24 shrink-0 items-center justify-center rounded-[2rem] border-2 border-b-[6px] shadow-sm transition-transform enabled:hover:-translate-y-1 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-primary ${current ? "border-primary bg-primary-soft ring-8 ring-primary/10" : logged ? "border-success bg-success-soft text-success" : "border-border bg-card text-muted-foreground"}`}
                   >
                     {current ? (
-                      <ChiuliIcon className="h-18 w-18" />
+                      <Mascot
+                        expression={week.logs > 0 ? "happy" : "thinking"}
+                        variant="face"
+                        className="h-18 w-18"
+                        hero
+                      />
                     ) : locked ? (
                       <LockKeyhole className="h-8 w-8" aria-hidden="true" />
                     ) : (

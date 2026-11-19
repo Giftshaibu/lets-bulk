@@ -1,5 +1,10 @@
 # Chiuli mascot reactions
 
+The later [quests and XP update](GAMIFICATION.md) supersedes the initial completed-
+workout pose (now happy), adds a compact happy face using the existing identity
+art, and introduces optional, reduced-motion-aware feedback. The original rollout
+notes below describe the November 19 initial mascot integration.
+
 The app uses the eight poses and five face expressions supplied in
 `honey_badger_mascot_assets.zip`. White/black backgrounds were removed using the
 image editing tool, then assets were consistently padded and exported as

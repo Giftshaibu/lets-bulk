@@ -11,7 +11,10 @@ export function TargetExplanation() {
     : null;
   return (
     <details className="mt-3 rounded-xl border-2 border-border p-3">
-      <summary className="min-h-11 cursor-pointer font-bold">Why these targets?</summary>
+      <summary className="min-h-11 cursor-pointer break-words font-bold">
+        Bulk target: {data.targets.kcal.toLocaleString()} kcal · {data.targets.protein}g protein
+        fuel
+      </summary>
       <p>
         {reason ?? "Your saved starting targets"}. Current daily targets: {data.targets.kcal} kcal
         and {data.targets.protein} g protein.

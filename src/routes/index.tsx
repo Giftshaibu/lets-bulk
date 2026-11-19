@@ -5,6 +5,8 @@ import { AppShell } from "@/components/app-shell";
 import { Bar, BigStat, Card, ChunkyButton, Pill, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
 import { DailyForms, ReviewPanel } from "@/features/tracking-forms";
+import { MacroTiles, NutritionMascot, XpSummary } from "@/features/quest-ui";
+import { Mascot } from "@/components/mascot";
 import { StreakMascot } from "@/features/mascot-feedback";
 
 export const Route = createFileRoute("/")({
@@ -57,20 +59,36 @@ function TodayPage() {
           <div className="flex items-end justify-between">
             <BigStat
               value={`${doneCount}/${data.completion.required}`}
-              label="Daily checklist"
+              label="Today’s quests"
               tone="primary"
             />
-            <Pill tone={data.completion.dayCompleted ? "success" : "primary"}>
-              {data.completion.dayCompleted ? "Day complete" : "In progress"}
-            </Pill>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Mascot
+                expression={
+                  data.completion.dayCompleted ? "happy" : doneCount ? "confident" : "thinking"
+                }
+                variant="face"
+                className="h-8 w-8"
+                interactive
+              />
+              <Pill tone={data.completion.dayCompleted ? "success" : "primary"}>
+                {data.completion.dayCompleted ? "Crushed it" : "In progress"}
+              </Pill>
+            </div>
           </div>
+          <XpSummary />
           <Bar className="mt-3" value={doneCount} max={data.completion.required} />
-          <div className="mt-4 grid grid-cols-5 gap-2">
+          <div
+            role="list"
+            aria-label="Quest checklist"
+            className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5"
+          >
             {tasks.map((t) => (
               <div
                 key={t.label}
+                role="listitem"
                 title={t.required ? "Required today" : "Optional today"}
-                className={`flex flex-col items-center gap-1 rounded-xl border-2 border-b-4 px-1 py-2 ${
+                className={`flex min-w-0 min-h-20 flex-col items-center justify-center gap-1 rounded-xl border-2 border-b-4 px-1 py-2 ${
                   t.done ? "border-success bg-success-soft" : "border-border bg-card"
                 }`}
               >
@@ -79,9 +97,14 @@ function TodayPage() {
                 ) : (
                   <t.icon className="h-5 w-5 text-faint" strokeWidth={2.6} />
                 )}
-                <span className="text-[10px] font-extrabold tracking-wide text-ink-soft uppercase">
+                <span className="w-full break-words text-center text-[10px] font-extrabold tracking-wide whitespace-normal text-ink-soft uppercase">
                   {t.label}
                 </span>
+                {!t.required && (
+                  <span className="w-full break-words text-center text-[9px] font-bold text-muted-foreground">
+                    Optional
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -92,9 +115,9 @@ function TodayPage() {
           <SectionTitle>Next action</SectionTitle>
           {!weight.logged && data.completionPolicy.weight ? (
             <NextAction
-              title="Log your morning weight"
-              body="Weigh in before breakfast for a clean trend line."
-              cta="Log weight"
+              title="Step on the scale"
+              body="A consistent weigh-in builds your trend. First log of the day earns 50 XP."
+              cta="Log weight (+50 XP)"
               to="/progress"
             />
           ) : nextMeal ? (
@@ -118,9 +141,12 @@ function TodayPage() {
         <Card>
           <SectionTitle
             action={
-              <Link to="/food" className="text-[13px] font-extrabold text-primary uppercase">
-                Food
-              </Link>
+              <div className="flex items-center gap-2">
+                <NutritionMascot />
+                <Link to="/food" className="text-[13px] font-extrabold text-primary uppercase">
+                  Food
+                </Link>
+              </div>
             }
           >
             Nutrition
@@ -138,16 +164,7 @@ function TodayPage() {
           </div>
           <Bar className="mt-3" value={eaten.kcal} max={targets.kcal} />
           <TargetExplanation />
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <Macro label="Protein" value={eaten.protein} max={targets.protein} tone="success" />
-            <details className="col-span-2">
-              <summary className="min-h-11 cursor-pointer font-bold">
-                More nutrition details
-              </summary>
-              <Macro label="Carbs" value={eaten.carbs} max={targets.carbs} tone="info" />
-              <Macro label="Fat" value={eaten.fat} max={targets.fat} tone="reward" />
-            </details>
-          </div>
+          <MacroTiles />
         </Card>
 
         {/* Workout */}
@@ -175,7 +192,7 @@ function TodayPage() {
           </ul>
           {workout.exercises.length > 0 && data.session?.status !== "completed" && (
             <Link to="/train/active" className="mt-4 block">
-              <ChunkyButton full>Start workout</ChunkyButton>
+              <ChunkyButton full>Start session · earn 100 XP on completion</ChunkyButton>
             </Link>
           )}
         </Card>
@@ -184,7 +201,7 @@ function TodayPage() {
         {/* Recovery */}
         <Card>
           <SectionTitle>Recovery</SectionTitle>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
             <div className="rounded-xl border-2 border-b-4 border-info bg-info-soft p-3">
               <BigStat value={recovery.sleepHours} suffix="h" label="Sleep" />
             </div>
@@ -192,7 +209,7 @@ function TodayPage() {
               <BigStat value={recovery.soreness} label="Soreness" tone="success" />
             </div>
             <div className="rounded-xl border-2 border-b-4 border-reward bg-reward-soft p-3">
-              <div className="flex gap-1">
+              <div className="flex flex-wrap gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <Zap
                     key={i}
@@ -223,7 +240,16 @@ function TodayPage() {
             <BigStat value={series.at(-1)?.kg ?? "—"} suffix="kg" label="Latest" />
             <Pill tone="success">{data.weight.gained.toFixed(1)} kg</Pill>
           </div>
-          <Sparkline points={series.map((p) => p.kg)} />
+          {!series.length ? (
+            <div className="mt-3 flex items-center gap-3">
+              <Mascot expression="thinking" variant="face" className="h-10 w-10" interactive />
+              <p className="text-sm font-bold">
+                Your first weigh-in starts the story. Log once to begin.
+              </p>
+            </div>
+          ) : (
+            <Sparkline points={series.map((p) => p.kg)} />
+          )}
         </Card>
 
         <ReviewPanel />
@@ -250,38 +276,16 @@ function NextAction({
 }) {
   return (
     <div>
-      <div className="text-[20px] leading-tight font-extrabold">{title}</div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 text-[20px] leading-tight font-extrabold">{title}</div>
+        <Mascot expression="confident" className="h-20 w-20" interactive hero />
+      </div>
       <p className="mt-1 text-[14px] font-bold text-ink-soft">{body}</p>
       <Link to={to} className="mt-4 block">
         <ChunkyButton full>
           {cta} <ArrowRight className="h-5 w-5" strokeWidth={3} />
         </ChunkyButton>
       </Link>
-    </div>
-  );
-}
-
-function Macro({
-  label,
-  value,
-  max,
-  tone,
-}: {
-  label: string;
-  value: number;
-  max: number;
-  tone: "success" | "info" | "reward";
-}) {
-  return (
-    <div>
-      <div className="text-[18px] font-extrabold">
-        {Math.round(value)}
-        <span className="text-[13px]">g</span>
-      </div>
-      <div className="mb-1.5 text-[11px] font-extrabold tracking-wide text-muted-foreground uppercase">
-        {label} · {max}g
-      </div>
-      <Bar value={value} max={max} tone={tone} className="h-2.5" />
     </div>
   );
 }

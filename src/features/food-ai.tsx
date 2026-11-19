@@ -9,6 +9,7 @@ import type { Output } from "@/lib/ai/schemas";
 import { portionGrams } from "@/lib/ai/portions";
 import { mealReady } from "@/lib/ai/meal-ranking";
 import { matchesFoodQuery } from "@/lib/domain/food-catalog";
+import { X } from "lucide-react";
 import { MascotFeedback } from "./mascot-feedback";
 import { helperMascot } from "@/lib/domain/mascot";
 type Match = {
@@ -136,12 +137,19 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
           <Dialog.Content
             aria-describedby={undefined}
-            className="fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border-2 border-border bg-card p-4"
+            className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border-2 border-border bg-card p-4"
           >
-            <Dialog.Title className="text-xl font-extrabold">
-              {mode === "parse" ? "Describe what you ate" : "Suggest a meal"}
-            </Dialog.Title>
-            <Dialog.Close className="my-2 min-h-11 font-bold underline">Close</Dialog.Close>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <Dialog.Title className="min-w-0 text-xl font-extrabold">
+                {mode === "parse" ? "Describe what you ate" : "Suggest a meal"}
+              </Dialog.Title>
+              <Dialog.Close
+                aria-label="Close"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </Dialog.Close>
+            </div>
             <MascotFeedback
               state={
                 mode === "parse"
@@ -152,10 +160,10 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
             />
             {!draft.length && (
               <>
-                <label className="block font-bold">
+                <label className="mb-4 block font-bold">
                   Date
                   <input
-                    className={inputClass}
+                    className={`${inputClass} min-h-12 min-w-0 px-3`}
                     type="date"
                     disabled={mode === "meals"}
                     value={date}
@@ -167,11 +175,11 @@ export function FoodAIActions({ onManualSearch }: { onManualSearch: () => void }
                     required
                   />
                 </label>
-                <label className="my-3 block font-bold">
+                <label className="mb-4 block font-bold">
                   Meal
                   <select
                     aria-label="Helper meal"
-                    className={inputClass}
+                    className={`${inputClass} field-select min-h-12 px-3`}
                     value={slot}
                     onChange={(e) => {
                       parse.reset();

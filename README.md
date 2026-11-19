@@ -164,6 +164,10 @@ Chiuli’s [mascot reactions](docs/MASCOT_REACTIONS.md) respond independently to
 weight saves, streaks, workouts and helper requests. The header status button
 summarizes the current page while the identity icons stay fixed.
 
+[Quests and saved XP](docs/GAMIFICATION.md) add cross-device reward totals,
+idempotent bonuses, accessible feedback and responsive mobile tiles. Fitness
+targets and plan changes continue to use the existing deterministic engine.
+
 See [product corrections and the remaining MAFOODS rights dependency](docs/PRODUCT_CORRECTIONS.md).
 The app currently uses explicitly identified USDA fallback foods while MAFOODS
 redistribution rights remain unverified.

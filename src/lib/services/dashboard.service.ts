@@ -317,6 +317,7 @@ export function aggregate(s: Snapshot, today: string) {
   const pending = recommendations.filter((r) => r.status === "pending");
   return {
     date: today,
+    rewards: null as import("../domain/rewards").RewardSummary | null,
     needsOnboarding: !s.profile,
     profile: {
       name: s.profile?.first_name ?? "Gift",

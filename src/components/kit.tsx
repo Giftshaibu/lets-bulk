@@ -120,12 +120,17 @@ export function BigStat({
     special: "text-special-ink",
   };
   return (
-    <div>
-      <div className={cn("text-[30px] leading-none font-extrabold", tones[tone])}>
+    <div className="min-w-0">
+      <div
+        className={cn(
+          "break-words text-[clamp(1.4rem,5vw,1.875rem)] leading-tight font-extrabold",
+          tones[tone],
+        )}
+      >
         {value}
         {suffix ? <span className="ml-0.5 text-[16px] font-extrabold">{suffix}</span> : null}
       </div>
-      <div className="mt-1 text-[12px] font-extrabold tracking-[0.1em] text-muted-foreground uppercase">
+      <div className="mt-1 break-words text-[12px] font-extrabold tracking-[0.06em] text-muted-foreground uppercase">
         {label}
       </div>
     </div>
@@ -150,7 +155,7 @@ export function Pill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border-2 px-3 py-1 text-[12px] font-extrabold tracking-wide uppercase",
+        "inline-flex max-w-full items-center gap-1 rounded-full border-2 px-3 py-1 text-center text-[12px] font-extrabold tracking-wide whitespace-normal uppercase",
         tones[tone],
       )}
     >

@@ -1204,6 +1204,7 @@ export type Database = {
         Args: { p_date: string; p_id: string; p_meal: string; p_slot: string };
         Returns: string;
       };
+      reconcile_rewards: { Args: never; Returns: Json };
       refresh_completion: { Args: { p_date: string }; Returns: undefined };
       resolve_recommendation: {
         Args: { p_accept: boolean; p_id: string };

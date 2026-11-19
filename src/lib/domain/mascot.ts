@@ -23,7 +23,9 @@ export const mascotAssets: Record<MascotExpression, { pose: string; face: string
         pose: `/mascots/pose-${expression}.webp`,
         face: ["shocked", "confident", "grumpy", "thinking", "sad"].includes(expression)
           ? `/mascots/face-${expression}.webp`
-          : `/mascots/pose-${expression}.webp`,
+          : expression === "happy"
+            ? "/chiuli-icon.png"
+            : `/mascots/pose-${expression}.webp`,
       },
     ]),
   ) as Record<MascotExpression, { pose: string; face: string }>;
@@ -96,13 +98,13 @@ export function streakMascot(dates: string[], now: Date, timezone = TIMEZONE): M
   if (!streak.current && days.at(-1)! < addDays(date, -1))
     return mascot(
       "sad",
-      "Your logging streak has paused. Your progress is still here; start fresh with one log.",
+      "Streak at 0! One intentional log restarts the fire. Your progress is still here.",
       50,
     );
   if (streak.current > 0 && !loggedToday && hour >= 20)
     return mascot(
       "shocked",
-      "It’s after 8 PM and you haven’t logged today. One intentional log can keep your streak going.",
+      "Clock’s ticking! It’s after 8 PM. Log before midnight to keep your streak going.",
       40,
     );
   if (loggedToday && [3, 7, 14, 30, 60, 100].includes(streak.current))
@@ -111,7 +113,7 @@ export function streakMascot(dates: string[], now: Date, timezone = TIMEZONE): M
       `${streak.current} days of intentional logs. That’s a milestone worth celebrating!`,
       30,
     );
-  return mascot("confident", "Your logging streak is active. Keep showing up for yourself.", 1);
+  return mascot("confident", `${streak.current}-day logging streak! Keep building your chain.`, 1);
 }
 
 export function helperMascot(pending: boolean, error: string, ready: boolean): MascotState {
@@ -127,16 +129,24 @@ export function helperMascot(pending: boolean, error: string, ready: boolean): M
     : mascot("neutral", "Ready when you are.");
 }
 
-export function workoutMascot(status?: string | null): MascotState {
+export function workoutMascot(status?: string | null, scheduled = false): MascotState {
   if (status === "in_progress")
     return mascot("running", "One controlled set at a time. Your workout is in progress.", 1);
   if (status === "completed")
-    return mascot("running", "Workout completed and saved. Make time to recover.", 30);
+    return mascot("happy", "Session crushed! Workout saved. Make time to recover.", 30);
   if (status === "abandoned")
     return mascot(
       "grumpy",
       "This session ended early. Your logged work still counts; take your next step when ready.",
       20,
     );
-  return mascot("neutral", "Train when you’re ready. Rest days are part of the plan.");
+  return scheduled
+    ? mascot("confident", "Iron time! Ready for your next controlled set?", 1)
+    : mascot("neutral", "Rest day = recovery day. Refuel, sleep well, and come back stronger.");
+}
+
+export function nutritionMascot(eaten: number, target: number): MascotExpression {
+  if (eaten <= 0) return "grumpy";
+  if (target > 0 && eaten >= target) return "happy";
+  return target > 0 && eaten >= target * 0.7 ? "thinking" : "confident";
 }

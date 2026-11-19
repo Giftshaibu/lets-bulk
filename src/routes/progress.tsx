@@ -6,7 +6,8 @@ import { Card, SectionTitle } from "@/components/kit";
 import { useAppData } from "@/features/app-data";
 import { BodyForms } from "@/features/body-forms";
 import { TargetExplanation } from "@/features/target-explanation";
-import { ArrowUpRight, Check, Circle, Flame } from "lucide-react";
+import { ArrowUpRight, Circle, Flame } from "lucide-react";
+import { Mascot } from "@/components/mascot";
 import { ChiuliIcon } from "@/components/brand";
 import { StreakMascot } from "@/features/mascot-feedback";
 export const Route = createFileRoute("/progress")({
@@ -23,7 +24,7 @@ function Progress() {
     >
       <div className="grid gap-4">
         <Card>
-          <StreakMascot />
+          <StreakMascot progress />
           <p className="flex items-center gap-2 text-2xl font-extrabold">
             <Flame className="h-7 w-7 shrink-0 text-primary" aria-hidden="true" />
             {data.streak.current} day logging streak
@@ -40,7 +41,7 @@ function Progress() {
             logging streak: {data.streak.longest} days.
           </p>
           <button
-            className="mt-3 min-h-11 rounded-xl border-2 border-primary bg-primary-soft px-4 font-bold"
+            className="press mt-3 min-h-12 rounded-xl border-2 border-b-4 border-primary-shadow bg-primary px-4 font-extrabold text-white"
             onClick={() => setWeightOpen(true)}
           >
             Log weight
@@ -84,7 +85,11 @@ function Progress() {
                 key={n}
               >
                 {data.streak.longest >= n ? (
-                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <Mascot
+                    expression={n >= 14 ? "happy" : "confident"}
+                    variant="face"
+                    className="h-6 w-6"
+                  />
                 ) : (
                   <Circle className="h-4 w-4" aria-hidden="true" />
                 )}{" "}

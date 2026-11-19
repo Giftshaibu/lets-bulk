@@ -12,6 +12,7 @@ import {
 } from "@/lib/domain/mascot";
 import { MascotContext, useMascotContribution } from "./mascot-context";
 import { useAppData } from "./app-data";
+import { XpSummary } from "./quest-ui";
 
 export function MascotFeedback({
   state,
@@ -19,12 +20,14 @@ export function MascotFeedback({
   announce = false,
   contribute = true,
   label = "Chiuli encouragement",
+  hero = false,
 }: {
   state: MascotState;
   compact?: boolean;
   announce?: boolean;
   contribute?: boolean;
   label?: string;
+  hero?: boolean;
 }) {
   useMascotContribution(state, contribute);
   return (
@@ -35,6 +38,8 @@ export function MascotFeedback({
     >
       <Mascot
         expression={state.expression}
+        interactive
+        hero={hero}
         variant={compact ? "face" : "pose"}
         className={compact ? "h-10 w-10" : "h-20 w-20 sm:h-24 sm:w-24"}
       />
@@ -77,13 +82,14 @@ export function MascotStatus() {
           <p id="chiuli-status-description" className="font-bold">
             {state.message || defaultMascot.message}
           </p>
+          <XpSummary />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 }
 
-export function StreakMascot() {
+export function StreakMascot({ progress = false }: { progress?: boolean }) {
   const { data } = useAppData();
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -102,7 +108,12 @@ export function StreakMascot() {
   }, []);
   return (
     <MascotFeedback
-      state={streakMascot(data.loggingDates, now, data.rawProfile?.timezone)}
+      state={(() => {
+        const state = streakMascot(data.loggingDates, now, data.rawProfile?.timezone);
+        return progress && state.expression === "confident" && data.streak.current >= 7
+          ? { ...state, expression: "happy", priority: 30 }
+          : state;
+      })()}
       label="Logging streak encouragement"
     />
   );
@@ -120,6 +131,6 @@ export function WorkoutMascot() {
             message: "Your workout couldn’t be saved. Please try again.",
             priority: 50,
           }
-        : workoutMascot(data.session?.status);
-  return <MascotFeedback state={state} label="Workout encouragement" />;
+        : workoutMascot(data.session?.status, data.workout.exercises.length > 0);
+  return <MascotFeedback state={state} label="Workout encouragement" hero />;
 }

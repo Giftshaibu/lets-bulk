@@ -162,3 +162,102 @@
     margin-bottom: 2px;
   }
 }
+
+@keyframes mascot-pop {
+  0% {
+    transform: scale(0.85);
+  }
+  65% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes mascot-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes reward-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+@keyframes confetti-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-10deg);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) rotate(15deg);
+  }
+}
+.mascot-pop {
+  animation: mascot-pop 320ms ease-out;
+}
+.mascot-float {
+  animation: mascot-float 2.5s ease-in-out infinite;
+}
+.xp-reward {
+  animation: reward-rise 4.5s ease-out both;
+}
+.mascot-celebrating::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 20%, #ff8500 0 3px, transparent 4px),
+    radial-gradient(circle at 90% 30%, #ffc800 0 4px, transparent 5px),
+    radial-gradient(circle at 20% 85%, #ffc800 0 3px, transparent 4px),
+    radial-gradient(circle at 85% 90%, #ff8500 0 3px, transparent 4px);
+  animation: confetti-pop 800ms ease-out both;
+}
+.field-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot-pop,
+  .mascot-float,
+  .xp-reward,
+  .mascot-celebrating::before {
+    animation: none;
+  }
+  .press {
+    transition: none;
+  }
+}
+.checkpoint-pop {
+  animation: mascot-pop 400ms ease-out 2;
+}
+.streak-pill:active {
+  animation: mascot-pop 400ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkpoint-pop,
+  .streak-pill:active {
+    animation: none;
+  }
+}

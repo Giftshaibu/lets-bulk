@@ -162,12 +162,14 @@ describe("authenticated AI API integration", () => {
       runtime,
     );
     expect(response.status).toBe(200);
-    expect(state.rpc).toHaveBeenCalledExactlyOnceWith("log_food_batch", {
+    expect(state.rpc).toHaveBeenNthCalledWith(1, "log_food_batch", {
       p_date: "2026-11-16",
       p_items: [
         { id: id(801), foodId: id(101), grams: 100, slot: "lunch" },
         { id: id(802), foodId: id(102), grams: 150, slot: "lunch" },
       ],
     });
+    expect(state.rpc).toHaveBeenNthCalledWith(2, "reconcile_rewards");
+    expect((await response.json()).data).toBe(2); // A reward-sync failure cannot undo a saved batch.
   });
 });

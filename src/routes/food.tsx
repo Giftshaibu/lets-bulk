@@ -1,3 +1,5 @@
+import { MacroTiles, NutritionMascot } from "@/features/quest-ui";
+import { Mascot } from "@/components/mascot";
 import { FoodAIActions } from "@/features/food-ai";
 import { searchFoods, gramsPerMl } from "@/lib/domain/food-catalog";
 import { TargetExplanation } from "@/features/target-explanation";
@@ -70,31 +72,20 @@ function FoodPage() {
     <AppShell title="Food" subtitle={`${eaten.kcal.toLocaleString()} of ${targets.kcal} kcal`}>
       <div className="flex flex-col gap-4">
         <Card tone={remaining.kcal === 0 ? "success" : "default"}>
-          <SectionTitle>Remaining today</SectionTitle>
+          <SectionTitle action={<NutritionMascot />}>Remaining today</SectionTitle>
           <div className="flex items-end justify-between">
             <BigStat
               value={remaining.kcal.toLocaleString()}
-              label="Calories left"
+              label="kcal to grow"
               tone={remaining.kcal === 0 ? "success" : "primary"}
             />
             <Pill tone={remaining.protein === 0 ? "success" : "neutral"}>
-              {Math.round(remaining.protein)}g protein left
+              {Math.round(remaining.protein)}g protein quest
             </Pill>
           </div>
           <Bar className="mt-3" value={eaten.kcal} max={targets.kcal} />
           <TargetExplanation />
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <MacroMini label="Protein" left={remaining.protein} />
-            <details className="col-span-2">
-              <summary className="min-h-11 cursor-pointer font-bold">
-                More nutrition details
-              </summary>
-              <div className="grid grid-cols-2 gap-3">
-                <MacroMini label="Carbs" left={remaining.carbs} />
-                <MacroMini label="Fat" left={remaining.fat} />
-              </div>
-            </details>
-          </div>
+          <MacroTiles remaining />
         </Card>
 
         <div>
@@ -120,6 +111,9 @@ function FoodPage() {
                   <Plus className="h-4 w-4 text-primary" strokeWidth={3} />
                   {f.name}
                   <span className="text-muted-foreground">{f.kcal}</span>
+                  {f.kcal >= 200 && (
+                    <span className="text-[10px] text-primary">15 XP on first meal-slot log</span>
+                  )}
                 </button>
               ))}
           </div>
@@ -127,6 +121,14 @@ function FoodPage() {
 
         <div>
           <SectionTitle>Meal timeline</SectionTitle>
+          {meals.every((m) => m.logged) && (
+            <div className="my-3 flex items-center gap-3 rounded-2xl bg-success-soft p-3">
+              <Mascot expression="happy" className="h-16 w-16" interactive />
+              <p className="text-sm font-bold">
+                Full day fed! All four meal slots logged. Your first full day earns a 40 XP bonus.
+              </p>
+            </div>
+          )}
           <div className="flex flex-col gap-3">
             {meals.map((meal) => {
               const total = meal.items.reduce((a, i) => a + i.kcal, 0);
@@ -173,7 +175,16 @@ function FoodPage() {
                     </ul>
                   ) : (
                     <p className="mt-3 text-[14px] font-bold text-muted-foreground">
-                      Nothing logged yet — add something to stay on pace.
+                      {
+                        (
+                          {
+                            breakfast: "Morning refuel — build your day with breakfast.",
+                            lunch: "Midday refuel — choose what works for you.",
+                            snack: "A snack is an option if it fits your remaining targets.",
+                            dinner: "Evening meal — check what’s left in your daily targets.",
+                          } as Record<string, string>
+                        )[meal.id]
+                      }
                     </p>
                   )}
 

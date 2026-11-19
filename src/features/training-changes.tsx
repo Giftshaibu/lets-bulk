@@ -15,8 +15,7 @@ export function TrainingChanges() {
     <Card>
       <SectionTitle>Review training changes</SectionTitle>
       <p className="text-sm">
-        These controls create proposals. Your plan changes only after you apply one in Weekly
-        review.
+        Test a tweak — nothing changes until you approve it in Weekly review.
       </p>
       {data.activeProgram?.phase === "deload" ? (
         <div className="my-3">
@@ -40,7 +39,7 @@ export function TrainingChanges() {
           disabled={pending}
           onClick={() => void propose({ type: "deload" })}
         >
-          Propose a seven-day deload
+          Request 7-day deload
         </ChunkyButton>
       )}
       {data.programExercises.map((p) => {

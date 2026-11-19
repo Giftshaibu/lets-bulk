@@ -13,6 +13,7 @@ import { aggregate } from "./dashboard.service";
 import { budgetSuggestions, budgetSummary, saveReview, substitutions } from "./review.service";
 import { AppError, result } from "./errors";
 import * as schema from "../validation/schemas";
+import { reconcileRewards } from "./rewards.service";
 export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promise<Response> {
   const headers = { "Cache-Control": "no-store", "Content-Type": "application/json" };
   try {
@@ -41,8 +42,13 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
     let data: unknown = null;
     if (method === "GET") {
       const s = await read();
-      if (path === "/api/dashboard") data = aggregate(s, today);
-      else if (path === "/api/foods") {
+      if (path === "/api/dashboard") {
+        const rewards = await reconcileRewards(db);
+        data = {
+          ...aggregate(s, today),
+          rewards: rewards ? { totalXp: rewards.totalXp, todayXp: rewards.todayXp } : null,
+        };
+      } else if (path === "/api/foods") {
         const query = (url.searchParams.get("q") ?? "").toLowerCase();
         data = s.foods.filter((f) =>
           matchesFoodQuery({ name: f.name, aliases: f.local_name, category: f.category }, query),
@@ -369,7 +375,14 @@ export async function handleApi(request: Request, aiRuntime?: AIRuntime): Promis
         data = await result(db.rpc("save_settings", { p_settings: JSON.parse(JSON.stringify(v)) }));
       } else throw new AppError("NOT_FOUND", "Endpoint not found.", 404);
     } else throw new AppError("METHOD_NOT_ALLOWED", "Method not allowed.", 405);
-    return new Response(JSON.stringify({ data }), { headers });
+    const rewards =
+      method === "POST" &&
+      /^\/api\/(weight|water|recovery|nutrition\/logs(?:\/batch)?|meals\/log|workout-sessions\/[^/]+\/complete)$/.test(
+        path,
+      )
+        ? await reconcileRewards(db)
+        : undefined;
+    return new Response(JSON.stringify({ data, ...(rewards ? { rewards } : {}) }), { headers });
   } catch (error) {
     if (error instanceof z.ZodError)
       return new Response(

@@ -9,11 +9,13 @@ import { ChiuliIcon } from "@/components/brand";
 import { useLocation } from "@tanstack/react-router";
 import { Mascot } from "@/components/mascot";
 import { useMascotContribution } from "./mascot-context";
+import type { RewardResult } from "@/lib/domain/rewards";
 export async function api<T>(
   path: string,
   method = "GET",
   body?: unknown,
   signal?: AbortSignal,
+  onRewards?: (value: RewardResult) => void,
 ): Promise<T> {
   const {
     data: { session },
@@ -27,8 +29,13 @@ export async function api<T>(
     },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  const payload = (await response.json()) as { error?: { message?: string }; data: unknown };
+  const payload = (await response.json()) as {
+    error?: { message?: string };
+    data: unknown;
+    rewards?: RewardResult;
+  };
   if (!response.ok) throw new Error(payload.error?.message ?? "Request failed. Please try again.");
+  if (payload.rewards) onRewards?.(payload.rewards);
   return payload.data as T;
 }
 type Operation = {
@@ -42,6 +49,7 @@ type State = {
   act: (path: string, body?: unknown, method?: string) => Promise<boolean>;
   pending: boolean;
   operation: Operation | null;
+  checkpoint: boolean;
 };
 const AppData = createContext<State | null>(null);
 export const useAppData = () => {
@@ -55,6 +63,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [error, setError] = useState(""),
     [pending, setPending] = useState(false);
   const [operation, setOperation] = useState<Operation | null>(null);
+  const [checkpoint, setCheckpoint] = useState(false);
+  useEffect(() => {
+    if (!checkpoint) return;
+    const t = setTimeout(() => setCheckpoint(false), 5000);
+    return () => clearTimeout(t);
+  }, [checkpoint]);
+  const [rewardNotice, setRewardNotice] = useState<{
+    id: string;
+    points: number;
+    top: number;
+  } | null>(null);
+  useEffect(() => {
+    if (!rewardNotice) return;
+    const t = setTimeout(() => setRewardNotice(null), 4500);
+    return () => clearTimeout(t);
+  }, [rewardNotice]);
   const route = useLocation({ select: (l) => l.pathname });
   const qc = useQueryClient();
   const saving = useRef(false);
@@ -78,6 +102,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!next) {
           setOperation(null);
           setError("");
+          setRewardNotice(null);
+          setCheckpoint(false);
         }
       }
     });
@@ -100,9 +126,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setPending(true);
     setError("");
     setOperation({ path, route, status: "saving" });
+    const wasLogged = query.data?.loggingDates.includes(query.data.date);
+    const reviewId = query.data?.reviews[0]?.id;
     try {
-      await api(path, method, body);
+      const origin =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement.getBoundingClientRect().top
+          : 120;
+      await api(path, method, body, undefined, (reward) => {
+        if (reward.grants.some((g) => g.kind === "quests")) setCheckpoint(true);
+        const points = reward.grants.reduce((sum, r) => sum + r.points, 0);
+        if (points > 0)
+          setRewardNotice({
+            id: crypto.randomUUID(),
+            points,
+            top: Math.max(16, Math.min(origin, window.innerHeight - 150)),
+          });
+      });
       await qc.invalidateQueries({ queryKey: ["dashboard"] });
+      const refreshed = qc.getQueryData<Dashboard>(["dashboard", session?.user.id]);
+      if (
+        refreshed &&
+        ((!wasLogged &&
+          refreshed.loggingDates.includes(refreshed.date) &&
+          [3, 7, 14, 30, 60, 100].includes(refreshed.streak.current)) ||
+          (path === "/api/checkins/weekly" && refreshed.reviews[0]?.id !== reviewId))
+      )
+        setCheckpoint(true);
       setOperation({ path, route, status: "success" });
       return true;
     } catch (e) {
@@ -124,7 +174,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   if (!ready)
     return (
-      <Gate>
+      <Gate showIdentity={false}>
         <Mascot expression="thinking" variant="face" className="mx-auto h-12 w-12" />
         <p role="status">Loading your session…</p>
       </Gate>
@@ -132,7 +182,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   if (!session) return <AuthForm />;
   if (query.isPending)
     return (
-      <Gate>
+      <Gate showIdentity={false}>
         <Mascot expression="thinking" variant="face" className="mx-auto h-12 w-12" />
         <p role="status">Loading your logs…</p>
       </Gate>
@@ -163,8 +213,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
       </Gate>
     );
   return (
-    <AppData.Provider value={{ data: query.data, act, pending, operation }}>
+    <AppData.Provider value={{ data: query.data, act, pending, operation, checkpoint }}>
       <OperationContribution operation={operation} />
+      {rewardNotice && (
+        <div
+          key={rewardNotice.id}
+          role="status"
+          className="xp-reward pointer-events-none fixed left-1/2 z-[70] -translate-x-1/2 rounded-full border-2 border-primary-shadow bg-primary px-5 py-3 font-black text-white shadow-lg"
+          style={{ top: rewardNotice.top }}
+        >
+          +{rewardNotice.points} XP · Logged and banked!
+        </div>
+      )}
       {error && (
         <div
           role="alert"
@@ -217,11 +277,11 @@ function OperationContribution({ operation }: { operation: Operation | null }) {
   );
   return null;
 }
-function Gate({ children }: { children: ReactNode }) {
+function Gate({ children, showIdentity = true }: { children: ReactNode; showIdentity?: boolean }) {
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 p-5">
       <Card>
-        <ChiuliIcon className="mx-auto mb-4 h-24 w-24" />
+        {showIdentity && <ChiuliIcon className="mx-auto mb-4 h-24 w-24" />}
         {children}
       </Card>
     </main>
