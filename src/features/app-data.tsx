@@ -199,7 +199,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   if (query.data.needsOnboarding)
     return (
-      <Gate>
+      <Gate showIdentity={false}>
         {error && (
           <p role="alert">
             <Mascot

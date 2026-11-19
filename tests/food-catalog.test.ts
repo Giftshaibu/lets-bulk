@@ -86,3 +86,27 @@ it("keeps alcoholic drinks out of nutritional food replacement suggestions", () 
   } as unknown as Snapshot;
   expect(substitutions(s, "bread", 100).map((r) => r.food.id)).toEqual(["banana"]);
 });
+
+it("finds dry soya pieces by everyday names and preserves source nutrients", async () => {
+  const { default: soy } = await import("../docs/SOYA_SOURCE_RECORD.json");
+  const item: FoodItem = {
+    id: String(soy.fdc_id),
+    name: soy.display_name,
+    aliases: soy.aliases,
+    category: soy.category,
+    serving: soy.serving_name,
+    servingGrams: soy.serving_grams,
+    servingVolumeMl: null,
+    kcal: Number(soy.values_per_100g["1008"]),
+    protein: Number(soy.values_per_100g["1003"]),
+    carbs: Number(soy.values_per_100g["1005"]),
+    fat: Number(soy.values_per_100g["1004"]),
+  };
+  for (const query of ["soya pieces", "soy chunks", "TVP", "textured soya protein"])
+    expect(searchFoods([...foods, item], query).some((f) => f.id === item.id)).toBe(true);
+  expect(item.name).toContain("dry");
+  expect(item.kcal).toBe(366);
+  expect(item.protein).toBe(51.1);
+  expect(item.servingGrams).toBe(100);
+  expect(gramsPerMl(item)).toBeNull();
+});

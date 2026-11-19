@@ -95,3 +95,13 @@ still pending verification of reuse rights. This does not prevent the 200-food
 CC0 fallback catalog from being seeded. USDA rows are never labeled MAFOODS.
 See `PRODUCT_CORRECTIONS.md` for the source checksum and remaining Malawi-first
 requirement.
+
+## Soya pieces / chunks (dry)
+
+An additional generic **dry textured vegetable protein** entry comes from
+[USDA FNDDS food 2707451](https://fdc.nal.usda.gov/food-details/2707451/nutrients),
+published 2024-10-31, CC0-1.0. Exact retrieved values and source portions are in
+`docs/SOYA_SOURCE_RECORD.json`. This is separate from the 200 SR Legacy records.
+Search aliases include soya pieces/chunks, soy pieces/chunks, TVP and TSP.
+Log the dry weight before soaking; log added oil or sauces separately. The app
+does not invent cooked yields, piece weights, or brand-specific nutrient values.

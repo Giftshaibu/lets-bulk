@@ -1,0 +1,72 @@
+{
+  "fdc_id": 2707451,
+  "name": "Textured vegetable protein, dry",
+  "display_name": "Soya pieces / chunks (textured vegetable protein), dry",
+  "aliases": "soya pieces soy pieces soya chunks soy chunks textured soy protein textured soya protein TVP TSP",
+  "category": "legume",
+  "published": "10/31/2024",
+  "data_type": "Survey (FNDDS)",
+  "reference": "https://fdc.nal.usda.gov/food-details/2707451/nutrients",
+  "license": "CC0-1.0",
+  "values_per_100g": {
+    "1008": "366",
+    "1003": "51.1",
+    "1005": "32.9",
+    "1004": "3.33",
+    "1079": "17.5"
+  },
+  "serving_name": "100 g dry",
+  "serving_grams": 100,
+  "serving_volume_ml": null,
+  "source_portions": [
+    {
+      "id": 298165,
+      "measureUnit": {
+        "id": 9999,
+        "name": "undetermined",
+        "abbreviation": "undetermined"
+      },
+      "modifier": "90000",
+      "gramWeight": 17,
+      "portionDescription": "Quantity not specified",
+      "sequenceNumber": 4
+    },
+    {
+      "id": 298163,
+      "measureUnit": {
+        "id": 9999,
+        "name": "undetermined",
+        "abbreviation": "undetermined"
+      },
+      "modifier": "10041",
+      "gramWeight": 68,
+      "portionDescription": "1 cup, coarse grain",
+      "sequenceNumber": 2
+    },
+    {
+      "id": 298164,
+      "measureUnit": {
+        "id": 9999,
+        "name": "undetermined",
+        "abbreviation": "undetermined"
+      },
+      "modifier": "10077",
+      "gramWeight": 120,
+      "portionDescription": "1 cup, fine grain",
+      "sequenceNumber": 3
+    },
+    {
+      "id": 298162,
+      "measureUnit": {
+        "id": 9999,
+        "name": "undetermined",
+        "abbreviation": "undetermined"
+      },
+      "modifier": "10010",
+      "gramWeight": 68,
+      "portionDescription": "1 cup, NFS",
+      "sequenceNumber": 1
+    }
+  ],
+  "note": "Dry generic TVP reference, not a measured Malawi brand or cooked recipe. Weigh before soaking; log oil and sauces separately. No invented cooked yield or piece count."
+}

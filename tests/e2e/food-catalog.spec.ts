@@ -72,7 +72,7 @@ test("bread and wheat search, source slices, and 500 ml beer survive logging and
   });
   expect(response.status()).toBe(200);
   const { data } = await response.json();
-  expect(data.foods).toHaveLength(200);
+  expect(data.foods).toHaveLength(201);
   const beer = data.meals
     .flatMap((m: { items: unknown[] }) => m.items)
     .find((i: { name: string }) => i.name === "Alcoholic beverage, beer, regular, all");

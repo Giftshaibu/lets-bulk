@@ -3,9 +3,11 @@ import { expect, type Page } from "@playwright/test";
 export async function setup(page: Page) {
   await page.getByLabel("Your name", { exact: true }).fill("Product fixture");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByLabel("Goal weight (kg)", { exact: true }).fill("70");
+  await page.getByRole("button", { name: "Edit Goal weight (kg)", exact: true }).click();
+  await page.getByRole("spinbutton", { name: "Goal weight (kg)", exact: true }).fill("70");
+  await page.keyboard.press("Enter");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByLabel("Often on your feet").check();
+  await page.getByRole("radio", { name: /Often on your feet/ }).check();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   const today = new Date(`${getLocalDate()}T12:00:00Z`).getUTCDay();
   if (![1, 3, 5].includes(today)) {
